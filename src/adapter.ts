@@ -144,6 +144,9 @@ export class OllamaAdapter extends LlmAdapter {
     } catch (error: unknown) {
       // The outer stream distinguishes caller cancellation and watchdog expiry.
       if (signal.aborted) throw error
+      // Preserve the client's meaningful HTTP error (e.g. HTTP_401, NOT_FOUND):
+      // a non-2xx response is already a normalized LlmError from `postStream`.
+      if (error instanceof LlmError) throw error
       throw new LlmError(
         `Ollama API request to ${sanitizeEndpoint(resolved.baseURL)} failed`,
         'TRANSPORT',

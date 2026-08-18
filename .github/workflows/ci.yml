@@ -38,6 +38,9 @@ jobs:
       - name: Coverage
         run: pnpm run test:coverage
 
+      - name: Lint
+        run: pnpm run lint
+
       - name: README sync (five languages)
         run: node scripts/check-readme-sync.mjs
 
