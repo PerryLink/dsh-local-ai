@@ -150,6 +150,12 @@ export async function* translate(lines: AsyncIterable<string>): AsyncGenerator<S
         let block = toolBlocks.get(callIndex)
         if (!block) {
           block = open('tool-call')
+          // Ollama's wire format carries no tool-call id, so mint one: without
+          // it the emitted chunks and the persisted tool result all carry an
+          // empty CallId, and the session fails validation on resume. Unique
+          // per block within the session; the index keeps same-millisecond
+          // parallel calls apart.
+          block.callId = `ollama-${Date.now().toString(36)}-${block.index}-${Math.random().toString(36).slice(2, 8)}`
           toolBlocks.set(callIndex, block)
           toolArguments.set(callIndex, '')
           yield { type: 'block-start', index: block.index, blockType: 'tool-call' }

@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Tool calls are emitted with a minted `CallId` instead of an empty one. Ollama's `/api/chat` wire format carries no tool-call id, so `OpenBlock.callId` was never assigned and both the `tool-call-delta` chunks and the closed block ended up as `CallId('')`. Live turns still paired the call with its result positionally, but the persisted `tool/result` carried an empty `source.callId` and the session failed validation on resume (`message must have tool source`).
+
 ## [0.1.1] - 2026-08-19
 
 ### Fixed
