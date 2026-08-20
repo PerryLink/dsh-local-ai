@@ -109,6 +109,25 @@ describe('translate', () => {
     expect(new Set(ids).size).toBe(2)
   })
 
+  it('opens a second block when Ollama reuses a slot for a new call', async () => {
+    const chunks = await collect([
+      '{"message":{"tool_calls":[{"function":{"name":"escribir_fichero","arguments":{"ruta":"/tmp/a.txt","contenido":"hola"}}}]},"done":false}',
+      '{"message":{"tool_calls":[{"function":{"name":"escribir_fichero","arguments":{"ruta":"/tmp/b.txt","contenido":"adios"}}}]},"done":false}',
+      '{"message":{},"done":true,"done_reason":"tool_calls"}',
+    ])
+    const starts = chunks.filter(chunk => chunk.type === 'block-start')
+    const ends = chunks.filter(chunk => chunk.type === 'block-end')
+    expect(starts).toHaveLength(2)
+    expect(ends).toHaveLength(2)
+    const args = ends.map(chunk => chunk.type === 'block-end' && chunk.block.type === 'tool-call' ? chunk.block.arguments : '')
+    // Both calls survive as complete, separately parseable JSON instead of
+    // collapsing into one fragmented block with invalid arguments.
+    expect(JSON.parse(args[0]!)).toEqual({ ruta: '/tmp/a.txt', contenido: 'hola' })
+    expect(JSON.parse(args[1]!)).toEqual({ ruta: '/tmp/b.txt', contenido: 'adios' })
+    const ids = ends.map(chunk => chunk.type === 'block-end' && chunk.block.type === 'tool-call' ? chunk.block.id : '')
+    expect(ids[0]).not.toBe(ids[1])
+  })
+
   it('maps a stop finish with no content to an empty-response error', async () => {
     const chunks = await collect(['{"message":{},"done":true,"done_reason":"stop"}'])
     const finish = chunks[chunks.length - 1]
