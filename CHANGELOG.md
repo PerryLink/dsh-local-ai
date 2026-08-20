@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Tool calls are emitted with a minted `CallId` instead of an empty one. Ollama's `/api/chat` wire format carries no tool-call id, so `OpenBlock.callId` was never assigned and both the `tool-call-delta` chunks and the closed block ended up as `CallId('')`. Live turns still paired the call with its result positionally, but the persisted `tool/result` carried an empty `source.callId` and the session failed validation on resume (`message must have tool source`).
+- A tool-call array slot reused for a second, unrelated call now opens its own block instead of being diffed as a continuation. Ollama can reuse the same slot across chunks, and the longest-common-prefix diff previously emitted a fragment that reconstructed into invalid JSON while collapsing the two calls into one block.
 
 ## [0.1.1] - 2026-08-19
 
