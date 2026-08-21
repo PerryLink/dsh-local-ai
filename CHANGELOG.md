@@ -5,13 +5,21 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.2] - 2026-08-21
+## [0.1.3] - 2026-08-21
 
 ### Changed
 
 - Upgraded every `@deepseek-ai/dsh-*` peer and dev dependency from `0.1.0-rc.6` to `0.1.0-rc.8` (peer ranges now `>=0.1.0-rc.8 <0.2.0`) for DeepSeek Harness rc8 compatibility; no adapter, routing, or tool API changes were required.
 - Workspace build policy: allowed the `koffi` native build (introduced by the rc8 `dsh-subprocess-local` dependency chain) and repinned `minimumReleaseAgeExclude` to the rc.8 peer family.
 - Synchronized rc.8 baseline references across the five-language READMEs, AGENTS.md, THIRD_PARTY_NOTICES.md, the CI workflow name, and the compat workflow baseline.
+- Merged the 0.1.2 bug-fix line (tool-call id minting and slot-reuse block handling) so this release carries both fixes.
+
+## [0.1.2] - 2026-08-20
+
+### Fixed
+
+- Tool calls are emitted with a minted `CallId` instead of an empty one. Ollama's `/api/chat` wire format carries no tool-call id, so `OpenBlock.callId` was never assigned and both the `tool-call-delta` chunks and the closed block ended up as `CallId('')`. Live turns still paired the call with its result positionally, but the persisted `tool/result` carried an empty `source.callId` and the session failed validation on resume (`message must have tool source`).
+- A tool-call array slot reused for a second, unrelated call now opens its own block instead of being diffed as a continuation. Ollama can reuse the same slot across chunks, and the longest-common-prefix diff previously emitted a fragment that reconstructed into invalid JSON while collapsing the two calls into one block.
 
 ## [0.1.1] - 2026-08-19
 

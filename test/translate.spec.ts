@@ -74,6 +74,60 @@ describe('translate', () => {
     expect(finish).toEqual({ type: 'finish', reason: { kind: 'tool-calls' } })
   })
 
+  it('mints a non-empty call id and reuses it for every chunk of the block', async () => {
+    const chunks = await collect([
+      '{"message":{"tool_calls":[{"function":{"name":"read","arguments":{"path":"/x"}}}]},"done":false}',
+      '{"message":{"tool_calls":[{"function":{"name":"read","arguments":{"path":"/x","line":1}}}]},"done":false}',
+      '{"message":{},"done":true,"done_reason":"tool_calls"}',
+    ])
+    const deltas = chunks.filter(chunk => chunk.type === 'tool-call-delta')
+    const ends = chunks.filter(chunk => chunk.type === 'block-end')
+    const ids = deltas.map(chunk => chunk.type === 'tool-call-delta' ? chunk.id : '')
+    const closed = ends[0]?.type === 'block-end' && ends[0].block.type === 'tool-call' ? ends[0].block.id : ''
+
+    // Ollama sends no id of its own: an empty one would reach the session log
+    // and break resume, so the block has to carry a minted one.
+    expect(ids.every(id => id.length > 0)).toBe(true)
+    expect(closed.length).toBeGreaterThan(0)
+    // Same block, same id: the call and its paired result must line up.
+    expect(new Set(ids).size).toBe(1)
+    expect(closed).toBe(ids[0])
+  })
+
+  it('gives parallel tool calls distinct ids', async () => {
+    const chunks = await collect([
+      '{"message":{"tool_calls":[{"function":{"name":"read","arguments":{"path":"/a"}}},{"function":{"name":"write","arguments":{"path":"/b"}}}]},"done":false}',
+      '{"message":{},"done":true,"done_reason":"tool_calls"}',
+    ])
+    const byIndex = new Map<number, string>()
+    for (const chunk of chunks) {
+      if (chunk.type === 'tool-call-delta') byIndex.set(chunk.index, chunk.id)
+    }
+    const ids = [...byIndex.values()]
+    expect(ids).toHaveLength(2)
+    expect(ids.every(id => id.length > 0)).toBe(true)
+    expect(new Set(ids).size).toBe(2)
+  })
+
+  it('opens a second block when Ollama reuses a slot for a new call', async () => {
+    const chunks = await collect([
+      '{"message":{"tool_calls":[{"function":{"name":"escribir_fichero","arguments":{"ruta":"/tmp/a.txt","contenido":"hola"}}}]},"done":false}',
+      '{"message":{"tool_calls":[{"function":{"name":"escribir_fichero","arguments":{"ruta":"/tmp/b.txt","contenido":"adios"}}}]},"done":false}',
+      '{"message":{},"done":true,"done_reason":"tool_calls"}',
+    ])
+    const starts = chunks.filter(chunk => chunk.type === 'block-start')
+    const ends = chunks.filter(chunk => chunk.type === 'block-end')
+    expect(starts).toHaveLength(2)
+    expect(ends).toHaveLength(2)
+    const args = ends.map(chunk => chunk.type === 'block-end' && chunk.block.type === 'tool-call' ? chunk.block.arguments : '')
+    // Both calls survive as complete, separately parseable JSON instead of
+    // collapsing into one fragmented block with invalid arguments.
+    expect(JSON.parse(args[0]!)).toEqual({ ruta: '/tmp/a.txt', contenido: 'hola' })
+    expect(JSON.parse(args[1]!)).toEqual({ ruta: '/tmp/b.txt', contenido: 'adios' })
+    const ids = ends.map(chunk => chunk.type === 'block-end' && chunk.block.type === 'tool-call' ? chunk.block.id : '')
+    expect(ids[0]).not.toBe(ids[1])
+  })
+
   it('maps a stop finish with no content to an empty-response error', async () => {
     const chunks = await collect(['{"message":{},"done":true,"done_reason":"stop"}'])
     const finish = chunks[chunks.length - 1]

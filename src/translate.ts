@@ -70,6 +70,19 @@ function closeBlock(block: OpenBlock): ContentBlock {
 }
 
 /**
+ * Mint a session-unique tool-call id for a freshly opened block. Ollama's
+ * wire format carries no tool-call id, so one must be synthesized: without it
+ * the emitted chunks and the persisted tool result all carry an empty CallId,
+ * and the session fails validation on resume. The block index keeps
+ * same-millisecond parallel calls apart.
+ * @param block - the freshly opened tool-call block.
+ * @returns the minted id.
+ */
+function mintCallId(block: OpenBlock): string {
+  return `ollama-${Date.now().toString(36)}-${block.index}-${Math.random().toString(36).slice(2, 8)}`
+}
+
+/**
  * Compute the append delta from a cumulative JSON string, so the harness's
  * delta-concatenating assembler reconstructs the full arguments. Ollama grows
  * the arguments object monotonically, so the delta is everything past the
@@ -83,6 +96,37 @@ export function argumentsDelta(previous: string, next: string): string {
   let index = 0
   while (index < previous.length && index < next.length && previous[index] === next[index]) index += 1
   return next.slice(index)
+}
+
+/**
+ * Whether the previous cumulative arguments object is a key/value subset of
+ * the next one, i.e. one call grew monotonically. While one call streams,
+ * Ollama only adds keys; when it reuses a slot for a new call, existing keys
+ * reappear with different values, so the subset check fails and the slot must
+ * open a fresh block. Non-object arguments (or either side failing to parse,
+ * which cannot happen for JSON.stringify output but keeps the guard total)
+ * fall back to treating the chunk as a continuation.
+ * @param previous - the previously seen cumulative JSON (or `''`).
+ * @param next - the new cumulative JSON.
+ * @returns `true` when `next` extends `previous` monotonically.
+ */
+export function isMonotonicExtension(previous: string, next: string): boolean {
+  if (previous === '') return true
+  let prevObj: unknown
+  let nextObj: unknown
+  try {
+    prevObj = JSON.parse(previous)
+    nextObj = JSON.parse(next)
+  } catch {
+    return true
+  }
+  if (typeof prevObj !== 'object' || prevObj === null || Array.isArray(prevObj)) return true
+  if (typeof nextObj !== 'object' || nextObj === null || Array.isArray(nextObj)) return true
+  for (const [key, value] of Object.entries(prevObj)) {
+    if (!(key in nextObj)) return false
+    if (JSON.stringify((nextObj as Record<string, unknown>)[key]) !== JSON.stringify(value)) return false
+  }
+  return true
 }
 
 /**
@@ -150,6 +194,7 @@ export async function* translate(lines: AsyncIterable<string>): AsyncGenerator<S
         let block = toolBlocks.get(callIndex)
         if (!block) {
           block = open('tool-call')
+          block.callId = mintCallId(block)
           toolBlocks.set(callIndex, block)
           toolArguments.set(callIndex, '')
           yield { type: 'block-start', index: block.index, blockType: 'tool-call' }
@@ -160,7 +205,20 @@ export async function* translate(lines: AsyncIterable<string>): AsyncGenerator<S
         const cumulative = JSON.stringify(call?.function?.arguments ?? {})
         const previous = toolArguments.get(callIndex) ?? ''
         if (cumulative !== previous) {
-          const fragment = argumentsDelta(previous, cumulative)
+          if (!isMonotonicExtension(previous, cumulative)) {
+            // The cumulative arguments no longer extend the ones this slot has
+            // seen: Ollama reused the array slot for a second, unrelated call.
+            // Diffing against the old call would emit a fragment that
+            // reconstructs into invalid JSON and collapse the two calls into
+            // one block, so open a fresh block for the new call instead.
+            block = open('tool-call')
+            block.callId = mintCallId(block)
+            if (call?.function?.name !== undefined) block.name = call.function.name
+            toolBlocks.set(callIndex, block)
+            toolArguments.set(callIndex, '')
+            yield { type: 'block-start', index: block.index, blockType: 'tool-call' }
+          }
+          const fragment = argumentsDelta(toolArguments.get(callIndex) ?? '', cumulative)
           toolArguments.set(callIndex, cumulative)
           block.text += fragment
           yield {
