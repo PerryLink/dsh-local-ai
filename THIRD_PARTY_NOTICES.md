@@ -13,7 +13,7 @@ published tarball; these are install-time dependencies:
 | [typescript](https://github.com/microsoft/TypeScript) | `^5.9.0` | Apache-2.0 | Build-time declaration emission (`lib/types/`) |
 | [@deepseek-ai/cordis](https://www.npmjs.com/package/@deepseek-ai/cordis) | `^4.0.1` (peer) | See package | The plugin runtime |
 | [@deepseek-ai/schemastery](https://www.npmjs.com/package/@deepseek-ai/schemastery) | `^3.18.0` (peer) | See package | Configuration schema |
-| `@deepseek-ai/dsh-*` peers | `0.1.0-rc.6` (peer) | See packages | Official harness seams (`dsh-llm`, `dsh-tools`, `dsh-subprocess`, `dsh-commands`, `dsh-timeout`) |
+| `@deepseek-ai/dsh-*` peers | `0.1.0-rc.8` (peer) | See packages | Official harness seams (`dsh-llm`, `dsh-tools`, `dsh-subprocess`, `dsh-commands`, `dsh-timeout`) |
 
 At runtime the plugin only talks to the Ollama endpoint you configure (over
 its HTTP API and, for the process-liveness probe, its CLI); it performs no

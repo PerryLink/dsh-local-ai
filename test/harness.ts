@@ -1,5 +1,5 @@
 /**
- * Shared test harness: REAL Cordis `Context` and the REAL 0.1.0-rc.6 service
+ * Shared test harness: REAL Cordis `Context` and the REAL 0.1.0-rc.8 service
  * seams the plugin consumes — `LlmRuntime`, `SystemPrompt`+`ToolRuntime`,
  * `CommandRuntime`, and the local subprocess provider. Only the network edge
  * (global `fetch`) is scripted, per test.

@@ -24,7 +24,7 @@
 
 | 项目 | 状态 |
 |---|---|
-| Harness | DeepSeek Harness `0.1.0-rc.6` |
+| Harness | DeepSeek Harness `0.1.0-rc.8` |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | 后端 | [Ollama](https://ollama.com)（本地 HTTP API + CLI 探测） |
 | 模型 | 纯文本路由（`inputModalities: ['text']`）；支持工具调用与工具结果 |
@@ -143,7 +143,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 
 ## Known limitations
 
-- **仅 rc.6** —— 针对 `@deepseek-ai/dsh@0.1.0-rc.6` 开发与测试；更新版本的 harness 基线预期可用，但由每月 compat workflow 验证。
+- **仅 rc.8** —— 针对 `@deepseek-ai/dsh@0.1.0-rc.8` 开发与测试；更新版本的 harness 基线预期可用，但由每月 compat workflow 验证。
 - **纯文本路由** —— 图片内容会被拒绝（`UNSUPPORTED_CONTENT`）；多模态本地模型尚未接入。
 - **中途失败不回退** —— 本地路由一旦开始产出内容，之后的失败会透传（无法撤回）；只有首个 token 前的失败才回退云端。
 
@@ -151,8 +151,8 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 
 ```sh
 pnpm install        # node ^22.19 || >=24
-pnpm run typecheck  # tsc：src + 测试，对发布版 0.1.0-rc.6 类型
-pnpm run typecheck:ci  # 严格 tsc，对发布版 rc.6 类型（关闭 skipLibCheck）
+pnpm run typecheck  # tsc：src + 测试，对发布版 0.1.0-rc.8 类型
+pnpm run typecheck:ci  # 严格 tsc，对发布版 rc.8 类型（关闭 skipLibCheck）
 pnpm test           # vitest：真实 Context/LlmRuntime/ToolRuntime/CommandRuntime/subprocess 机制
 pnpm run test:coverage  # 覆盖率门禁（90/80/90/90）
 pnpm run build      # tsdown 打包 + tsc 声明（lib/）

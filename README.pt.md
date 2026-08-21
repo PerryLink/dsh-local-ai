@@ -24,7 +24,7 @@
 
 | Superfície | Status |
 |---|---|
-| Harness | DeepSeek Harness `0.1.0-rc.6` |
+| Harness | DeepSeek Harness `0.1.0-rc.8` |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | Backend | [Ollama](https://ollama.com) (API HTTP local + sonda CLI) |
 | Modelo | Rota somente texto (`inputModalities: ['text']`); chamadas e resultados de ferramentas são suportados |
@@ -143,7 +143,7 @@ Todos os ajustes são campos `Config` de Schemastery (modificáveis pelo cordis.
 
 ## Known limitations
 
-- **Somente rc.6** — desenvolvido e testado contra `@deepseek-ai/dsh@0.1.0-rc.6`; espera-se que baselines mais novos funcionem, mas são verificados pelo workflow mensal de compat.
+- **Somente rc.8** — desenvolvido e testado contra `@deepseek-ai/dsh@0.1.0-rc.8`; espera-se que baselines mais novos funcionem, mas são verificados pelo workflow mensal de compat.
 - **Rota somente texto** — conteúdo de imagem é rejeitado (`UNSUPPORTED_CONTENT`); modelos locais multimodais ainda não estão conectados.
 - **Fallback no meio do fluxo** — uma vez que uma rota local começou a produzir conteúdo, uma falha posterior é reencaminhada (não retirada); apenas uma falha antes do primeiro token faz fallback para a nuvem.
 
@@ -151,8 +151,8 @@ Todos os ajustes são campos `Config` de Schemastery (modificáveis pelo cordis.
 
 ```sh
 pnpm install        # node ^22.19 || >=24
-pnpm run typecheck  # tsc: src + testes contra os tipos publicados 0.1.0-rc.6
-pnpm run typecheck:ci  # tsc estrito contra os tipos publicados rc.6 (skipLibCheck off)
+pnpm run typecheck  # tsc: src + testes contra os tipos publicados 0.1.0-rc.8
+pnpm run typecheck:ci  # tsc estrito contra os tipos publicados rc.8 (skipLibCheck off)
 pnpm test           # vitest: costuras reais Context/LlmRuntime/ToolRuntime/CommandRuntime/subprocess
 pnpm run test:coverage  # porta de cobertura (90/80/90/90)
 pnpm run build      # bundle tsdown + declarações tsc (lib/)
