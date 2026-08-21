@@ -5,6 +5,14 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2026-08-21
+
+### Changed
+
+- Upgraded every `@deepseek-ai/dsh-*` peer and dev dependency from `0.1.0-rc.6` to `0.1.0-rc.8` (peer ranges now `>=0.1.0-rc.8 <0.2.0`) for DeepSeek Harness rc8 compatibility; no adapter, routing, or tool API changes were required.
+- Workspace build policy: allowed the `koffi` native build (introduced by the rc8 `dsh-subprocess-local` dependency chain) and repinned `minimumReleaseAgeExclude` to the rc.8 peer family.
+- Synchronized rc.8 baseline references across the five-language READMEs, AGENTS.md, THIRD_PARTY_NOTICES.md, the CI workflow name, and the compat workflow baseline.
+
 ## [0.1.1] - 2026-08-19
 
 ### Fixed
