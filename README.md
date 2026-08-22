@@ -1,6 +1,7 @@
 <div align="center">
 
 # 🤖 dsh-local-ai
+[![Gitee](https://img.shields.io/badge/Gitee-mirror-c71d23?logo=gitee)](https://gitee.com/perrylink/dsh-local-ai)
 
 **Local-model (Ollama) integration for DeepSeek Harness.**
 
