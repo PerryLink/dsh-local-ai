@@ -25,7 +25,7 @@
 
 | Surface | Status |
 |---|---|
-| Harness | DeepSeek Harness `0.1.0-rc.8` |
+| Harness | DeepSeek Harness `0.1.1-rc.2` |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | Backend | [Ollama](https://ollama.com) (local HTTP API + CLI probe) |
 | Model | Text-only route (`inputModalities: ['text']`); tool calls and tool results are supported |
@@ -144,7 +144,7 @@ All tunables are Schemastery `Config` fields (changeable from cordis.yml). An id
 
 ## Known limitations
 
-- **rc.8 only** — developed and tested against `@deepseek-ai/dsh@0.1.0-rc.8`; newer harness baselines are expected to work but are verified by the monthly compat workflow.
+- **rc.2 only** — developed and tested against `@deepseek-ai/dsh@0.1.1-rc.2`; newer harness baselines are expected to work but are verified by the monthly compat workflow.
 - **Text-only route** — image content is rejected (`UNSUPPORTED_CONTENT`); multimodal local models are not wired up yet.
 - **Mid-stream fallback** — once a local route has started producing content, a later failure is forwarded (not retracted); only a failure before the first token falls back to the cloud.
 
@@ -152,8 +152,8 @@ All tunables are Schemastery `Config` fields (changeable from cordis.yml). An id
 
 ```sh
 pnpm install        # node ^22.19 || >=24
-pnpm run typecheck  # tsc: src + tests against the published 0.1.0-rc.8 types
-pnpm run typecheck:ci  # strict tsc against published rc.8 types (skipLibCheck off)
+pnpm run typecheck  # tsc: src + tests against the published 0.1.1-rc.2 types
+pnpm run typecheck:ci  # strict tsc against published rc.2 types (skipLibCheck off)
 pnpm test           # vitest: real Context/LlmRuntime/ToolRuntime/CommandRuntime/subprocess seams
 pnpm run test:coverage  # coverage gate (90/80/90/90)
 pnpm run build      # tsdown bundle + tsc declarations (lib/)

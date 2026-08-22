@@ -24,7 +24,7 @@
 
 | सतह | स्थिति |
 |---|---|
-| Harness | DeepSeek Harness `0.1.0-rc.8` |
+| Harness | DeepSeek Harness `0.1.1-rc.2` |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | Backend | [Ollama](https://ollama.com) (स्थानीय HTTP API + CLI जाँच) |
 | Model | केवल-पाठ रूट (`inputModalities: ['text']`); टूल कॉल व परिणाम समर्थित हैं |
@@ -143,7 +143,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 
 ## Known limitations
 
-- **केवल rc.8** — `@deepseek-ai/dsh@0.1.0-rc.8` के विरुद्ध विकसित व परीक्षित; नए harness बेसलाइन काम करने की अपेक्षा है, पर मासिक compat workflow उन्हें सत्यापित करता है।
+- **केवल rc.2** — `@deepseek-ai/dsh@0.1.1-rc.2` के विरुद्ध विकसित व परीक्षित; नए harness बेसलाइन काम करने की अपेक्षा है, पर मासिक compat workflow उन्हें सत्यापित करता है।
 - **केवल-पाठ रूट** — छवि सामग्री अस्वीकृत होती है (`UNSUPPORTED_CONTENT`); मल्टीमॉडल स्थानीय मॉडल अभी जुड़े नहीं हैं।
 - **मध्य-स्ट्रीम वापसी** — एक बार स्थानीय रूट सामग्री बनाना शुरू कर दे, तो बाद की विफलता आगे भेजी जाती है (वापस नहीं ली जाती); केवल पहले टोकन से पहले की विफलता क्लाउड पर लौटती है।
 
@@ -151,8 +151,8 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 
 ```sh
 pnpm install        # node ^22.19 || >=24
-pnpm run typecheck  # tsc: src + परीक्षण, प्रकाशित 0.1.0-rc.8 प्रकारों के विरुद्ध
-pnpm run typecheck:ci  # सख्त tsc, प्रकाशित rc.8 प्रकारों के विरुद्ध (skipLibCheck बंद)
+pnpm run typecheck  # tsc: src + परीक्षण, प्रकाशित 0.1.1-rc.2 प्रकारों के विरुद्ध
+pnpm run typecheck:ci  # सख्त tsc, प्रकाशित rc.2 प्रकारों के विरुद्ध (skipLibCheck बंद)
 pnpm test           # vitest: वास्तविक Context/LlmRuntime/ToolRuntime/CommandRuntime/subprocess सीम
 pnpm run test:coverage  # कवरेज द्वार (90/80/90/90)
 pnpm run build      # tsdown बंडल + tsc घोषणाएँ (lib/)
