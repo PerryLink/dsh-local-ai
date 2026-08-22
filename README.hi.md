@@ -102,6 +102,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 | `defaultContextWindow` | `8192` | जब मॉडल का कोई सटीक मान न हो तो संदर्भ क्षमता |
 | `maxTokens` | `4096` | जब मॉडल का कोई सटीक मान न हो तो प्रति-अनुरोध आउटपुट सीमा |
 | `temperature` | *(none)* | डिफ़ॉल्ट सैंपलिंग तापमान (0..2); छोड़ने पर प्रदाता डिफ़ॉल्ट रहता है |
+| `vision` | `true` | मॉडल द्वारा vision रिपोर्ट करने पर छवि समर्थन घोषित व सीरियलाइज़ करता है; `false` रूट को केवल-टेक्स्ट रखता है |
 | `models` | `[]` | Harness-दृश्य नाम → Ollama मॉडल मैपिंग |
 | `models[].name` | *(required)* | Harness-दृश्य मॉडल नाम (`GenerateOptions.model`) |
 | `models[].model` | `= name` | Ollama मॉडल id |
@@ -144,7 +145,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 ## Known limitations
 
 - **केवल rc.2** — `@deepseek-ai/dsh@0.1.1-rc.2` के विरुद्ध विकसित व परीक्षित; नए harness बेसलाइन काम करने की अपेक्षा है, पर मासिक compat workflow उन्हें सत्यापित करता है।
-- **केवल-पाठ रूट** — छवि सामग्री अस्वीकृत होती है (`UNSUPPORTED_CONTENT`); मल्टीमॉडल स्थानीय मॉडल अभी जुड़े नहीं हैं।
+- **मॉडल द्वारा vision रिपोर्ट करने पर विज़न** — जिन मॉडलों की `/api/show` capabilities में `vision` है, वे `inputModalities: ["text","image"]` घोषित करते हैं और उपयोगकर्ता संदेशों पर base64 छवि पेलोड ले जाते हैं (`vision: false` से बंद करें); केवल-टेक्स्ट मॉडल अब भी छवि सामग्री अस्वीकार करते हैं (`UNSUPPORTED_CONTENT`)।
 - **मध्य-स्ट्रीम वापसी** — एक बार स्थानीय रूट सामग्री बनाना शुरू कर दे, तो बाद की विफलता आगे भेजी जाती है (वापस नहीं ली जाती); केवल पहले टोकन से पहले की विफलता क्लाउड पर लौटती है।
 
 ## Development

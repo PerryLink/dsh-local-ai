@@ -52,6 +52,8 @@ export interface Config {
   maxTokens?: number
   /** Default sampling temperature; omitted leaves the provider default. */
   temperature?: number
+  /** Declare and serialize image support when the model reports vision; `false` keeps the route text-only. */
+  vision?: boolean
   /** Harness-visible → Ollama model mappings. */
   models?: ModelMapping[]
   /** Local-model routing rules (offline-first / long-text / privacy tasks). */
@@ -83,6 +85,7 @@ export interface ResolvedConfig {
   readonly defaultContextWindow: number
   readonly maxTokens: number
   readonly temperature?: number
+  readonly vision: boolean
   readonly models: readonly ResolvedModelMapping[]
   readonly route: readonly ResolvedRouteRule[]
 }
@@ -95,6 +98,7 @@ export const Config: z<Config> = z.object({
   defaultContextWindow: z.number().default(8192),
   maxTokens: z.number().default(4096),
   temperature: z.number(),
+  vision: z.boolean().default(true),
   models: z.array(z.object({
     name: z.string().required(),
     model: z.string(),
@@ -172,6 +176,8 @@ export function resolveConfig(config: Config = {}): ResolvedConfig {
   const temperature = config.temperature
   if (temperature !== undefined) assertFiniteRange('temperature', temperature, 0, 2)
 
+  const vision = config.vision ?? true
+
   const seenNames = new Set<string>()
   const models = (config.models ?? []).map((mapping, index) => {
     if (typeof mapping.name !== 'string' || mapping.name.trim().length === 0) {
@@ -225,6 +231,7 @@ export function resolveConfig(config: Config = {}): ResolvedConfig {
     defaultContextWindow,
     maxTokens,
     ...temperature === undefined ? {} : { temperature },
+    vision,
     models,
     route,
   }

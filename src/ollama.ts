@@ -22,6 +22,7 @@ export interface OllamaModel {
   digest: string
   modified_at?: string
   details?: OllamaModelDetails
+  capabilities?: string[]
 }
 
 /** Structured model details reported by `/api/show` and `/api/tags`. */
@@ -41,6 +42,12 @@ export interface OllamaShowResult {
   template?: string
   details?: OllamaModelDetails
   model_info?: Record<string, unknown>
+  capabilities?: string[]
+}
+
+/** True when the reported model capabilities include vision. */
+export function hasVision(capabilities: readonly string[] | undefined): boolean {
+  return capabilities?.includes('vision') ?? false
 }
 
 /** The `/api/version` response body. */

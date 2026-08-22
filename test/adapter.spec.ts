@@ -49,6 +49,20 @@ describe('OllamaAdapter metadata', () => {
     expect(info.context).toEqual({ contextWindow: 4096 })
     expect(info.defaultMaxTokens).toBe(256)
   })
+
+  it('declares image support when the model reports vision capabilities', async () => {
+    const fetch: FetchLike = async () => new Response(JSON.stringify({ capabilities: ['completion', 'vision', 'tools'] }), { status: 200 })
+    const vision = new OllamaAdapter({ config: () => resolveConfig(), fetchImpl: fetch })
+    const info = await vision.resolveModel('ollama', 'qwen3.8-local')
+    expect(info.inputModalities).toEqual(['text', 'image'])
+  })
+
+  it('keeps text-only when the vision config opts out', async () => {
+    const fetch: FetchLike = async () => new Response(JSON.stringify({ capabilities: ['vision'] }), { status: 200 })
+    const adapter = new OllamaAdapter({ config: () => resolveConfig({ vision: false }), fetchImpl: fetch })
+    const info = await adapter.resolveModel('ollama', 'qwen3.8-local')
+    expect(info.inputModalities).toEqual(['text'])
+  })
 })
 
 describe('OllamaAdapter listModels', () => {
@@ -85,5 +99,52 @@ describe('OllamaAdapter stream', () => {
     const fetch: FetchLike = async () => { throw new Error('ECONNREFUSED') }
     const adapter = new OllamaAdapter({ config: () => resolveConfig(), fetchImpl: fetch })
     await expect(collect(adapter.stream(options()))).rejects.toMatchObject({ code: 'TRANSPORT' })
+  })
+
+  it('resolves attachments and posts base64 images for an image-bearing request', async () => {
+    const calls: Array<{ url: string; init: RequestInit }> = []
+    const fetch: FetchLike = async (url, init) => {
+      calls.push({ url, init: init ?? {} })
+      return new Response('{"message":{},"done":true,"done_reason":"stop"}\n', { status: 200 })
+    }
+    const readImageRequest = async (_ref: never, _policy: never): Promise<{ data: Uint8Array }> => ({ data: new TextEncoder().encode('PNGDATA') })
+    const adapter = new OllamaAdapter({
+      config: () => resolveConfig(),
+      fetchImpl: fetch,
+      resolveAttachments: () => ({ readImageRequest }) as never,
+    })
+    await collect(adapter.stream(options({
+      messages: [createUserMessage({
+        content: [
+          { type: 'text', text: 'look' },
+          { type: 'image', attachment: { attachmentId: 'a1' } as never },
+        ],
+        source: { kind: 'user' },
+      })],
+    })))
+    const body = JSON.parse(String(calls[0]?.init.body)) as { messages: Array<{ images?: string[] }> }
+    expect(body.messages[0]?.images).toEqual([Buffer.from('PNGDATA').toString('base64')])
+  })
+
+  it('fails loud on image content when the attachment service is missing', async () => {
+    const fetch: FetchLike = async () => new Response('{"message":{},"done":true}\n', { status: 200 })
+    const adapter = new OllamaAdapter({ config: () => resolveConfig(), fetchImpl: fetch })
+    const imageOptions = options({
+      messages: [createUserMessage({ content: [{ type: 'image', attachment: { attachmentId: 'a1' } as never }], source: { kind: 'user' } })],
+    })
+    await expect(collect(adapter.stream(imageOptions))).rejects.toMatchObject({ code: 'UNSUPPORTED_CONTENT' })
+  })
+
+  it('fails loud on image content when the vision config opts out', async () => {
+    const fetch: FetchLike = async () => new Response('{"message":{},"done":true}\n', { status: 200 })
+    const adapter = new OllamaAdapter({
+      config: () => resolveConfig({ vision: false }),
+      fetchImpl: fetch,
+      resolveAttachments: () => ({ readImageRequest: async () => ({ data: new Uint8Array() }) }) as never,
+    })
+    const imageOptions = options({
+      messages: [createUserMessage({ content: [{ type: 'image', attachment: { attachmentId: 'a1' } as never }], source: { kind: 'user' } })],
+    })
+    await expect(collect(adapter.stream(imageOptions))).rejects.toMatchObject({ code: 'UNSUPPORTED_CONTENT' })
   })
 })

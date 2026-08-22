@@ -131,7 +131,11 @@ export function apply(ctx: Context, config: Config = {}): void {
   // Lazily-bound so tests can stub `globalThis.fetch` before a call.
   const fetchImpl: FetchLike = (input, init) => globalThis.fetch(input, init)
 
-  const adapter = new OllamaAdapter({ config: () => resolved, fetchImpl })
+  const adapter = new OllamaAdapter({
+    config: () => resolved,
+    fetchImpl,
+    resolveAttachments: () => ctx.get('attachments'),
+  })
   ctx.llm.registerAdapter([OLLAMA_PROVIDER], adapter)
 
   // Routing waterfall: passthrough by default; a matched rule re-routes to the

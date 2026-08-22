@@ -102,6 +102,7 @@ Todos los ajustes son campos `Config` de Schemastery (modificables desde cordis.
 | `defaultContextWindow` | `8192` | Capacidad de contexto cuando un modelo no tiene valor exacto |
 | `maxTokens` | `4096` | Límite de salida por solicitud cuando un modelo no tiene valor exacto |
 | `temperature` | *(none)* | Temperatura de muestreo por defecto (0..2); omitir deja el valor del proveedor |
+| `vision` | `true` | Declara y serializa el soporte de imágenes cuando el modelo informa vision; `false` mantiene la ruta solo texto |
 | `models` | `[]` | Mapeos de nombre visible → modelo Ollama |
 | `models[].name` | *(required)* | Nombre de modelo visible en el harness (`GenerateOptions.model`) |
 | `models[].model` | `= name` | Id del modelo Ollama |
@@ -144,7 +145,7 @@ Todos los ajustes son campos `Config` de Schemastery (modificables desde cordis.
 ## Known limitations
 
 - **Solo rc.2** — desarrollado y probado contra `@deepseek-ai/dsh@0.1.1-rc.2`; se espera que baselines más nuevos funcionen, pero los verifica el workflow mensual de compat.
-- **Ruta solo texto** — el contenido de imagen se rechaza (`UNSUPPORTED_CONTENT`); los modelos locales multimodales aún no están conectados.
+- **Vision cuando el modelo la informa** — los modelos cuyas capacidades de `/api/show` incluyen `vision` declaran `inputModalities: ["text","image"]` y llevan cargas de imagen base64 en los mensajes de usuario (exclusión con `vision: false`); los modelos solo texto siguen rechazando el contenido de imagen (`UNSUPPORTED_CONTENT`).
 - **Respaldo a mitad de flujo** — una vez que una ruta local empezó a producir contenido, un fallo posterior se reenvía (no se retira); solo un fallo antes del primer token respalda a la nube.
 
 ## Development

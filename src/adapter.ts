@@ -4,16 +4,18 @@
  * resolution (one `() => ResolvedConfig` thunk re-read per operation), so a
  * changed base URL, model mapping, or timeout reaches the next request without
  * re-registration, while an in-flight stream keeps the facts it started with.
- * The adapter is text-only (`inputModalities: ['text']`); tool calls and tool
- * results are translated by {@link serializeRequest}.
+ * Input modalities follow the model's reported `/api/show` capabilities
+ * (`vision` → `['text', 'image']`) unless the `vision` config knob opts out;
+ * image payloads resolve through the optional `attachments` service.
  * @module dsh-local-ai/adapter
  */
 
-import { LlmAdapter, LlmError } from '@deepseek-ai/dsh-llm'
+import { contentHasImage, LlmAdapter, LlmError } from '@deepseek-ai/dsh-llm'
 import type { GenerateOptions, LlmModelInfo, LlmProviderInfo, LlmResolvedModelInfo, StreamChunk } from '@deepseek-ai/dsh-llm'
+import type { AttachmentStore, ImageRequestPolicy } from '@deepseek-ai/dsh-attachment'
 import { idleWatchdog, timeoutOf } from '@deepseek-ai/dsh-timeout'
 import { sanitizeEndpoint } from './sanitize.ts'
-import { listModels as listOllamaModels, postStream, readNdjsonLines } from './ollama.ts'
+import { hasVision, listModels as listOllamaModels, postStream, readNdjsonLines, showModel } from './ollama.ts'
 import type { FetchLike } from './ollama.ts'
 import { serializeRequest } from './serialize.ts'
 import { translate } from './translate.ts'
@@ -22,12 +24,21 @@ import type { ResolvedConfig } from './config.ts'
 /** Idle-timeout abort code stamped onto a stalled stream's timeout reason. */
 const STREAM_IDLE_TIMEOUT_CODE = 'LLM_STREAM_IDLE_TIMEOUT'
 
+/**
+ * Deterministic request-image policy: aspect-preserving projection at ≤ 4 MP
+ * and a 10 MiB encoded-byte cap per image (a protocol default, not a tunable —
+ * the attachment service owns admission limits).
+ */
+const REQUEST_IMAGE_POLICY: ImageRequestPolicy = { maxPixels: 4_194_304, maxBytes: 10 * 1024 * 1024 }
+
 /** Constructor options for {@link OllamaAdapter}. */
 export interface OllamaAdapterOptions {
   /** Current validated config; called once per operation. */
   config: () => ResolvedConfig
   /** Fetch implementation, injectable for tests; defaults to `globalThis.fetch`. */
   fetchImpl?: FetchLike
+  /** Optional attachment service resolving durable image refs to request bytes. */
+  resolveAttachments?: () => AttachmentStore | undefined
 }
 
 /** The single provider route this adapter owns. */
@@ -39,9 +50,9 @@ function harnessNameOf(resolved: ResolvedConfig, ollamaName: string): string {
   return mapping?.name ?? ollamaName
 }
 
-/** Advertise one configured or discovered local model as text-only. */
-function modelInfo(provider: string, id: string, name: string): LlmModelInfo {
-  return { provider, id, name, inputModalities: ['text'] }
+/** Advertise one configured or discovered local model with its input modalities. */
+function modelInfo(provider: string, id: string, name: string, vision: boolean): LlmModelInfo {
+  return { provider, id, name, inputModalities: vision ? ['text', 'image'] : ['text'] }
 }
 
 /**
@@ -58,32 +69,51 @@ export class OllamaAdapter extends LlmAdapter {
     return this.options.fetchImpl ?? ((input: string, init?: RequestInit) => globalThis.fetch(input, init))
   }
 
+  /** Probe one model's `/api/show` capabilities; failures degrade to text-only. */
+  private async visionOf(resolved: ResolvedConfig, name: string, signal?: AbortSignal): Promise<boolean> {
+    if (!resolved.vision) return false
+    try {
+      const show = await showModel(resolved.baseURL, name, this.fetchImpl(), signal)
+      return hasVision(show.capabilities)
+    } catch {
+      return false
+    }
+  }
+
   override providerInfo(provider: string): LlmProviderInfo {
     return { id: provider, name: 'Ollama (local)' }
   }
 
-  override listModels(provider: string): Promise<readonly LlmModelInfo[]> {
+  override async listModels(provider: string): Promise<readonly LlmModelInfo[]> {
     const resolved = this.options.config()
-    return listOllamaModels(resolved.baseURL, this.fetchImpl())
-      .then(models => models.map(model => modelInfo(provider, harnessNameOf(resolved, model.name), harnessNameOf(resolved, model.name))))
-      .catch(() => resolved.models.map(entry => modelInfo(provider, entry.name, entry.name)))
+    const models = await listOllamaModels(resolved.baseURL, this.fetchImpl()).catch(() => [])
+    const list = models.length > 0 ? models : resolved.models.map(entry => ({ name: entry.model, model: entry.model, size: 0, digest: '' }))
+    const probes = await Promise.all(list.map(model => this.visionOf(resolved, model.name)))
+    return list.map((model, index) => modelInfo(
+      provider,
+      harnessNameOf(resolved, model.name),
+      harnessNameOf(resolved, model.name),
+      probes[index] === true,
+    ))
   }
 
-  override resolveModel(
+  override async resolveModel(
     provider: string,
     model: string,
-    _signal?: AbortSignal,
+    signal?: AbortSignal,
   ): Promise<LlmResolvedModelInfo> {
     const resolved = this.options.config()
     const mapping = resolved.models.find(entry => entry.name === model)
-    return Promise.resolve({
+    const ollamaName = mapping?.model ?? model
+    const vision = await this.visionOf(resolved, ollamaName, signal)
+    return {
       provider,
       id: model,
       name: model,
-      inputModalities: ['text'],
+      inputModalities: vision ? ['text', 'image'] : ['text'],
       context: { contextWindow: mapping?.contextWindow ?? resolved.defaultContextWindow },
       defaultMaxTokens: mapping?.maxTokens ?? resolved.maxTokens,
-    })
+    }
   }
 
   async * stream(options: GenerateOptions): AsyncIterable<StreamChunk> {
@@ -137,7 +167,8 @@ export class OllamaAdapter extends LlmAdapter {
     resolved: ResolvedConfig,
     signal: AbortSignal,
   ): AsyncIterable<StreamChunk> {
-    const body = serializeRequest(options, resolved)
+    const imagesByRef = await this.prepareImages(options, resolved, signal)
+    const body = serializeRequest(options, resolved, imagesByRef)
     let response: Response
     try {
       response = await postStream(resolved.baseURL, '/api/chat', body, this.fetchImpl(), signal)
@@ -157,5 +188,36 @@ export class OllamaAdapter extends LlmAdapter {
       throw new LlmError('Ollama API returned no response body', 'EMPTY_RESPONSE')
     }
     yield* translate(readNdjsonLines(response.body))
+  }
+
+  /**
+   * Resolve request-image payloads for one image-bearing request. A text-only
+   * route (config opt-out), a missing attachment service, or an unresolvable
+   * ref fails loud here — images are never silently dropped.
+   * @returns a `attachmentId → base64` map, or `undefined` when the request has no images.
+   */
+  private async prepareImages(
+    options: GenerateOptions,
+    resolved: ResolvedConfig,
+    signal: AbortSignal,
+  ): Promise<ReadonlyMap<string, string> | undefined> {
+    if (!options.messages.some(message => contentHasImage(message.content))) return undefined
+    if (!resolved.vision) {
+      throw new LlmError('The Ollama adapter does not support image content for this model (vision disabled).', 'UNSUPPORTED_CONTENT')
+    }
+    const attachments = this.options.resolveAttachments?.()
+    if (attachments === undefined) {
+      throw new LlmError('Image content requires the attachments service; mount a profile with @deepseek-ai/dsh-attachment.', 'UNSUPPORTED_CONTENT')
+    }
+    const map = new Map<string, string>()
+    for (const message of options.messages) {
+      for (const block of message.content) {
+        if (block.type !== 'image') continue
+        const ref = block.attachment
+        const requestImage = await attachments.readImageRequest(ref, REQUEST_IMAGE_POLICY, signal)
+        map.set(String(ref.attachmentId), Buffer.from(requestImage.data).toString('base64'))
+      }
+    }
+    return map
   }
 }

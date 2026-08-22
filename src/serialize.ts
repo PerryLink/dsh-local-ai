@@ -3,8 +3,10 @@
  * vocabulary. User text is joined; assistant text becomes `content` and tool
  * calls become `tool_calls` (with arguments parsed from the raw JSON string to
  * the object Ollama expects); tool results become separate `tool` messages.
- * Core image blocks are rejected explicitly because this route is text-only;
- * unknown declaration-merged block types retain the documented extension
+ * Top-level user-message image blocks map onto `images` (base64, no data-URI
+ * prefix) when the request carries resolved payloads; images anywhere else —
+ * or on a text-only route — still fail loud with `UNSUPPORTED_CONTENT`.
+ * Unknown declaration-merged block types retain the documented extension
  * fallback (ignored for content, retained as text where text is expected).
  * @module dsh-local-ai/serialize
  */
@@ -19,6 +21,8 @@ export interface OllamaWireMessage {
   content: string
   tool_calls?: Array<{ function: { name: string; arguments: Record<string, unknown> } }>
   tool_name?: string
+  /** Base64 image payloads (no data-URI prefix) attached to one user message. */
+  images?: string[]
 }
 
 /** The Ollama `/api/chat` request body. */
@@ -38,11 +42,40 @@ function flattenText(blocks: readonly ContentBlock[]): string {
     .join('')
 }
 
-/** Reject core image content before any text-flattening path can silently erase it. */
-function assertTextOnly(blocks: readonly ContentBlock[]): void {
-  if (contentHasImage(blocks)) {
-    throw new LlmError('The Ollama adapter does not support image content.', 'UNSUPPORTED_CONTENT')
+/**
+ * Reject image content the wire cannot carry. Top-level user-message images
+ * map onto `images` when the request provides resolved payloads; every other
+ * image (non-user roles, nested tool results, or a text-only route without
+ * payloads) still fails loud instead of silently dropping the image.
+ */
+function assertImagesSupported(message: Message, imagesByRef: ReadonlyMap<string, string> | undefined): void {
+  for (const block of message.content) {
+    if (block.type === 'tool-result' && contentHasImage(block.content)) {
+      throw new LlmError('The Ollama adapter does not support tool-result image content.', 'UNSUPPORTED_CONTENT')
+    }
   }
+  const hasTopLevelImage = message.content.some(block => block.type === 'image')
+  if (message.role !== 'user' && hasTopLevelImage) {
+    throw new LlmError(`The Ollama adapter does not support image content on ${message.role} messages.`, 'UNSUPPORTED_CONTENT')
+  }
+  if (hasTopLevelImage && imagesByRef === undefined) {
+    throw new LlmError('The Ollama adapter does not support image content for this model.', 'UNSUPPORTED_CONTENT')
+  }
+}
+
+/** Collect the base64 payloads for one user message's top-level image blocks. */
+function imagesOf(message: Message, imagesByRef: ReadonlyMap<string, string> | undefined): string[] {
+  if (imagesByRef === undefined) return []
+  const images: string[] = []
+  for (const block of message.content) {
+    if (block.type !== 'image') continue
+    const data = imagesByRef.get(String(block.attachment.attachmentId))
+    if (data === undefined) {
+      throw new LlmError('The Ollama adapter could not resolve an image payload.', 'UNSUPPORTED_CONTENT')
+    }
+    images.push(data)
+  }
+  return images
 }
 
 /**
@@ -95,7 +128,10 @@ function toolNameOf(callId: string, namesByCallId: ReadonlyMap<string, string>):
  * @param messages - the harness conversation, in order.
  * @returns the wire messages; order preserved, each tool result expanded into its own entry.
  */
-export function serializeMessages(messages: Message[]): OllamaWireMessage[] {
+export function serializeMessages(
+  messages: Message[],
+  imagesByRef?: ReadonlyMap<string, string>,
+): OllamaWireMessage[] {
   const namesByCallId = new Map<string, string>()
   for (const message of messages) {
     if (message.role !== 'assistant') continue
@@ -106,7 +142,8 @@ export function serializeMessages(messages: Message[]): OllamaWireMessage[] {
 
   const wire: OllamaWireMessage[] = []
   for (const message of messages) {
-    assertTextOnly(message.content)
+    assertImagesSupported(message, imagesByRef)
+    const images = imagesOf(message, imagesByRef)
     if (message.role === 'system') {
       wire.push({ role: 'system', content: flattenText(message.content) })
       continue
@@ -119,8 +156,12 @@ export function serializeMessages(messages: Message[]): OllamaWireMessage[] {
     // vocabulary, but Ollama wants them as role:'tool' messages.
     const toolResults = message.content.filter(block => block.type === 'tool-result')
     const text = flattenText(message.content)
-    if (text.length > 0 || toolResults.length === 0) {
-      wire.push({ role: 'user', content: text })
+    if (text.length > 0 || toolResults.length === 0 || images.length > 0) {
+      wire.push({
+        role: 'user',
+        content: text,
+        ...images.length > 0 ? { images } : {},
+      })
     }
     for (const result of toolResults) {
       const name = toolNameOf(String(result.toolCallId), namesByCallId)
@@ -147,6 +188,7 @@ export function serializeMessages(messages: Message[]): OllamaWireMessage[] {
 export function serializeRequest(
   options: GenerateOptions,
   resolved: ResolvedConfig,
+  imagesByRef?: ReadonlyMap<string, string>,
 ): OllamaWireRequest {
   const mapping = resolved.models.find(entry => entry.name === options.model)
   const model = mapping?.model ?? options.model
@@ -155,7 +197,7 @@ export function serializeRequest(
   if (options.system !== undefined) {
     messages.push({ role: 'system', content: options.system })
   }
-  messages.push(...serializeMessages(options.messages))
+  messages.push(...serializeMessages(options.messages, imagesByRef))
 
   const temperature = options.temperature ?? mapping?.temperature ?? resolved.temperature
   const ollamaOptions: Record<string, unknown> = {}

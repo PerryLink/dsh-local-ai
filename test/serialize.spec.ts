@@ -63,6 +63,35 @@ describe('serializeMessages', () => {
     })
     expect(() => serializeMessages([image])).toThrow(/image/u)
   })
+
+  it('maps user-message image blocks onto base64 images payloads', () => {
+    const message = createUserMessage({
+      content: [
+        { type: 'text', text: 'look at this' },
+        { type: 'image', attachment: { attachmentId: 'a1' } as never },
+        { type: 'image', attachment: { attachmentId: 'a2' } as never },
+      ],
+      source: { kind: 'user' },
+    })
+    const wire = serializeMessages([message], new Map([['a1', 'QUJD'], ['a2', 'RUZH']]))
+    expect(wire).toEqual([{ role: 'user', content: 'look at this', images: ['QUJD', 'RUZH'] }])
+  })
+
+  it('rejects an unresolved image payload loudly', () => {
+    const message = createUserMessage({
+      content: [{ type: 'image', attachment: { attachmentId: 'missing' } as never }],
+      source: { kind: 'user' },
+    })
+    expect(() => serializeMessages([message], new Map())).toThrow(/resolve an image payload/u)
+  })
+
+  it('rejects tool-result image content even with payloads', () => {
+    const message = createUserMessage({
+      content: [{ type: 'tool-result', toolCallId: CallId('c1'), content: [{ type: 'image', attachment: { attachmentId: 'a1' } as never }] }],
+      source: { kind: 'user' },
+    })
+    expect(() => serializeMessages([message], new Map([['a1', 'QUJD']]))).toThrow(/tool-result image/u)
+  })
 })
 
 describe('serializeRequest', () => {

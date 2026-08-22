@@ -102,6 +102,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 | `defaultContextWindow` | `8192` | 模型无精确值时的上下文容量 |
 | `maxTokens` | `4096` | 模型无精确值时的单请求输出上限 |
 | `temperature` | *(none)* | 默认采样温度（0..2）；省略则用提供方默认值 |
+| `vision` | `true` | 模型报告 vision 能力时声明并序列化图片支持；`false` 保持纯文本路由 |
 | `models` | `[]` | Harness 可见名 → Ollama 模型映射 |
 | `models[].name` | *(required)* | Harness 可见模型名（`GenerateOptions.model`） |
 | `models[].model` | `= name` | Ollama 模型 id |
@@ -144,7 +145,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 ## Known limitations
 
 - **仅 rc.2** —— 针对 `@deepseek-ai/dsh@0.1.1-rc.2` 开发与测试；更新版本的 harness 基线预期可用，但由每月 compat workflow 验证。
-- **纯文本路由** —— 图片内容会被拒绝（`UNSUPPORTED_CONTENT`）；多模态本地模型尚未接入。
+- **模型声明 vision 时启用视觉** — `/api/show` capabilities 含 `vision` 的模型声明 `inputModalities: ["text","image"]`，并在用户消息上携带 base64 图片载荷（可用 `vision: false` 退出）；纯文本模型仍拒绝图片内容（`UNSUPPORTED_CONTENT`）。
 - **中途失败不回退** —— 本地路由一旦开始产出内容，之后的失败会透传（无法撤回）；只有首个 token 前的失败才回退云端。
 
 ## Development

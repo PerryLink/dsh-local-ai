@@ -21,6 +21,8 @@
         maxTokens: 4096
         # Default sampling temperature; omit to keep the provider default.
         # temperature: 0.7
+# Declare image support when the model reports vision; false keeps text-only.
+# vision: true
         # Harness-visible -> Ollama model mappings. Each entry maps a name you
         # select in the harness to an Ollama model id (defaults to the name).
         models: []

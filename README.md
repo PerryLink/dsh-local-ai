@@ -103,6 +103,7 @@ All tunables are Schemastery `Config` fields (changeable from cordis.yml). An id
 | `defaultContextWindow` | `8192` | Context capacity used when a model has no exact value |
 | `maxTokens` | `4096` | Per-request output cap used when a model has no exact value |
 | `temperature` | *(none)* | Default sampling temperature (0..2); omitted leaves the provider default |
+| `vision` | `true` | Declare and serialize image support when the model reports vision; `false` keeps the route text-only |
 | `models` | `[]` | Harness-visible → Ollama model mappings |
 | `models[].name` | *(required)* | Harness-visible model name (`GenerateOptions.model`) |
 | `models[].model` | `= name` | Ollama model id |
@@ -145,7 +146,7 @@ All tunables are Schemastery `Config` fields (changeable from cordis.yml). An id
 ## Known limitations
 
 - **rc.2 only** — developed and tested against `@deepseek-ai/dsh@0.1.1-rc.2`; newer harness baselines are expected to work but are verified by the monthly compat workflow.
-- **Text-only route** — image content is rejected (`UNSUPPORTED_CONTENT`); multimodal local models are not wired up yet.
+- **Vision when the model reports it** — models whose `/api/show` capabilities include `vision` declare `inputModalities: ["text","image"]` and carry base64 image payloads on user messages (opt out with `vision: false`); text-only models still reject image content (`UNSUPPORTED_CONTENT`).
 - **Mid-stream fallback** — once a local route has started producing content, a later failure is forwarded (not retracted); only a failure before the first token falls back to the cloud.
 
 ## Development

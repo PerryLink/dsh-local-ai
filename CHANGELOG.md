@@ -5,7 +5,12 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.4] - 2026-08-22
+
+### Added
+
+- **Vision support (issue #5)** — models whose `/api/show` capabilities include `vision` now declare `inputModalities: ['text', 'image']` and carry base64 image payloads on user messages (resolved through the optional `attachments` service); the `vision` config knob (default `true`) keeps the route text-only on opt-out, and text-only models still reject image content loudly (`UNSUPPORTED_CONTENT`).
+
 
 ### Changed
 
