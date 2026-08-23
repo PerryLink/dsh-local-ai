@@ -1,0 +1,81 @@
+name: Bug report
+description: Report a bug or unexpected behavior in dsh-local-ai
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. The more detail you provide, the faster we can help.
+
+  - type: input
+    id: package-version
+    attributes:
+      label: dsh-local-ai version
+      description: The plugin version (e.g. `0.1.5`).
+      placeholder: "0.1.5"
+    validations:
+      required: true
+
+  - type: input
+    id: harness-version
+    attributes:
+      label: Harness (`dsh`) version
+      description: The DeepSeek Harness baseline this plugin runs against (e.g. `0.1.1-rc.2`).
+      placeholder: "0.1.1-rc.2"
+    validations:
+      required: true
+
+  - type: input
+    id: os-node
+    attributes:
+      label: OS and Node version
+      description: Your operating system and Node.js version (e.g. `linux-arm64, Node 24.19.0`).
+      placeholder: "linux-arm64, Node 24.19.0"
+    validations:
+      required: true
+
+  - type: input
+    id: ollama
+    attributes:
+      label: Ollama and model (optional)
+      description: The Ollama server version and the model you were using, if relevant.
+      placeholder: "Ollama 0.32.13, qwen3.8"
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Minimal, ordered steps that reliably trigger the bug.
+      placeholder: |
+        1. Configure `route` ...
+        2. Send a request ...
+        3. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What actually happened.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / config (optional)
+      description: |
+        Relevant logs, `--dump-config` output, or configuration snippets.
+
+        **⚠️ Redact before pasting: do not include tokens, API keys, secrets, Authorization or other request headers, personal paths, or account identifiers.**
+      render: text

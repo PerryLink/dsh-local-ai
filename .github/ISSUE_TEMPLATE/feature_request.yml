@@ -1,0 +1,33 @@
+name: Feature request
+description: Suggest an idea for dsh-local-ai
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: A clear description of the problem this feature would solve.
+      placeholder: "As a user, I want to ... so that ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What you would like to happen instead, and how you would expect to configure or use it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds or alternative approaches you have already tried or considered.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Anything else — use cases, links, or constraints that help us understand the request.
