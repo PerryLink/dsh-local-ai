@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Endpoint liveness (M3): `scripts/check-endpoints.mjs` probes the configured Ollama HTTP endpoint (`/api/version`; 2xx = alive, any transport error or non-2xx = fail) with `OLLAMA_HOST` / `CHECK_ENDPOINTS` / `TIMEOUT_MS` overrides, and `.github/workflows/check-endpoints.yml` runs it monthly and on demand against a throwaway local Ollama; `test/check-endpoints.spec.ts` covers the endpoint-resolution, verdict, error-classification, and timeout helpers plus a plain-Node syntax check.
+
 ## [0.1.4] - 2026-08-22
 
 ### Added

@@ -160,6 +160,7 @@ pnpm run build      # bundle tsdown + declarações tsc (lib/)
 pnpm run verify:self-contained  # especificações de dependências resolvem do registry
 pnpm run verify:artifacts       # face ESM construída + bundle patch presentes
 node scripts/check-readme-sync.mjs  # porta de sincronização de README em cinco idiomas
+node scripts/check-endpoints.mjs  # sonda de atividade M3 (Ollama /api/version)
 pnpm pack           # o tarball publicado
 ```
 

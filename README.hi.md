@@ -160,6 +160,7 @@ pnpm run build      # tsdown बंडल + tsc घोषणाएँ (lib/)
 pnpm run verify:self-contained  # निर्भरता विनिर्देश registry से हल होते हैं
 pnpm run verify:artifacts       # निर्मित ESM फलक + बंडल पैच मौजूद
 node scripts/check-readme-sync.mjs  # पाँच-भाषा README समन्वय द्वार
+node scripts/check-endpoints.mjs  # M3 एंडपॉइंट-लाइवनेस प्रोब (Ollama /api/version)
 pnpm pack           # प्रकाशित tarball
 ```
 

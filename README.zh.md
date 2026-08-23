@@ -160,6 +160,7 @@ pnpm run build      # tsdown 打包 + tsc 声明（lib/）
 pnpm run verify:self-contained  # 依赖声明均来自 registry
 pnpm run verify:artifacts       # 构建产物 ESM 面 + bundle patch 存在
 node scripts/check-readme-sync.mjs  # 五语 README 同步门禁
+node scripts/check-endpoints.mjs  # M3 端点存活探测（Ollama /api/version）
 pnpm pack           # 发布用 tarball
 ```
 
