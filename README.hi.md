@@ -171,6 +171,7 @@ pnpm pack           # प्रकाशित tarball
 ## Contributors
 
 - [@PerryLink](https://github.com/PerryLink) — निर्माता व अनुरक्षक: एडाप्टर, रूटिंग, टूल, स्वास्थ्य जाँच, सैनिटाइज़ेशन और पाँच-भाषा दस्तावेज़।
+- [@LABEST-IA](https://github.com/LABEST-IA) — टूल-कॉल CallId सुधार (PR #2), तथा टूल-कॉल स्लॉट व विज़न-समर्थन रिपोर्टें (issues #1, #3, #5)।
 
 ## PerryLink DSH Plugin Family
 

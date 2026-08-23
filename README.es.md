@@ -171,6 +171,7 @@ pnpm pack           # el tarball publicado
 ## Contributors
 
 - [@PerryLink](https://github.com/PerryLink) — creador y mantenedor: adaptador, enrutamiento, herramientas, comprobación de estado, desinfección y documentación en cinco idiomas.
+- [@LABEST-IA](https://github.com/LABEST-IA) — corrección del CallId de las llamadas a herramientas (PR #2), y los informes sobre la ranura de llamadas a herramientas y el soporte de visión (issues #1, #3, #5).
 
 ## PerryLink DSH Plugin Family
 

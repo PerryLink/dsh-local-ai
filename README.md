@@ -172,6 +172,7 @@ pnpm pack           # the published tarball
 ## Contributors
 
 - [@PerryLink](https://github.com/PerryLink) — creator and maintainer: adapter, routing, tools, health check, sanitization, and the five-language docs.
+- [@LABEST-IA](https://github.com/LABEST-IA) — tool-call CallId fix (PR #2), and the tool-call slot and vision-support reports (issues #1, #3, #5).
 
 ## PerryLink DSH Plugin Family
 
