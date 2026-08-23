@@ -1,0 +1,41 @@
+name: Endpoint liveness
+
+# Periodic liveness probe (M3). Unlike a public-API plugin, dsh-local-ai's
+# runtime endpoint is the user's own Ollama server, so there is no public host
+# to poll. This workflow starts a throwaway local Ollama so the default probe
+# has a real target (and `/api/version` drift or a script regression fails the
+# gate); set the repository variable `OLLAMA_HOST` to probe a specific remote
+# endpoint instead.
+on:
+  schedule:
+    - cron: '0 5 1 * *'
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Start local Ollama
+        run: |
+          set -euo pipefail
+          curl -fsSL https://ollama.com/install.sh | sudo sh
+          nohup ollama serve > /tmp/ollama-serve.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:11434/api/version > /dev/null 2>&1; then
+              echo "ollama is ready"; exit 0
+            fi
+            sleep 2
+          done
+          echo "ollama failed to start"; cat /tmp/ollama-serve.log; exit 1
+
+      - name: Probe configured Ollama endpoint
+        run: node scripts/check-endpoints.mjs
+        env:
+          OLLAMA_HOST: ${{ vars.OLLAMA_HOST }}
+          TIMEOUT_MS: '15000'
