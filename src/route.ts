@@ -3,20 +3,24 @@
  * matches configured rules (task type via `purpose`, case-insensitive
  * keywords, or a blanket `always`) against a request, in list order — first
  * match wins. The streaming helper routes a matched request to the local
- * Ollama adapter and, when the local route fails BEFORE producing any visible
- * content, falls back to the cloud (`next()`) so a down Ollama never bricks a
- * conversation. Once local content has started, it is streamed through — a
- * mid-stream failure cannot be retracted.
+ * provider adapter (Ollama or an OpenAI-compatible backend) and, when the
+ * local route fails BEFORE producing any visible content, falls back to the
+ * cloud (`next()`) so a down local server never bricks a conversation. Once
+ * local content has started, it is streamed through — a mid-stream failure
+ * cannot be retracted.
  * @module dsh-local-ai/route
  */
 
 import { isTokenDelta } from '@deepseek-ai/dsh-llm'
 import type { GenerateOptions, StreamChunk } from '@deepseek-ai/dsh-llm'
 import { OLLAMA_PROVIDER } from './adapter.ts'
+import { DEFAULT_PROVIDER } from './config.ts'
 import type { ResolvedConfig, ResolvedRouteRule } from './config.ts'
 
-/** The chosen local model for one matched request. */
+/** The chosen local provider + model for one matched request. */
 export interface RouteDecision {
+  /** The local provider id to route to (`ollama` or `openai:<name>`). */
+  readonly provider: string
   /** Harness-visible local model name. */
   readonly model: string
 }
@@ -55,17 +59,30 @@ export function ruleMatches(rule: ResolvedRouteRule, options: GenerateOptions): 
 }
 
 /**
+ * Whether a provider id is one of this plugin's local providers. Explicit
+ * selection of a local provider (or a prior re-route) must never re-route.
+ * @param provider - the request's provider id, or `undefined` for the cloud default.
+ * @param resolved - the resolved config.
+ * @returns true when the request is already addressed to a local provider.
+ */
+export function isLocalProvider(provider: string | undefined, resolved: ResolvedConfig): boolean {
+  if (provider === undefined) return false
+  if (provider === OLLAMA_PROVIDER) return true
+  return resolved.backends.some(backend => backend.providerId === provider)
+}
+
+/**
  * Decide whether a request should route to a local model. A request already
- * addressed to the `ollama` provider (explicit selection or a prior re-route)
- * never re-routes.
+ * addressed to a local provider (explicit selection or a prior re-route) never
+ * re-routes.
  * @param options - the request.
  * @param resolved - the resolved config.
- * @returns the local model to use, or `undefined` to stay on the cloud route.
+ * @returns the local provider + model to use, or `undefined` to stay on the cloud route.
  */
 export function decideRoute(options: GenerateOptions, resolved: ResolvedConfig): RouteDecision | undefined {
-  if (options.provider === OLLAMA_PROVIDER) return undefined
+  if (isLocalProvider(options.provider, resolved)) return undefined
   for (const rule of resolved.route) {
-    if (ruleMatches(rule, options)) return { model: rule.model }
+    if (ruleMatches(rule, options)) return { provider: rule.provider, model: rule.model }
   }
   return undefined
 }
@@ -88,7 +105,7 @@ export async function* routeLocal(
   decision: RouteDecision,
   next: () => AsyncIterable<StreamChunk>,
 ): AsyncGenerator<StreamChunk> {
-  const localOptions: GenerateOptions = { ...options, provider: OLLAMA_PROVIDER, model: decision.model }
+  const localOptions: GenerateOptions = { ...options, provider: decision.provider ?? DEFAULT_PROVIDER, model: decision.model }
   const upstream = streamLocal(localOptions)
   let producedContent = false
   const pending: StreamChunk[] = []

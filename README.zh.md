@@ -109,8 +109,16 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 | `models[].contextWindow` | *(none)* | 该模型的上下文容量 |
 | `models[].maxTokens` | *(none)* | 该模型的输出上限 |
 | `models[].temperature` | *(none)* | 该模型的采样温度 |
+| `backends` | `[]` | OpenAI 兼容的本地后端（LM Studio / vLLM / llama.cpp） |
+| `backends[].name` | *(required)* | 后端名；注册为 provider id `openai:<name>` |
+| `backends[].baseURL` | *(required)* | 后端 base URL（含 `/v1`），如 `http://127.0.0.1:1234/v1` |
+| `backends[].apiKey` | *(none)* | 可选 bearer API key（多数本地服务器留空） |
+| `backends[].models` | `[]` | 界面可见名 → 后端模型映射 |
+| `backends[].maxTokens` | `4096` | 该后端无精确值时的输出上限 |
+| `backends[].temperature` | *(none)* | 该后端的采样温度 |
 | `route` | `[]` | 本地模型路由规则（首个命中生效） |
 | `route[].model` | *(required)* | 目标本地模型名 |
+| `route[].provider` | `ollama` | 目标 provider id：`ollama` 或 `openai:<name>` |
 | `route[].purpose` | *(none)* | 任务类型匹配：`compaction` / `session-title` |
 | `route[].keywords` | `[]` | 不区分大小写的请求关键词 |
 | `route[].always` | `false` | 把所有符合条件的请求路由到此模型 |

@@ -31,7 +31,7 @@ describe('requestText and ruleMatches', () => {
   })
 
   it('matches purpose, keywords (case-insensitive), and always', () => {
-    const base = { model: 'local', keywords: [] as string[], always: false }
+    const base = { model: 'local', provider: 'ollama', keywords: [] as string[], always: false }
     expect(ruleMatches({ ...base, always: true }, options())).toBe(true)
     expect(ruleMatches({ ...base, purpose: 'compaction' }, options({ purpose: 'compaction' }))).toBe(true)
     expect(ruleMatches({ ...base, keywords: ['CONFIDENTIAL'] }, options())).toBe(true)
@@ -57,7 +57,23 @@ describe('decideRoute', () => {
         { model: 'second', always: true },
       ],
     })
-    expect(decideRoute(options(), resolved)).toEqual({ model: 'first' })
+    expect(decideRoute(options(), resolved)).toEqual({ provider: 'ollama', model: 'first' })
+  })
+
+  it('routes to a configured OpenAI-compatible backend by provider', () => {
+    const resolved = resolveConfig({
+      backends: [{ name: 'lmstudio', baseURL: 'http://127.0.0.1:1234/v1' }],
+      route: [{ model: 'qwen', provider: 'openai:lmstudio', always: true }],
+    })
+    expect(decideRoute(options(), resolved)).toEqual({ provider: 'openai:lmstudio', model: 'qwen' })
+  })
+
+  it('never re-routes a request already on a backend provider', () => {
+    const resolved = resolveConfig({
+      backends: [{ name: 'lmstudio', baseURL: 'http://127.0.0.1:1234/v1' }],
+      route: [{ model: 'qwen', always: true }],
+    })
+    expect(decideRoute(options({ provider: 'openai:lmstudio' }), resolved)).toBeUndefined()
   })
 })
 
@@ -71,7 +87,7 @@ describe('routeLocal', () => {
       yield { type: 'finish', reason: { kind: 'stop' } }
     }
     const chunks: StreamChunk[] = []
-    for await (const chunk of routeLocal(() => failLocal(), options(), { model: 'local' }, () => cloud())) chunks.push(chunk)
+    for await (const chunk of routeLocal(() => failLocal(), options(), { provider: 'ollama', model: 'local' }, () => cloud())) chunks.push(chunk)
     expect(chunks).toContainEqual({ type: 'text-delta', index: 0, text: 'cloud' })
   })
 
@@ -85,7 +101,7 @@ describe('routeLocal', () => {
       yield { type: 'text-delta', index: 0, text: 'cloud' }
     }
     const chunks: StreamChunk[] = []
-    for await (const chunk of routeLocal(() => goodLocal(), options(), { model: 'local' }, () => cloud())) chunks.push(chunk)
+    for await (const chunk of routeLocal(() => goodLocal(), options(), { provider: 'ollama', model: 'local' }, () => cloud())) chunks.push(chunk)
     expect(chunks).toContainEqual({ type: 'text-delta', index: 0, text: 'local' })
     expect(chunks).not.toContainEqual({ type: 'text-delta', index: 0, text: 'cloud' })
   })
@@ -99,7 +115,20 @@ describe('routeLocal', () => {
       seen.push({ provider: opts.provider, model: opts.model })
       return collect(local())
     }
-    for await (const _chunk of routeLocal(streamLocal, options(), { model: 'local' }, () => collect(local()))) { /* drain */ }
+    for await (const _chunk of routeLocal(streamLocal, options(), { provider: 'ollama', model: 'local' }, () => collect(local()))) { /* drain */ }
     expect(seen).toEqual([{ provider: 'ollama', model: 'local' }])
+  })
+
+  it('re-routes to a backend provider when the decision names one', async () => {
+    const seen: Array<{ provider: string; model: string }> = []
+    async function* local(): AsyncGenerator<StreamChunk> {
+      yield { type: 'finish', reason: { kind: 'stop' } }
+    }
+    const streamLocal = (opts: GenerateOptions): AsyncIterable<StreamChunk> => {
+      seen.push({ provider: opts.provider, model: opts.model })
+      return collect(local())
+    }
+    for await (const _chunk of routeLocal(streamLocal, options(), { provider: 'openai:lmstudio', model: 'qwen' }, () => collect(local()))) { /* drain */ }
+    expect(seen).toEqual([{ provider: 'openai:lmstudio', model: 'qwen' }])
   })
 })

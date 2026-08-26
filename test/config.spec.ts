@@ -71,4 +71,35 @@ describe('resolveConfig', () => {
     const resolved = resolveConfig({ baseURL: 'http://localhost:11434/' })
     expect(resolved.baseURL).toBe('http://localhost:11434')
   })
+
+  it('resolves an OpenAI-compatible backend with a provider id and model mappings', () => {
+    const resolved = resolveConfig({
+      backends: [{ name: 'lmstudio', baseURL: 'http://127.0.0.1:1234/v1/', models: [{ name: 'qwen', model: 'qwen2.5-7b' }] }],
+    })
+    expect(resolved.backends).toHaveLength(1)
+    const backend = resolved.backends[0]!
+    expect(backend).toMatchObject({
+      name: 'lmstudio',
+      providerId: 'openai:lmstudio',
+      baseURL: 'http://127.0.0.1:1234/v1',
+      apiKey: '',
+    })
+    expect(backend.models[0]).toEqual({ name: 'qwen', model: 'qwen2.5-7b' })
+  })
+
+  it('rejects a backend named like the reserved ollama provider', () => {
+    expect(() => resolveConfig({ backends: [{ name: 'ollama', baseURL: 'http://x/v1' }] })).toThrow(/reserved provider id/u)
+  })
+
+  it('defaults a route provider to ollama and preserves an explicit one', () => {
+    const resolved = resolveConfig({
+      backends: [{ name: 'vllm', baseURL: 'http://127.0.0.1:8000/v1' }],
+      route: [
+        { model: 'local', always: true },
+        { model: 'qwen', provider: 'openai:vllm', always: true },
+      ],
+    })
+    expect(resolved.route[0]!.provider).toBe('ollama')
+    expect(resolved.route[1]!.provider).toBe('openai:vllm')
+  })
 })

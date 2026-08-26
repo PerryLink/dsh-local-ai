@@ -37,6 +37,7 @@
 - **Discovery & management** — `ollama_list` (installed models, running models, disk usage), `ollama_show` (parameter size, quantization, context length), `ollama_pull`, and `ollama_remove`.
 - **Health check** — process liveness (via the `ollama` CLI) and API responsiveness (via `/api/version`), reported as two independent signals.
 - **Official adapter** — the `ollama` provider route is registered through `ctx.llm.registerAdapter` (`LlmAdapter`), with configurable model mapping and temperature / max-tokens / stop translation.
+- **OpenAI-compatible backends** — LM Studio, vLLM, and llama.cpp `--server` each register as their own `openai:<name>` provider through the same `LlmAdapter` seam, reusing one OpenAI `/v1/chat/completions` adapter (text-only route).
 - **Local routing** — `model_route` rules route requests to a local model by task type (`purpose`), case-insensitive keyword, or `always`, with automatic fallback to the cloud when the local route fails before producing content.
 - **`/ollama` command** — a one-shot status overview: models, disk usage, health, and suggestions.
 - **Zero dependencies, HTTP first** — everything talks to Ollama's HTTP API (the CLI is used only for the process probe); no model files are bundled.
@@ -45,6 +46,7 @@
 request (loop)
    │ llm/stream waterfall
    ├─ rule matches? ──▶ route to ollama ──▶ Ollama /api/chat (NDJSON stream)
+   │              └─▶ route to openai:<name> ─▶ /v1/chat/completions (SSE)
    │                        └─ fails first ─▶ fall back to cloud (next())
    └─ no match ──▶ cloud provider
 tools ──▶ /api/tags · /api/ps · /api/show · /api/pull · /api/delete
@@ -110,8 +112,16 @@ All tunables are Schemastery `Config` fields (changeable from cordis.yml). An id
 | `models[].contextWindow` | *(none)* | Per-model context capacity |
 | `models[].maxTokens` | *(none)* | Per-model output cap |
 | `models[].temperature` | *(none)* | Per-model sampling temperature |
+| `backends` | `[]` | OpenAI-compatible local backends (LM Studio / vLLM / llama.cpp) |
+| `backends[].name` | *(required)* | Backend name; registers provider id `openai:<name>` |
+| `backends[].baseURL` | *(required)* | Backend base URL including `/v1`, e.g. `http://127.0.0.1:1234/v1` |
+| `backends[].apiKey` | *(none)* | Optional bearer API key (most local servers leave it empty) |
+| `backends[].models` | `[]` | Harness-visible → backend model mappings |
+| `backends[].maxTokens` | `4096` | Per-backend output cap used when a model has no exact value |
+| `backends[].temperature` | *(none)* | Per-backend sampling temperature |
 | `route` | `[]` | Local-model routing rules (first match wins) |
 | `route[].model` | *(required)* | Target local model name |
+| `route[].provider` | `ollama` | Target provider id: `ollama` or `openai:<name>` |
 | `route[].purpose` | *(none)* | Task type match: `compaction` / `session-title` |
 | `route[].keywords` | `[]` | Case-insensitive request keywords |
 | `route[].always` | `false` | Route every eligible request to this model |

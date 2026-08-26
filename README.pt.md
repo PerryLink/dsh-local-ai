@@ -109,8 +109,16 @@ Todos os ajustes são campos `Config` de Schemastery (modificáveis pelo cordis.
 | `models[].contextWindow` | *(none)* | Capacidade de contexto por modelo |
 | `models[].maxTokens` | *(none)* | Limite de saída por modelo |
 | `models[].temperature` | *(none)* | Temperatura de amostragem por modelo |
+| `backends` | `[]` | Backends locais compatíveis com OpenAI (LM Studio / vLLM / llama.cpp) |
+| `backends[].name` | *(required)* | Nome do backend; registra o id de provedor `openai:<name>` |
+| `backends[].baseURL` | *(required)* | URL base do backend (inclui `/v1`), ex. `http://127.0.0.1:1234/v1` |
+| `backends[].apiKey` | *(none)* | Chave bearer opcional (a maioria dos servidores locais deixa vazia) |
+| `backends[].models` | `[]` | Mapeamentos de nome visível → modelo do backend |
+| `backends[].maxTokens` | `4096` | Limite de saída por backend quando um modelo não tem valor exato |
+| `backends[].temperature` | *(none)* | Temperatura de amostragem por backend |
 | `route` | `[]` | Regras de roteamento para modelos locais (primeira correspondência vence) |
 | `route[].model` | *(required)* | Nome do modelo local de destino |
+| `route[].provider` | `ollama` | Id do provedor de destino: `ollama` ou `openai:<name>` |
 | `route[].purpose` | *(none)* | Correspondência de tipo de tarefa: `compaction` / `session-title` |
 | `route[].keywords` | `[]` | Palavras-chave da solicitação (sem diferenciar maiúsculas) |
 | `route[].always` | `false` | Roteia toda solicitação elegível para este modelo |

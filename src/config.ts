@@ -30,12 +30,30 @@ export interface ModelMapping {
 export interface RouteRule {
   /** Target harness-visible model name, resolved through the model mapping. */
   model: string
+  /** Target provider id; defaults to `ollama`. `openai:<name>` targets a configured backend. */
+  provider?: string
   /** Route when the request purpose matches this task type. */
   purpose?: 'compaction' | 'session-title'
   /** Route when any keyword appears (case-insensitive) in the request text. */
   keywords?: string[]
   /** Route every eligible request to this local model (offline-first). */
   always?: boolean
+}
+
+/** One OpenAI-compatible local backend (LM Studio / vLLM / llama.cpp server). */
+export interface OpenAICompatibleBackend {
+  /** Backend name, used in the provider id `openai:<name>` and logs. */
+  name: string
+  /** Base URL including the `/v1` prefix, e.g. `http://127.0.0.1:1234/v1`. */
+  baseURL: string
+  /** Optional bearer API key (most local servers leave it empty). */
+  apiKey?: string
+  /** Harness-visible → backend model mappings. */
+  models?: ModelMapping[]
+  /** Per-request output cap used when a model has no exact value. */
+  maxTokens?: number
+  /** Default sampling temperature; omitted leaves the backend default. */
+  temperature?: number
 }
 
 /** Raw plugin config — every field optional; {@link resolveConfig} supplies the defaults. */
@@ -56,6 +74,8 @@ export interface Config {
   vision?: boolean
   /** Harness-visible → Ollama model mappings. */
   models?: ModelMapping[]
+  /** OpenAI-compatible local backends (LM Studio / vLLM / llama.cpp). */
+  backends?: OpenAICompatibleBackend[]
   /** Local-model routing rules (offline-first / long-text / privacy tasks). */
   route?: RouteRule[]
 }
@@ -72,9 +92,24 @@ export interface ResolvedModelMapping {
 /** Fully resolved routing rule. */
 export interface ResolvedRouteRule {
   readonly model: string
+  readonly provider: string
   readonly purpose?: 'compaction' | 'session-title'
   readonly keywords: readonly string[]
   readonly always: boolean
+}
+
+/** Fully resolved OpenAI-compatible backend. */
+export interface ResolvedOpenAIBackend {
+  readonly name: string
+  /** The harness provider id this backend registers under (`openai:<name>`). */
+  readonly providerId: string
+  readonly baseURL: string
+  readonly apiKey: string
+  readonly defaultContextWindow: number
+  readonly maxTokens: number
+  readonly temperature?: number
+  readonly requestTimeoutMs: number
+  readonly models: readonly ResolvedModelMapping[]
 }
 
 /** The complete resolved config handed to the runtime. */
@@ -87,6 +122,7 @@ export interface ResolvedConfig {
   readonly temperature?: number
   readonly vision: boolean
   readonly models: readonly ResolvedModelMapping[]
+  readonly backends: readonly ResolvedOpenAIBackend[]
   readonly route: readonly ResolvedRouteRule[]
 }
 
@@ -106,8 +142,23 @@ export const Config: z<Config> = z.object({
     maxTokens: z.number(),
     temperature: z.number(),
   })).default([]),
+  backends: z.array(z.object({
+    name: z.string().required(),
+    baseURL: z.string().required(),
+    apiKey: z.string(),
+    models: z.array(z.object({
+      name: z.string().required(),
+      model: z.string(),
+      contextWindow: z.number(),
+      maxTokens: z.number(),
+      temperature: z.number(),
+    })).default([]),
+    maxTokens: z.number(),
+    temperature: z.number(),
+  })).default([]),
   route: z.array(z.object({
     model: z.string().required(),
+    provider: z.string(),
     purpose: z.union(['compaction', 'session-title'] as const),
     keywords: z.array(z.string()).default([]),
     always: z.boolean().default(false),
@@ -178,34 +229,44 @@ export function resolveConfig(config: Config = {}): ResolvedConfig {
 
   const vision = config.vision ?? true
 
-  const seenNames = new Set<string>()
-  const models = (config.models ?? []).map((mapping, index) => {
-    if (typeof mapping.name !== 'string' || mapping.name.trim().length === 0) {
-      throw new TypeError(`models[${index}].name must be a non-empty string`)
+  const models = resolveMappings(config.models, 'models')
+
+  const backends = (config.backends ?? []).map((backend, index) => {
+    if (typeof backend.name !== 'string' || backend.name.trim().length === 0) {
+      throw new TypeError(`backends[${index}].name must be a non-empty string`)
     }
-    const name = mapping.name.trim()
-    if (seenNames.has(name)) throw new TypeError(`models[${index}]: duplicate model name ${JSON.stringify(name)}`)
-    seenNames.add(name)
-    const model = (mapping.model ?? name).trim()
-    if (model.length === 0) throw new TypeError(`models[${index}].model must be a non-empty string`)
-    const contextWindow = mapping.contextWindow
-    if (contextWindow !== undefined) assertPositiveInt(`models[${index}].contextWindow`, contextWindow)
-    const modelMaxTokens = mapping.maxTokens
-    if (modelMaxTokens !== undefined) assertPositiveInt(`models[${index}].maxTokens`, modelMaxTokens)
-    const modelTemperature = mapping.temperature
-    if (modelTemperature !== undefined) assertFiniteRange(`models[${index}].temperature`, modelTemperature, 0, 2)
+    const name = backend.name.trim()
+    if (name === DEFAULT_PROVIDER) {
+      throw new TypeError(`backends[${index}].name must not be the reserved provider id ${JSON.stringify(DEFAULT_PROVIDER)}`)
+    }
+    if (typeof backend.baseURL !== 'string' || backend.baseURL.trim().length === 0) {
+      throw new TypeError(`backends[${index}].baseURL must be a non-empty string`)
+    }
+    const backendBaseURL = normalizeBaseUrl(`backends[${index}].baseURL`, backend.baseURL)
+    const backendMaxTokens = backend.maxTokens ?? maxTokens
+    assertPositiveInt(`backends[${index}].maxTokens`, backendMaxTokens)
+    const backendTemperature = backend.temperature
+    if (backendTemperature !== undefined) assertFiniteRange(`backends[${index}].temperature`, backendTemperature, 0, 2)
     return {
       name,
-      model,
-      ...contextWindow === undefined ? {} : { contextWindow },
-      ...modelMaxTokens === undefined ? {} : { maxTokens: modelMaxTokens },
-      ...modelTemperature === undefined ? {} : { temperature: modelTemperature },
+      providerId: openaiProviderId(name),
+      baseURL: backendBaseURL,
+      apiKey: backend.apiKey ?? '',
+      defaultContextWindow,
+      maxTokens: backendMaxTokens,
+      ...backendTemperature === undefined ? {} : { temperature: backendTemperature },
+      requestTimeoutMs,
+      models: resolveMappings(backend.models, `backends[${index}].models`),
     }
   })
 
   const route = (config.route ?? []).map((rule, index) => {
     if (typeof rule.model !== 'string' || rule.model.trim().length === 0) {
       throw new TypeError(`route[${index}].model must be a non-empty string`)
+    }
+    const provider = (rule.provider ?? DEFAULT_PROVIDER).trim()
+    if (provider.length === 0) {
+      throw new TypeError(`route[${index}].provider must be a non-empty string`)
     }
     const keywords = (rule.keywords ?? []).map((keyword, keywordIndex) => {
       if (typeof keyword !== 'string' || keyword.trim().length === 0) {
@@ -218,6 +279,7 @@ export function resolveConfig(config: Config = {}): ResolvedConfig {
     }
     return {
       model: rule.model.trim(),
+      provider,
       ...rule.purpose === undefined ? {} : { purpose: rule.purpose },
       keywords,
       always: rule.always ?? false,
@@ -233,8 +295,54 @@ export function resolveConfig(config: Config = {}): ResolvedConfig {
     ...temperature === undefined ? {} : { temperature },
     vision,
     models,
+    backends,
     route,
   }
+}
+
+/** The provider id routing rules target when `provider` is omitted. */
+export const DEFAULT_PROVIDER = 'ollama'
+
+/** Prefix for OpenAI-compatible backend provider ids. */
+export const OPENAI_PROVIDER_PREFIX = 'openai:'
+
+/** Build the harness provider id for one OpenAI-compatible backend. */
+export function openaiProviderId(name: string): string {
+  return `${OPENAI_PROVIDER_PREFIX}${name}`
+}
+
+/**
+ * Validate and normalize one model-mapping list (top-level or per-backend).
+ * Duplicate harness-visible names throw; the wire id defaults to the name.
+ * @param mappings - the raw mappings.
+ * @param label - the config path prefix for error messages.
+ * @returns the resolved mappings.
+ */
+function resolveMappings(mappings: ModelMapping[] | undefined, label: string): ResolvedModelMapping[] {
+  const seenNames = new Set<string>()
+  return (mappings ?? []).map((mapping, index) => {
+    if (typeof mapping.name !== 'string' || mapping.name.trim().length === 0) {
+      throw new TypeError(`${label}[${index}].name must be a non-empty string`)
+    }
+    const name = mapping.name.trim()
+    if (seenNames.has(name)) throw new TypeError(`${label}[${index}]: duplicate model name ${JSON.stringify(name)}`)
+    seenNames.add(name)
+    const model = (mapping.model ?? name).trim()
+    if (model.length === 0) throw new TypeError(`${label}[${index}].model must be a non-empty string`)
+    const contextWindow = mapping.contextWindow
+    if (contextWindow !== undefined) assertPositiveInt(`${label}[${index}].contextWindow`, contextWindow)
+    const modelMaxTokens = mapping.maxTokens
+    if (modelMaxTokens !== undefined) assertPositiveInt(`${label}[${index}].maxTokens`, modelMaxTokens)
+    const modelTemperature = mapping.temperature
+    if (modelTemperature !== undefined) assertFiniteRange(`${label}[${index}].temperature`, modelTemperature, 0, 2)
+    return {
+      name,
+      model,
+      ...contextWindow === undefined ? {} : { contextWindow },
+      ...modelMaxTokens === undefined ? {} : { maxTokens: modelMaxTokens },
+      ...modelTemperature === undefined ? {} : { temperature: modelTemperature },
+    }
+  })
 }
 
 /**

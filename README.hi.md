@@ -109,8 +109,16 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 | `models[].contextWindow` | *(none)* | प्रति-मॉडल संदर्भ क्षमता |
 | `models[].maxTokens` | *(none)* | प्रति-मॉडल आउटपुट सीमा |
 | `models[].temperature` | *(none)* | प्रति-मॉडल सैंपलिंग तापमान |
+| `backends` | `[]` | OpenAI-संगत स्थानीय बैकएंड (LM Studio / vLLM / llama.cpp) |
+| `backends[].name` | *(required)* | बैकएंड नाम; provider id `openai:<name>` पंजीकृत करता है |
+| `backends[].baseURL` | *(required)* | बैकएंड base URL (`/v1` सहित), जैसे `http://127.0.0.1:1234/v1` |
+| `backends[].apiKey` | *(none)* | वैकल्पिक bearer API key (अधिकांश स्थानीय सर्वर इसे खाली छोड़ते हैं) |
+| `backends[].models` | `[]` | दृश्य नाम → बैकएंड मॉडल मैपिंग |
+| `backends[].maxTokens` | `4096` | बिना सटीक मान वाले मॉडल के लिए प्रति-बैकएंड आउटपुट सीमा |
+| `backends[].temperature` | *(none)* | प्रति-बैकएंड सैंपलिंग तापमान |
 | `route` | `[]` | स्थानीय-मॉडल रूटिंग नियम (पहला मेल जीतता है) |
 | `route[].model` | *(required)* | लक्ष्य स्थानीय मॉडल नाम |
+| `route[].provider` | `ollama` | लक्ष्य प्रदाता id: `ollama` या `openai:<name>` |
 | `route[].purpose` | *(none)* | कार्य-प्रकार मेल: `compaction` / `session-title` |
 | `route[].keywords` | `[]` | केस-असंवेदी अनुरोध कीवर्ड |
 | `route[].always` | `false` | हर पात्र अनुरोध को इस मॉडल पर रूट करें |

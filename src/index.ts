@@ -1,11 +1,13 @@
 /**
- * `dsh-local-ai` — local-model (Ollama) integration for DeepSeek Harness.
- * Registers the `ollama` `LlmAdapter` route, exposes discovery/management
- * tools (`ollama_list`, `ollama_show`, `ollama_pull`, `ollama_remove`) plus a
- * health check, routes requests to local models by task type or keyword with
- * automatic fallback to the cloud, and provides the `/ollama` one-shot status
- * command. Zero runtime dependencies beyond the harness peers: everything
- * talks to Ollama over its HTTP API (or, for process liveness, the CLI).
+ * `dsh-local-ai` — local-model integration for DeepSeek Harness. Registers the
+ * `ollama` `LlmAdapter` route plus one `openai:<name>` route per configured
+ * OpenAI-compatible backend (LM Studio / vLLM / llama.cpp), exposes
+ * discovery/management tools (`ollama_list`, `ollama_show`, `ollama_pull`,
+ * `ollama_remove`) plus a health check, routes requests to local models by
+ * task type or keyword with automatic fallback to the cloud, and provides the
+ * `/ollama` one-shot status command. Zero runtime dependencies beyond the
+ * harness peers: everything talks HTTP (or, for Ollama process liveness, the
+ * CLI).
  *
  * Function plugin — no default export (the Loader unwraps
  * `exports.default ?? exports`, and a stray default would discard
@@ -20,6 +22,7 @@ import type { CommandResult } from '@deepseek-ai/dsh-commands'
 import type { GenerateOptions, StreamChunk } from '@deepseek-ai/dsh-llm'
 import { Config, resolveConfig } from './config.ts'
 import { OllamaAdapter, OLLAMA_PROVIDER } from './adapter.ts'
+import { OpenAICompatibleAdapter } from './openai-adapter.ts'
 import { decideRoute, routeLocal } from './route.ts'
 import { checkHealth } from './health.ts'
 import { contextLengthOf, listModels, listRunning, pullModel, removeModel, showModel } from './ollama.ts'
@@ -28,8 +31,9 @@ import type { FetchLike } from './ollama.ts'
 export const name = 'local-ai'
 export const inject = ['llm', 'tools', 'subprocess', 'commands']
 
-export { Config, resolveConfig } from './config.ts'
-export type { Config as LocalAiConfig, ModelMapping, ResolvedConfig, ResolvedModelMapping, ResolvedRouteRule, RouteRule } from './config.ts'
+export { Config, resolveConfig, openaiProviderId, OPENAI_PROVIDER_PREFIX, DEFAULT_PROVIDER } from './config.ts'
+export type { Config as LocalAiConfig, ModelMapping, OpenAICompatibleBackend, ResolvedConfig, ResolvedModelMapping, ResolvedOpenAIBackend, ResolvedRouteRule, RouteRule } from './config.ts'
+export { OpenAICompatibleAdapter } from './openai-adapter.ts'
 export { VERSION } from './version.ts'
 export { REDACTED, redactSecrets, sanitizeEndpoint, sanitizePath, sanitizeText, truncate } from './sanitize.ts'
 
@@ -137,6 +141,15 @@ export function apply(ctx: Context, config: Config = {}): void {
     resolveAttachments: () => ctx.get('attachments'),
   })
   ctx.llm.registerAdapter([OLLAMA_PROVIDER], adapter)
+
+  // OpenAI-compatible backends (LM Studio / vLLM / llama.cpp) each register as
+  // their own provider id (`openai:<name>`), reusing the same adapter class.
+  for (const backend of resolved.backends) {
+    ctx.llm.registerAdapter([backend.providerId], new OpenAICompatibleAdapter({
+      config: () => backend,
+      fetchImpl,
+    }))
+  }
 
   // Routing waterfall: passthrough by default; a matched rule re-routes to the
   // local model and falls back to `next()` (the cloud) when local fails first.
@@ -279,5 +292,6 @@ export function apply(ctx: Context, config: Config = {}): void {
     },
   })
 
-  logger.info(`ollama adapter registered at ${resolved.baseURL} (${resolved.models.length} mapping(s), ${resolved.route.length} route rule(s))`)
+  logger.info(`ollama adapter registered at ${resolved.baseURL} (${resolved.models.length} mapping(s), ${resolved.route.length} route rule(s)); ` +
+    `${resolved.backends.length} OpenAI-compatible backend(s): ${resolved.backends.map(backend => backend.providerId).join(', ') || 'none'}`)
 }
