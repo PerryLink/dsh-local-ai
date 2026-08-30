@@ -8,8 +8,9 @@
  * @module dsh-local-ai/openai-translate
  */
 
-import { CallId, EMPTY_RESPONSE_CODE, LlmError } from '@deepseek-ai/dsh-llm'
+import { EMPTY_RESPONSE_CODE, LlmError } from '@deepseek-ai/dsh-llm'
 import type { ContentBlock, FinishReason, StreamChunk, TokenUsage } from '@deepseek-ai/dsh-llm'
+import { CallId } from './call-id.ts'
 
 /** One OpenAI SSE delta chunk on the wire. */
 export interface OpenAISseChunk {
