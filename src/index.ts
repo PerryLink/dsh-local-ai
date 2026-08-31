@@ -17,7 +17,7 @@
 
 import type { Context } from '@deepseek-ai/cordis'
 import { defineTool } from '@deepseek-ai/dsh-tools'
-import type { JsonValue } from '@deepseek-ai/dsh-tools'
+import type { JsonValue } from '@deepseek-ai/dsh-util-values'
 import type { CommandResult } from '@deepseek-ai/dsh-commands'
 import type { GenerateOptions, StreamChunk } from '@deepseek-ai/dsh-llm'
 import { Config, resolveConfig } from './config.ts'

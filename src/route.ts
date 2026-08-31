@@ -11,11 +11,30 @@
  * @module dsh-local-ai/route
  */
 
-import { isTokenDelta } from '@deepseek-ai/dsh-llm'
 import type { GenerateOptions, StreamChunk } from '@deepseek-ai/dsh-llm'
 import { OLLAMA_PROVIDER } from './adapter.ts'
 import { DEFAULT_PROVIDER } from './config.ts'
 import type { ResolvedConfig, ResolvedRouteRule } from './config.ts'
+
+/**
+ * Whether a stream chunk carries visible model output for fallback timing.
+ * The host moved this helper out of `@deepseek-ai/dsh-llm` on 0.1.2-alpha.2
+ * (it now lives in the client ui-chat package), so the plugin pins the same
+ * semantics locally.
+ * @param chunk - Stream chunk to inspect.
+ * @returns true for a non-empty text, reasoning, or tool-call delta.
+ */
+function isTokenDelta(chunk: StreamChunk): boolean {
+  switch (chunk.type) {
+    case 'text-delta':
+    case 'reasoning-delta':
+      return chunk.text !== ''
+    case 'tool-call-delta':
+      return chunk.argumentsDelta !== '' || chunk.name !== undefined
+    default:
+      return false
+  }
+}
 
 /** The chosen local provider + model for one matched request. */
 export interface RouteDecision {
