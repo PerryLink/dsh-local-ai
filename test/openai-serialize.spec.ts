@@ -7,7 +7,7 @@
  * @module dsh-local-ai/test/openai-serialize.spec
  */
 
-import type { createAssistantMessage, createToolResultMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
+import { createAssistantMessage, createToolResultMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
 import { CallId } from '../src/call-id.ts'
 import type { GenerateOptions } from '@deepseek-ai/dsh-llm'
 import { describe, expect, it } from 'vitest'
