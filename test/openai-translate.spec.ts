@@ -5,7 +5,7 @@
  * @module dsh-local-ai/test/openai-translate.spec
  */
 
-import { CallId } from '@deepseek-ai/dsh-llm'
+import { CallId } from '../src/call-id.ts'
 import type { StreamChunk } from '@deepseek-ai/dsh-llm'
 import { describe, expect, it } from 'vitest'
 import { mapOpenAIFinishReason, translateOpenAIStream } from '../src/openai-translate.ts'
