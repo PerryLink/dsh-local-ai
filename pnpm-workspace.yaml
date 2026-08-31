@@ -16,3 +16,4 @@ allowBuilds:
   esbuild: true
   koffi: true
   node-pty: true
+verifyDepsBeforeRun: false

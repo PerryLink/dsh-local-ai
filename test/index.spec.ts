@@ -6,7 +6,8 @@
  * @module dsh-local-ai/test/index.spec
  */
 
-import { CallId, createUserMessage } from '@deepseek-ai/dsh-llm'
+import type { createUserMessage } from '@deepseek-ai/dsh-llm'
+import { CallId } from '../src/call-id.ts'
 import type { StreamChunk } from '@deepseek-ai/dsh-llm'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mountServices } from './harness.ts'
