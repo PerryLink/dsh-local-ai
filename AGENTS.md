@@ -16,7 +16,7 @@ official plugin contract; this file records repo-local decisions.
 - `src/route.ts` — pure routing decision (`purpose` / keyword / `always`, first match wins) plus the streaming `routeLocal` helper with automatic cloud fallback.
 - `src/sanitize.ts` — display/log sanitization (pure functions): endpoint userinfo/secret-query redaction, path home-directory redaction, control-character stripping, length bounds.
 - `scripts/` — `prepare.mjs` (build), `verify-self-contained.mjs`, `verify-artifacts.mjs`, `check-readme-sync.mjs` (five-language gate), `release.mjs` (bump + stamp + gates + commit + tag, never pushes), `changelog-section.mjs`.
-- `test/` — vitest; REAL `Context`/`LlmRuntime`/`SystemPrompt`+`ToolRuntime`/`CommandRuntime`/local subprocess from the 0.1.1-rc.2 peers. Only the network edge (global `fetch`) is scripted.
+- `test/` — vitest; REAL `Context`/`LlmRuntime`/`SystemPrompt`+`ToolRuntime`/`CommandRuntime`/local subprocess from the 0.1.2-alpha.3 peers. Only the network edge (global `fetch`) is scripted.
 
 ## Hard rules applied here
 
@@ -32,7 +32,7 @@ official plugin contract; this file records repo-local decisions.
 
 `pnpm run typecheck && pnpm run typecheck:ci && pnpm test && pnpm run test:coverage && pnpm run build && pnpm run verify:self-contained && pnpm run verify:artifacts && node scripts/check-readme-sync.mjs && pnpm pack`
 
-- `typecheck` checks `src` + `test` against the published 0.1.1-rc.2 types; `typecheck:ci` clears `skipLibCheck` and adds `verbatimModuleSyntax` for the strict published-types pass. Both must stay green — the package ships against rc.2.
+- `typecheck` checks `src` + `test` against the published 0.1.2-alpha.3 types; `typecheck:ci` clears `skipLibCheck` and adds `verbatimModuleSyntax` for the strict published-types pass. Both must stay green — the package ships against alpha.3.
 - `test:coverage` gates at 90/80/90/90 (statements/branches/functions/lines), `src/index.ts` excluded.
 
 ## Release

@@ -25,7 +25,7 @@
 
 | Superficie | Estado |
 |---|---|
-| Harness | DeepSeek Harness `0.1.1-rc.2` 0.1.2-alpha.2 (adaptado el 2026-08-31): el sobre de sesión conserva su campo ignorable solo para compatibilidad de lectura de logs almacenados - Session.append aún no puede estamparlo, por lo que el comportamiento de la puerta no cambia. |
+| Harness | DeepSeek Harness `0.1.2-alpha.3` (adaptado el 2026-09-01): el sobre de sesión conserva su campo ignorable solo para compatibilidad de lectura de logs almacenados - Session.append aún no puede estamparlo, por lo que el comportamiento de la puerta no cambia. |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | Backend | [Ollama](https://ollama.com) (API HTTP local + sonda CLI) |
 | Modelo | Ruta solo texto (`inputModalities: ['text']`); se admiten llamadas y resultados de herramientas |
@@ -153,7 +153,7 @@ Todos los ajustes son campos `Config` de Schemastery (modificables desde cordis.
 
 ## Known limitations
 
-- **Solo rc.2** — desarrollado y probado contra `@deepseek-ai/dsh@0.1.1-rc.2`; se espera que baselines más nuevos funcionen, pero los verifica el workflow mensual de compat.
+- **alpha.3** — desarrollado y probado contra `@deepseek-ai/dsh@0.1.2-alpha.3`; se espera que baselines más nuevos funcionen, pero los verifica el workflow mensual de compat.
 - **Vision cuando el modelo la informa** — los modelos cuyas capacidades de `/api/show` incluyen `vision` declaran `inputModalities: ["text","image"]` y llevan cargas de imagen base64 en los mensajes de usuario (exclusión con `vision: false`); los modelos solo texto siguen rechazando el contenido de imagen (`UNSUPPORTED_CONTENT`).
 - **Respaldo a mitad de flujo** — una vez que una ruta local empezó a producir contenido, un fallo posterior se reenvía (no se retira); solo un fallo antes del primer token respalda a la nube.
 
@@ -161,7 +161,7 @@ Todos los ajustes son campos `Config` de Schemastery (modificables desde cordis.
 
 ```sh
 pnpm install        # node ^22.19 || >=24
-pnpm run typecheck  # tsc: src + tests contra los tipos publicados 0.1.1-rc.2
+pnpm run typecheck  # tsc: src + tests contra los tipos publicados 0.1.2-alpha.3
 pnpm run typecheck:ci  # tsc estricto contra los tipos publicados rc.2 (skipLibCheck off)
 pnpm test           # vitest: costuras reales Context/LlmRuntime/ToolRuntime/CommandRuntime/subprocess
 pnpm run test:coverage  # puerta de cobertura (90/80/90/90)
