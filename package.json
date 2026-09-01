@@ -1,6 +1,6 @@
 {
   "name": "dsh-local-ai",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Local-model (Ollama) integration for DeepSeek Harness: discover, pull, remove, and inspect local models, route requests to them by task type or keyword with automatic fallback to the cloud, and get a one-shot status overview via /ollama.",
   "repository": {
     "type": "git",
@@ -111,7 +111,8 @@
     "tsdown": "^0.22.14",
     "typescript": "^5.9.0"
   },
-  "devDependencies": {"@deepseek-ai/dsh-util-values": "0.1.2-alpha.3", 
+  "devDependencies": {
+    "@deepseek-ai/dsh-util-values": "0.1.2-alpha.3",
     "@deepseek-ai/cordis": "^4.0.2",
     "@deepseek-ai/cordis-plugin-include": "1.0.6",
     "@deepseek-ai/cordis-plugin-loader": "1.0.2",
