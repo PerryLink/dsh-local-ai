@@ -28,7 +28,7 @@
 
 | Surface | Status |
 |---|---|
-| Harness | DeepSeek Harness `0.1.2-alpha.3` (adapted 2026-09-01): the session envelope keeps its ignorable field for stored-log read compatibility only - Session.append still cannot stamp it, so audit-gate behavior is unchanged. |
+| Harness | DeepSeek Harness `0.1.2-alpha.5` (adapted 2026-09-02): the session envelope keeps its ignorable field for stored-log read compatibility only - Session.append still cannot stamp it, so audit-gate behavior is unchanged. |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | Backend | [Ollama](https://ollama.com) (local HTTP API + CLI probe) |
 | Model | Text-only route (`inputModalities: ['text']`); tool calls and tool results are supported |
@@ -158,7 +158,7 @@ All tunables are Schemastery `Config` fields (changeable from cordis.yml). An id
 
 ## Known limitations
 
-- **alpha.3** — developed and tested against `@deepseek-ai/dsh@0.1.2-alpha.3`; newer harness baselines are expected to work but are verified by the monthly compat workflow.
+- **alpha.3** — developed and tested against `@deepseek-ai/dsh@0.1.2-alpha.5`; newer harness baselines are expected to work but are verified by the monthly compat workflow.
 - **Vision when the model reports it** — models whose `/api/show` capabilities include `vision` declare `inputModalities: ["text","image"]` and carry base64 image payloads on user messages (opt out with `vision: false`); text-only models still reject image content (`UNSUPPORTED_CONTENT`).
 - **Mid-stream fallback** — once a local route has started producing content, a later failure is forwarded (not retracted); only a failure before the first token falls back to the cloud.
 
@@ -166,7 +166,7 @@ All tunables are Schemastery `Config` fields (changeable from cordis.yml). An id
 
 ```sh
 pnpm install        # node ^22.19 || >=24
-pnpm run typecheck  # tsc: src + tests against the published 0.1.2-alpha.3 types
+pnpm run typecheck  # tsc: src + tests against the published 0.1.2-alpha.5 types
 pnpm run typecheck:ci  # strict tsc against published rc.2 types (skipLibCheck off)
 pnpm test           # vitest: real Context/LlmRuntime/ToolRuntime/CommandRuntime/subprocess seams
 pnpm run test:coverage  # coverage gate (90/80/90/90)

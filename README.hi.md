@@ -25,7 +25,7 @@
 
 | सतह | स्थिति |
 |---|---|
-| Harness | DeepSeek Harness `0.1.2-alpha.3` (2026-09-01 को अनुकूलित): सत्र लिफ़ाफ़ा अपना ignorable फ़ील्ड केवल संग्रहीत-लॉग पठन संगतता के लिए रखता है - Session.append अभी भी इसे स्टैम्प नहीं कर सकता, इसलिए गेट व्यवहार अपरिवर्तित है। |
+| Harness | DeepSeek Harness `0.1.2-alpha.5` (2026-09-02 को अनुकूलित): सत्र लिफ़ाफ़ा अपना ignorable फ़ील्ड केवल संग्रहीत-लॉग पठन संगतता के लिए रखता है - Session.append अभी भी इसे स्टैम्प नहीं कर सकता, इसलिए गेट व्यवहार अपरिवर्तित है। |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | Backend | [Ollama](https://ollama.com) (स्थानीय HTTP API + CLI जाँच) |
 | Model | केवल-पाठ रूट (`inputModalities: ['text']`); टूल कॉल व परिणाम समर्थित हैं |
@@ -153,7 +153,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 
 ## Known limitations
 
-- **alpha.3** — `@deepseek-ai/dsh@0.1.2-alpha.3` के विरुद्ध विकसित व परीक्षित; नए harness बेसलाइन काम करने की अपेक्षा है, पर मासिक compat workflow उन्हें सत्यापित करता है।
+- **alpha.3** — `@deepseek-ai/dsh@0.1.2-alpha.5` के विरुद्ध विकसित व परीक्षित; नए harness बेसलाइन काम करने की अपेक्षा है, पर मासिक compat workflow उन्हें सत्यापित करता है।
 - **मॉडल द्वारा vision रिपोर्ट करने पर विज़न** — जिन मॉडलों की `/api/show` capabilities में `vision` है, वे `inputModalities: ["text","image"]` घोषित करते हैं और उपयोगकर्ता संदेशों पर base64 छवि पेलोड ले जाते हैं (`vision: false` से बंद करें); केवल-टेक्स्ट मॉडल अब भी छवि सामग्री अस्वीकार करते हैं (`UNSUPPORTED_CONTENT`)।
 - **मध्य-स्ट्रीम वापसी** — एक बार स्थानीय रूट सामग्री बनाना शुरू कर दे, तो बाद की विफलता आगे भेजी जाती है (वापस नहीं ली जाती); केवल पहले टोकन से पहले की विफलता क्लाउड पर लौटती है।
 
@@ -161,7 +161,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 
 ```sh
 pnpm install        # node ^22.19 || >=24
-pnpm run typecheck  # tsc: src + परीक्षण, प्रकाशित 0.1.2-alpha.3 प्रकारों के विरुद्ध
+pnpm run typecheck  # tsc: src + परीक्षण, प्रकाशित 0.1.2-alpha.5 प्रकारों के विरुद्ध
 pnpm run typecheck:ci  # सख्त tsc, प्रकाशित rc.2 प्रकारों के विरुद्ध (skipLibCheck बंद)
 pnpm test           # vitest: वास्तविक Context/LlmRuntime/ToolRuntime/CommandRuntime/subprocess सीम
 pnpm run test:coverage  # कवरेज द्वार (90/80/90/90)
