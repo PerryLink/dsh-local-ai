@@ -158,7 +158,7 @@ All tunables are Schemastery `Config` fields (changeable from cordis.yml). An id
 
 ## Known limitations
 
-- **rc.1** — developed and tested against `@deepseek-ai/dsh@0.1.2-rc.1`; newer harness baselines are expected to work but are verified by the monthly compat workflow.
+- **npm 0.1.2-rc.1** — developed and tested against `@deepseek-ai/dsh@0.1.2-rc.1`; newer harness baselines are expected to work but are verified by the monthly compat workflow.
 - **Vision when the model reports it** — models whose `/api/show` capabilities include `vision` declare `inputModalities: ["text","image"]` and carry base64 image payloads on user messages (opt out with `vision: false`); text-only models still reject image content (`UNSUPPORTED_CONTENT`).
 - **Mid-stream fallback** — once a local route has started producing content, a later failure is forwarded (not retracted); only a failure before the first token falls back to the cloud.
 

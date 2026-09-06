@@ -155,7 +155,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 
 ## Known limitations
 
-- **rc.1** —— 针对 `@deepseek-ai/dsh@0.1.2-rc.1` 开发与测试；更新版本的 harness 基线预期可用，但由每月 compat workflow 验证。
+- **npm 0.1.2-rc.1** —— 针对 `@deepseek-ai/dsh@0.1.2-rc.1` 开发与测试；更新版本的 harness 基线预期可用，但由每月 compat workflow 验证。
 - **模型声明 vision 时启用视觉** — `/api/show` capabilities 含 `vision` 的模型声明 `inputModalities: ["text","image"]`，并在用户消息上携带 base64 图片载荷（可用 `vision: false` 退出）；纯文本模型仍拒绝图片内容（`UNSUPPORTED_CONTENT`）。
 - **中途失败不回退** —— 本地路由一旦开始产出内容，之后的失败会透传（无法撤回）；只有首个 token 前的失败才回退云端。
 

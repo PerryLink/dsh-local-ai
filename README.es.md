@@ -153,7 +153,7 @@ Todos los ajustes son campos `Config` de Schemastery (modificables desde cordis.
 
 ## Known limitations
 
-- **rc.1** — desarrollado y probado contra `@deepseek-ai/dsh@0.1.2-rc.1`; se espera que baselines más nuevos funcionen, pero los verifica el workflow mensual de compat.
+- **npm 0.1.2-rc.1** — desarrollado y probado contra `@deepseek-ai/dsh@0.1.2-rc.1`; se espera que baselines más nuevos funcionen, pero los verifica el workflow mensual de compat.
 - **Vision cuando el modelo la informa** — los modelos cuyas capacidades de `/api/show` incluyen `vision` declaran `inputModalities: ["text","image"]` y llevan cargas de imagen base64 en los mensajes de usuario (exclusión con `vision: false`); los modelos solo texto siguen rechazando el contenido de imagen (`UNSUPPORTED_CONTENT`).
 - **Respaldo a mitad de flujo** — una vez que una ruta local empezó a producir contenido, un fallo posterior se reenvía (no se retira); solo un fallo antes del primer token respalda a la nube.
 
