@@ -51,6 +51,7 @@ export function formatBytes(bytes: number): string {
   return `${rounded} ${units[unit]}`
 }
 
+// Service Definition — canonical values for the ollama_* tools plus the tool contracts registered in apply().
 /** One installed-model row reported by `ollama_list`. */
 interface ListedModel {
   name: string
@@ -140,6 +141,7 @@ export function apply(ctx: Context, config: Config = {}): void {
     fetchImpl,
     resolveAttachments: () => ctx.get('attachments'),
   })
+  // Service Provider — registers the ollama/openai:* adapter routes, the five management tools, and the /ollama command.
   ctx.llm.registerAdapter([OLLAMA_PROVIDER], adapter)
 
   // OpenAI-compatible backends (LM Studio / vLLM / llama.cpp) each register as
@@ -266,6 +268,7 @@ export function apply(ctx: Context, config: Config = {}): void {
     },
   }))
 
+  // Consumer — tool execute and command handlers consume the Ollama HTTP client and ctx.subprocess (health liveness probe).
   ctx.commands.register({
     name: 'ollama',
     description: 'One-shot status overview: local models, disk usage, health, and routing suggestions.',
