@@ -25,7 +25,7 @@
 
 | Superfície | Status |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.1.3-alpha.1` (adaptado em 2026-09-04): o envelope de sessão mantém seu campo ignorable apenas para compatibilidade de leitura de logs armazenados - o Session.append ainda não consegue estampá-lo, então o comportamento da porta não muda. Verificado em 2026-09-06 contra o checkout master dsh-v0.1.3-alpha.1 (cadeia de gates completa + smoke de instalação do profile). |
+| Harness | DeepSeek Harness `dsh-v0.1.5-alpha.1` (adaptado em 2026-09-09): o envelope de sessão mantém seu campo ignorable apenas para compatibilidade de leitura de logs armazenados - o Session.append ainda não consegue estampá-lo, então o comportamento da porta não muda. Verificado em 2026-09-09 contra o checkout master dsh-v0.1.5-alpha.1 (cadeia de gates completa + smoke de instalação do profile). |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | Backend | [Ollama](https://ollama.com) (API HTTP local + sonda CLI) |
 | Modelo | Rota somente texto (`inputModalities: ['text']`); chamadas e resultados de ferramentas são suportados |

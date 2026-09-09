@@ -27,7 +27,7 @@
 
 | 项目 | 状态 |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.1.3-alpha.1`（2026-09-04 已适配）：会话信封保留 ignorable 字段但仅用于存量日志读取兼容——Session.append 仍无法盖章，门控行为不变。已于 2026-09-06 对照 dsh-v0.1.3-alpha.1 master checkout 核验（完整门控链 + profile 安装冒烟）。 |
+| Harness | DeepSeek Harness `dsh-v0.1.5-alpha.1`（2026-09-09 已适配）：会话信封保留 ignorable 字段但仅用于存量日志读取兼容——Session.append 仍无法盖章，门控行为不变。已于 2026-09-09 对照 dsh-v0.1.5-alpha.1 master checkout 核验（完整门控链 + profile 安装冒烟）。 |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | 后端 | [Ollama](https://ollama.com)（本地 HTTP API + CLI 探测） |
 | 模型 | 纯文本路由（`inputModalities: ['text']`）；支持工具调用与工具结果 |

@@ -28,7 +28,7 @@
 
 | Surface | Status |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.1.3-alpha.1` (adapted 2026-09-04): the session envelope keeps its ignorable field for stored-log read compatibility only - Session.append still cannot stamp it, so audit-gate behavior is unchanged. Verified 2026-09-06 against the dsh-v0.1.3-alpha.1 master checkout (full gate chain + profile install smoke). |
+| Harness | DeepSeek Harness `dsh-v0.1.5-alpha.1` (adapted 2026-09-09): the session envelope keeps its ignorable field for stored-log read compatibility only - Session.append still cannot stamp it, so audit-gate behavior is unchanged. Verified 2026-09-09 against the dsh-v0.1.5-alpha.1 master checkout (full gate chain + profile install smoke). |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | Backend | [Ollama](https://ollama.com) (local HTTP API + CLI probe) |
 | Model | Text-only route (`inputModalities: ['text']`); tool calls and tool results are supported |
