@@ -29,7 +29,7 @@
 
 | Surface | Status |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.1.5-rc.1` (adapted 2026-09-09): the session envelope keeps its ignorable field for stored-log read compatibility only - Session.append still cannot stamp it, so audit-gate behavior is unchanged. Verified 2026-09-10 against the dsh-v0.1.5-rc.1 master checkout (full gate chain + profile install smoke). |
+| Harness | DeepSeek Harness `dsh-v0.1.5-rc.2` (adapted 2026-09-09): the session envelope keeps its ignorable field for stored-log read compatibility only - Session.append still cannot stamp it, so audit-gate behavior is unchanged. Verified 2026-09-11 against the dsh-v0.1.5-rc.2 master checkout (full gate chain + profile install smoke). |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | Backend | [Ollama](https://ollama.com) (local HTTP API + CLI probe) |
 | Model | Text-only route (`inputModalities: ['text']`); tool calls and tool results are supported |
@@ -159,7 +159,7 @@ All tunables are Schemastery `Config` fields (changeable from cordis.yml). An id
 
 ## Known limitations
 
-- **npm 0.1.5-rc.1** — developed and tested against `@deepseek-ai/dsh@0.1.5-rc.1`; newer harness baselines are expected to work but are verified by the monthly compat workflow.
+- **npm 0.1.5-rc.2** — developed and tested against `@deepseek-ai/dsh@0.1.5-rc.2`; newer harness baselines are expected to work but are verified by the monthly compat workflow.
 - **Vision when the model reports it** — models whose `/api/show` capabilities include `vision` declare `inputModalities: ["text","image"]` and carry base64 image payloads on user messages (opt out with `vision: false`); text-only models still reject image content (`UNSUPPORTED_CONTENT`).
 - **Mid-stream fallback** — once a local route has started producing content, a later failure is forwarded (not retracted); only a failure before the first token falls back to the cloud.
 
@@ -167,7 +167,7 @@ All tunables are Schemastery `Config` fields (changeable from cordis.yml). An id
 
 ```sh
 pnpm install        # node ^22.19 || >=24
-pnpm run typecheck  # tsc: src + tests against the published 0.1.5-rc.1 types
+pnpm run typecheck  # tsc: src + tests against the published 0.1.5-rc.2 types
 pnpm run typecheck:ci  # strict tsc against published rc.2 types (skipLibCheck off)
 pnpm test           # vitest: real Context/LlmRuntime/ToolRuntime/CommandRuntime/subprocess seams
 pnpm run test:coverage  # coverage gate (90/80/90/90)
