@@ -110,6 +110,7 @@ All tunables are Schemastery `Config` fields (changeable from cordis.yml). An id
 | `maxTokens` | `4096` | Per-request output cap used when a model has no exact value |
 | `temperature` | *(none)* | Default sampling temperature (0..2); omitted leaves the provider default |
 | `vision` | `true` | Declare and serialize image support when the model reports vision; `false` keeps the route text-only |
+| `visionCacheTtlMs` | `30000` | Milliseconds a `/api/show` capability probe stays cached (`0` disables caching; a pull or remove invalidates that model) |
 | `models` | `[]` | Harness-visible → Ollama model mappings |
 | `models[].name` | *(required)* | Harness-visible model name (`GenerateOptions.model`) |
 | `models[].model` | `= name` | Ollama model id |

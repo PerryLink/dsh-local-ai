@@ -72,6 +72,8 @@ export interface Config {
   temperature?: number
   /** Declare and serialize image support when the model reports vision; `false` keeps the route text-only. */
   vision?: boolean
+  /** Milliseconds a `/api/show` capability probe stays cached (default 30 s; 0 disables caching). */
+  visionCacheTtlMs?: number
   /** Harness-visible → Ollama model mappings. */
   models?: ModelMapping[]
   /** OpenAI-compatible local backends (LM Studio / vLLM / llama.cpp). */
@@ -121,6 +123,7 @@ export interface ResolvedConfig {
   readonly maxTokens: number
   readonly temperature?: number
   readonly vision: boolean
+  readonly visionCacheTtlMs: number
   readonly models: readonly ResolvedModelMapping[]
   readonly backends: readonly ResolvedOpenAIBackend[]
   readonly route: readonly ResolvedRouteRule[]
@@ -135,6 +138,7 @@ export const Config: z<Config> = z.object({
   maxTokens: z.number().default(4096),
   temperature: z.number(),
   vision: z.boolean().default(true),
+  visionCacheTtlMs: z.number().default(30_000),
   models: z.array(z.object({
     name: z.string().required(),
     model: z.string(),
@@ -169,6 +173,13 @@ export const Config: z<Config> = z.object({
 function assertPositiveInt(name: string, value: number): void {
   if (!Number.isSafeInteger(value) || value <= 0) {
     throw new TypeError(`${name} must be a positive safe integer, got ${String(value)}`)
+  }
+}
+
+/** Throw unless `value` is a non-negative safe integer (`0` disables a cache). */
+function assertNonNegativeInt(name: string, value: number): void {
+  if (!Number.isSafeInteger(value) || value < 0) {
+    throw new TypeError(`${name} must be a non-negative safe integer, got ${String(value)}`)
   }
 }
 
@@ -228,6 +239,8 @@ export function resolveConfig(config: Config = {}): ResolvedConfig {
   if (temperature !== undefined) assertFiniteRange('temperature', temperature, 0, 2)
 
   const vision = config.vision ?? true
+  const visionCacheTtlMs = config.visionCacheTtlMs ?? 30_000
+  assertNonNegativeInt('visionCacheTtlMs', visionCacheTtlMs)
 
   const models = resolveMappings(config.models, 'models')
 
@@ -294,6 +307,7 @@ export function resolveConfig(config: Config = {}): ResolvedConfig {
     maxTokens,
     ...temperature === undefined ? {} : { temperature },
     vision,
+    visionCacheTtlMs,
     models,
     backends,
     route,

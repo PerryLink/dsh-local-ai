@@ -106,6 +106,7 @@ Todos los ajustes son campos `Config` de Schemastery (modificables desde cordis.
 | `maxTokens` | `4096` | Límite de salida por solicitud cuando un modelo no tiene valor exacto |
 | `temperature` | *(none)* | Temperatura de muestreo por defecto (0..2); omitir deja el valor del proveedor |
 | `vision` | `true` | Declara y serializa el soporte de imágenes cuando el modelo informa vision; `false` mantiene la ruta solo texto |
+| `visionCacheTtlMs` | `30000` | Milisegundos que se conserva en caché la sonda `/api/show` (`0` desactiva la caché; pull/remove invalida ese modelo) |
 | `models` | `[]` | Mapeos de nombre visible → modelo Ollama |
 | `models[].name` | *(required)* | Nombre de modelo visible en el harness (`GenerateOptions.model`) |
 | `models[].model` | `= name` | Id del modelo Ollama |

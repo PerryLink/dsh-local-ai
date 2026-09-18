@@ -66,6 +66,13 @@ function modelInfo(provider: string, id: string, name: string, vision: boolean):
  * configured model mapping (identity when unmapped).
  */
 export class OllamaAdapter extends LlmAdapter {
+  /**
+   * `/api/show` capability cache keyed by `baseURL|model`, so a conversation
+   * that resolves the same model repeatedly probes once per TTL window instead
+   * of once per request. Pull/remove invalidate explicitly.
+   */
+  private readonly visionCache = new Map<string, { readonly vision: boolean; readonly at: number }>()
+
   constructor(private readonly options: OllamaAdapterOptions) {
     super()
   }
@@ -74,15 +81,41 @@ export class OllamaAdapter extends LlmAdapter {
     return this.options.fetchImpl ?? ((input: string, init?: RequestInit) => globalThis.fetch(input, init))
   }
 
+  /**
+   * Drop cached capability probes. Called after a model is pulled or removed,
+   * where the cached answer is known to be stale.
+   * @param name - the Ollama model id, or undefined to clear every entry.
+   */
+  invalidateVision(name?: string): void {
+    if (name === undefined) {
+      this.visionCache.clear()
+      return
+    }
+    for (const key of [...this.visionCache.keys()]) {
+      if (key.endsWith(`|${name}`)) this.visionCache.delete(key)
+    }
+  }
+
   /** Probe one model's `/api/show` capabilities; failures degrade to text-only. */
   private async visionOf(resolved: ResolvedConfig, name: string, signal?: AbortSignal): Promise<boolean> {
     if (!resolved.vision) return false
+    const key = `${resolved.baseURL}|${name}`
+    const ttl = resolved.visionCacheTtlMs
+    if (ttl > 0) {
+      const cached = this.visionCache.get(key)
+      if (cached !== undefined && Date.now() - cached.at < ttl) return cached.vision
+    }
+    let vision = false
     try {
       const show = await showModel(resolved.baseURL, name, this.fetchImpl(), signal)
-      return hasVision(show.capabilities)
+      vision = hasVision(show.capabilities)
     } catch {
-      return false
+      vision = false
     }
+    // Failures are cached too: a down server must not be probed per request
+    // inside the TTL window.
+    if (ttl > 0) this.visionCache.set(key, { vision, at: Date.now() })
+    return vision
   }
 
   override providerInfo(provider: string): LlmProviderInfo {

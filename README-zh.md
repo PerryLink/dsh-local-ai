@@ -108,6 +108,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 | `maxTokens` | `4096` | 模型无精确值时的单请求输出上限 |
 | `temperature` | *(none)* | 默认采样温度（0..2）；省略则用提供方默认值 |
 | `vision` | `true` | 模型报告 vision 能力时声明并序列化图片支持；`false` 保持纯文本路由 |
+| `visionCacheTtlMs` | `30000` | `/api/show` 能力探测的缓存毫秒数（`0` 关闭缓存；pull/remove 会使该模型失效） |
 | `models` | `[]` | Harness 可见名 → Ollama 模型映射 |
 | `models[].name` | *(required)* | Harness 可见模型名（`GenerateOptions.model`） |
 | `models[].model` | `= name` | Ollama 模型 id |

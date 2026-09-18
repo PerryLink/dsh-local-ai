@@ -232,6 +232,8 @@ export function apply(ctx: Context, config: Config = {}): void {
     async execute(args, exec): Promise<JsonValue> {
       const name = (args as { name: string }).name
       const result = await pullModel(resolved.baseURL, name, fetchImpl, exec.signal)
+      // The cached `/api/show` answer for this model predates the pull.
+      adapter.invalidateVision(name)
       return { name, status: result.status } as unknown as JsonValue
     },
   }))
@@ -249,6 +251,8 @@ export function apply(ctx: Context, config: Config = {}): void {
     async execute(args, exec): Promise<JsonValue> {
       const name = (args as { name: string }).name
       await removeModel(resolved.baseURL, name, fetchImpl, exec.signal)
+      // A removed model must not keep answering from the capability cache.
+      adapter.invalidateVision(name)
       return { name, removed: true } as unknown as JsonValue
     },
   }))

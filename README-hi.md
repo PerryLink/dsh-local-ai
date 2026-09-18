@@ -106,6 +106,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 | `maxTokens` | `4096` | जब मॉडल का कोई सटीक मान न हो तो प्रति-अनुरोध आउटपुट सीमा |
 | `temperature` | *(none)* | डिफ़ॉल्ट सैंपलिंग तापमान (0..2); छोड़ने पर प्रदाता डिफ़ॉल्ट रहता है |
 | `vision` | `true` | मॉडल द्वारा vision रिपोर्ट करने पर छवि समर्थन घोषित व सीरियलाइज़ करता है; `false` रूट को केवल-टेक्स्ट रखता है |
+| `visionCacheTtlMs` | `30000` | `/api/show` क्षमता जाँच कितने मिलीसेकंड कैश रहे (`0` = कैश बंद; pull/remove उस मॉडल को अमान्य करता है) |
 | `models` | `[]` | Harness-दृश्य नाम → Ollama मॉडल मैपिंग |
 | `models[].name` | *(required)* | Harness-दृश्य मॉडल नाम (`GenerateOptions.model`) |
 | `models[].model` | `= name` | Ollama मॉडल id |
