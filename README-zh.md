@@ -29,7 +29,7 @@
 
 | 项目 | 状态 |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.1.5-rc.2`（2026-09-09 已适配）：会话信封保留 ignorable 字段但仅用于存量日志读取兼容——Session.append 仍无法盖章，门控行为不变。已于 2026-09-11 对照 dsh-v0.1.5-rc.2 master checkout 核验（完整门控链 + profile 安装冒烟）。 |
+| Harness | DeepSeek Harness `dsh-v0.1.6-alpha.2`（2026-09-18 核验：双 typecheck 尺子 + 133 项测试 + self-contained/artifacts 门）。peer 范围接纳全部受支持线：`>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0`；dev/test 钉号 `0.1.6-alpha.2`。 |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | 后端 | [Ollama](https://ollama.com)（本地 HTTP API + CLI 探测） |
 | 模型 | 纯文本路由（`inputModalities: ['text']`）；支持工具调用与工具结果 |
@@ -108,6 +108,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 | `maxTokens` | `4096` | 模型无精确值时的单请求输出上限 |
 | `temperature` | *(none)* | 默认采样温度（0..2）；省略则用提供方默认值 |
 | `vision` | `true` | 模型报告 vision 能力时声明并序列化图片支持；`false` 保持纯文本路由 |
+| `visionCacheTtlMs` | `30000` | `/api/show` 能力探测的缓存毫秒数（`0` 关闭缓存；pull/remove 会使该模型失效） |
 | `models` | `[]` | Harness 可见名 → Ollama 模型映射 |
 | `models[].name` | *(required)* | Harness 可见模型名（`GenerateOptions.model`） |
 | `models[].model` | `= name` | Ollama 模型 id |
@@ -152,7 +153,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 - **默认不重路由** —— `route` 列表默认为空；请求只有通过显式规则或显式选择 `ollama` 提供方才会到达本地模型。
 - **展示前脱敏** —— 端点地址与本地路径在进入工具输出、`/ollama` 命令或错误消息前都会被脱敏。
 - **零捆绑模型** —— 下载与存储是 Ollama 自己的事；包内不含任何模型。
-- **失败响亮、失败可控** —— 非法配置导致挂载失败；本地路由在产出内容前失败会回退云端（`next()`），因此 Ollama 宕机不会卡死对话。
+- **失败响亮、失败可控** —— 非法配置导致挂载失败；本地路由在产出内容前失败会回退云端（`next()`），因此 Ollama 宕机不会卡死对话。**唯一例外**：带 `IMAGE_OFFLOAD_REQUIRED` 的失败会被重新抛出而不回退云端——该码是官方图像卸载回路在要求这条本地路由卸下保留图片，回退会跳过回路并把本应只在本地的请求静默发往远端提供方。
 - **模型可见 ⟺ 已记录** —— 路由只改变由哪个提供方服务请求（assistant 消息会以 `ollama` 来源记录）；不凭空新增模型可见输入。
 
 ## Known limitations

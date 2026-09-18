@@ -5,11 +5,11 @@
  * @module dsh-local-ai/test/route.spec
  */
 
-import { createUserMessage } from '@deepseek-ai/dsh-llm'
+import { createUserMessage, LlmError } from '@deepseek-ai/dsh-llm'
 import type { GenerateOptions, StreamChunk } from '@deepseek-ai/dsh-llm'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { resolveConfig } from '../src/config.ts'
-import { decideRoute, requestText, routeLocal, ruleMatches } from '../src/route.ts'
+import { decideRoute, isImageOffloadRequired, requestText, routeLocal, ruleMatches } from '../src/route.ts'
 
 function options(overrides: Partial<GenerateOptions> = {}): GenerateOptions {
   return {
@@ -77,6 +77,14 @@ describe('decideRoute', () => {
   })
 })
 
+describe('isImageOffloadRequired', () => {
+  it('matches only the official offload code', () => {
+    expect(isImageOffloadRequired({ code: 'IMAGE_OFFLOAD_REQUIRED' })).toBe(true)
+    expect(isImageOffloadRequired({ code: 'SERVER' })).toBe(false)
+    expect(isImageOffloadRequired(undefined)).toBe(false)
+  })
+})
+
 describe('routeLocal', () => {
   it('falls back to the cloud when local fails before producing content', async () => {
     async function* failLocal(): AsyncGenerator<StreamChunk> {
@@ -89,6 +97,45 @@ describe('routeLocal', () => {
     const chunks: StreamChunk[] = []
     for await (const chunk of routeLocal(() => failLocal(), options(), { provider: 'ollama', model: 'local' }, () => cloud())) chunks.push(chunk)
     expect(chunks).toContainEqual({ type: 'text-delta', index: 0, text: 'cloud' })
+  })
+
+  it('never answers an IMAGE_OFFLOAD_REQUIRED finish with a silent cloud call', async () => {
+    // The official offload circuit targets this same route: falling back would
+    // skip it and leak a local-only request to the cloud.
+    async function* offloadRequired(): AsyncGenerator<StreamChunk> {
+      yield {
+        type: 'finish',
+        reason: { kind: 'error', failure: { message: 'images must be offloaded', code: 'IMAGE_OFFLOAD_REQUIRED' } },
+      }
+    }
+    const cloud = vi.fn(async function* cloudStream(): AsyncGenerator<StreamChunk> {
+      yield { type: 'text-delta', index: 0, text: 'cloud' }
+    })
+    const consume = async (): Promise<void> => {
+      for await (const _chunk of routeLocal(() => offloadRequired(), options(), { provider: 'ollama', model: 'local' }, () => cloud())) {
+        // drain
+      }
+    }
+    await expect(consume()).rejects.toMatchObject({ code: 'IMAGE_OFFLOAD_REQUIRED' })
+    expect(cloud).not.toHaveBeenCalled()
+  })
+
+  it('never answers a thrown IMAGE_OFFLOAD_REQUIRED with a silent cloud call', async () => {
+    async function* throwOffload(): AsyncGenerator<StreamChunk> {
+      throw new LlmError('images must be offloaded', 'IMAGE_OFFLOAD_REQUIRED')
+      // eslint-disable-next-line no-unreachable -- generator never yields
+      yield { type: 'finish', reason: { kind: 'stop' } }
+    }
+    const cloud = vi.fn(async function* cloudStream(): AsyncGenerator<StreamChunk> {
+      yield { type: 'text-delta', index: 0, text: 'cloud' }
+    })
+    const consume = async (): Promise<void> => {
+      for await (const _chunk of routeLocal(() => throwOffload(), options(), { provider: 'ollama', model: 'local' }, () => cloud())) {
+        // drain
+      }
+    }
+    await expect(consume()).rejects.toMatchObject({ code: 'IMAGE_OFFLOAD_REQUIRED' })
+    expect(cloud).not.toHaveBeenCalled()
   })
 
   it('forwards local content once it has started', async () => {

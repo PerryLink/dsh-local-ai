@@ -12,9 +12,21 @@
  */
 
 import type { GenerateOptions, StreamChunk } from '@deepseek-ai/dsh-llm'
+import { IMAGE_OFFLOAD_REQUIRED_CODE, LlmError } from '@deepseek-ai/dsh-llm'
 import { OLLAMA_PROVIDER } from './adapter.ts'
 import { DEFAULT_PROVIDER } from './config.ts'
 import type { ResolvedConfig, ResolvedRouteRule } from './config.ts'
+
+/**
+ * Whether a local-route failure is the official image-offload circuit asking
+ * THIS route to drop retained images and retry: the request fits nowhere until
+ * the named occurrences are offloaded.
+ * @param failure - the finish reason's failure facts, when present.
+ * @returns true for `IMAGE_OFFLOAD_REQUIRED`.
+ */
+export function isImageOffloadRequired(failure: { readonly code?: string } | undefined): boolean {
+  return failure?.code === IMAGE_OFFLOAD_REQUIRED_CODE
+}
 
 /**
  * Whether a stream chunk carries visible model output for fallback timing.
@@ -112,6 +124,11 @@ export function decideRoute(options: GenerateOptions, resolved: ResolvedConfig):
  * local route keeps retry and failure normalization). If the local route
  * finishes with an error or aborts before any token delta, `next()` (the
  * cloud) is streamed instead; otherwise the local stream is forwarded.
+ *
+ * One failure is deliberately NOT retried on the cloud: `IMAGE_OFFLOAD_REQUIRED`
+ * is the official image-offload circuit asking this same route to drop retained
+ * images. Falling back there would skip the circuit and silently move a
+ * local-only request to a remote provider, so the signal is rethrown instead.
  * @param streamLocal - produces the local stream for a re-routed request.
  * @param options - the original request.
  * @param decision - the local model to route to.
@@ -136,6 +153,12 @@ export async function* routeLocal(
       }
       if (chunk.type === 'finish') {
         if (chunk.reason.kind === 'error' || chunk.reason.kind === 'aborted') {
+          // The image-offload circuit targets THIS route: rethrow so the
+          // caller can offload and retry locally instead of leaking the
+          // request to the cloud.
+          if (isImageOffloadRequired(chunk.reason.failure)) {
+            throw new LlmError(chunk.reason.failure.message, chunk.reason.failure.code)
+          }
           // Local failed before producing content — fall back to the cloud.
           yield* next()
           return
@@ -153,11 +176,14 @@ export async function* routeLocal(
     // Stream ended without a finish chunk — flush whatever was buffered.
     for (const buffered of pending) yield buffered
   } catch (error) {
-    if (!producedContent) {
-      yield* next()
-      return
+    if (producedContent) {
+      for (const buffered of pending) yield buffered
+      throw error
     }
-    for (const buffered of pending) yield buffered
-    throw error
+    // Same carve-out on the throwing path: never answer an offload request
+    // with a silent cloud call.
+    if (isImageOffloadRequired(error as { code?: string } | undefined)) throw error
+    yield* next()
+    return
   }
 }

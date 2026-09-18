@@ -23,6 +23,9 @@
         # temperature: 0.7
 # Declare image support when the model reports vision; false keeps text-only.
 # vision: true
+        # Milliseconds a /api/show capability probe stays cached (0 disables
+        # caching; pull/remove invalidate the entry for that model).
+        # visionCacheTtlMs: 30000
         # Harness-visible -> Ollama model mappings. Each entry maps a name you
         # select in the harness to an Ollama model id (defaults to the name).
         models: []

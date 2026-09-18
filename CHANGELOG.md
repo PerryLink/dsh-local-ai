@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.2.11] - 2026-09-18
+
+### Fixed
+
+- **A local route is never silently moved to the cloud by the image-offload circuit.** When the local stream failed with `IMAGE_OFFLOAD_REQUIRED` before producing content, the routing fallback treated it like any other failure and re-ran the request on the cloud — skipping the official offload circuit and leaking a local-only request to a remote provider. That code is now rethrown unchanged (both the finish-reason and the thrown-error paths), so the caller can offload the cited images and retry the same local route. Every other pre-content failure still falls back to the cloud.
+
+### Changed
+
+- Migrate to the renamed attachment contract: `@deepseek-ai/dsh-attachment` replaced `ImageRequestPolicy` (`maxPixels`/`maxBytes`) with a per-route `ImageRequestTarget` (`width`/`height`/`maxBytes`). The adapter now requests a 2048×2048 target with a 10 MiB byte cap, which preserves the previous 4 Mi-pixel / 10 MiB projection exactly (a target at or above the source keeps the source dimensions).
+- `/api/show` capability probes are cached for `visionCacheTtlMs` (default 30 s, `0` disables caching) instead of being issued once per request; `ollama_pull` and `ollama_remove` invalidate the cached entry for the affected model, and failures are cached for the window too so a down server is not probed per request.
+- Align the dev/test dependency graph to `0.1.6-alpha.2`: `dsh-agent`, `dsh-user-approval`, `dsh-invariants` and `dsh-scope` were still resolving to `0.1.1-rc.2` as transitive peers, which broke the strict published-types pass (`CallId` no longer exists on `dsh-llm`). Declaring them explicitly removes the mixed-generation graph.
+- Declare `dsh.manifestVersion: 1` and the canonical three-clause `engines.dsh`; refresh the `AGENTS.md`/CI baseline wording to the pinned line.
+
 ## [0.2.10] - 2026-09-12
 
 ### Changed

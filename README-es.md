@@ -27,7 +27,7 @@
 
 | Superficie | Estado |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.1.5-rc.2` (adaptado el 2026-09-09): el sobre de sesión conserva su campo ignorable solo para compatibilidad de lectura de logs almacenados - Session.append aún no puede estamparlo, por lo que el comportamiento de la puerta no cambia. Verificado el 2026-09-11 contra el checkout master dsh-v0.1.5-rc.2 (cadena de gates completa + smoke de instalación del profile). |
+| Harness | DeepSeek Harness `dsh-v0.1.6-alpha.2` (verificado el 2026-09-18: doble typecheck + 133 pruebas + puertas self-contained/artifacts). El rango de peers admite todas las líneas soportadas: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0`; los pines dev/test son `0.1.6-alpha.2`. |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | Backend | [Ollama](https://ollama.com) (API HTTP local + sonda CLI) |
 | Modelo | Ruta solo texto (`inputModalities: ['text']`); se admiten llamadas y resultados de herramientas |
@@ -106,6 +106,7 @@ Todos los ajustes son campos `Config` de Schemastery (modificables desde cordis.
 | `maxTokens` | `4096` | Límite de salida por solicitud cuando un modelo no tiene valor exacto |
 | `temperature` | *(none)* | Temperatura de muestreo por defecto (0..2); omitir deja el valor del proveedor |
 | `vision` | `true` | Declara y serializa el soporte de imágenes cuando el modelo informa vision; `false` mantiene la ruta solo texto |
+| `visionCacheTtlMs` | `30000` | Milisegundos que se conserva en caché la sonda `/api/show` (`0` desactiva la caché; pull/remove invalida ese modelo) |
 | `models` | `[]` | Mapeos de nombre visible → modelo Ollama |
 | `models[].name` | *(required)* | Nombre de modelo visible en el harness (`GenerateOptions.model`) |
 | `models[].model` | `= name` | Id del modelo Ollama |
@@ -150,7 +151,7 @@ Todos los ajustes son campos `Config` de Schemastery (modificables desde cordis.
 - **Sin re-enrutamiento por defecto** — la lista `route` está vacía salvo que optes por lo contrario; una solicitud llega a un modelo local solo por una regla explícita o una selección explícita del proveedor `ollama`.
 - **Desinfección antes de mostrar** — las direcciones de endpoint y las rutas locales se desinfectan antes de llegar a la salida de herramientas, al comando `/ollama` o a los mensajes de error.
 - **Cero modelos empaquetados** — descargas y almacenamiento son responsabilidad de Ollama; nada se envía en el paquete.
-- **Fallo alto, fallo contenido** — la configuración inválida hace fallar el montaje; una ruta local que falla antes de producir contenido respalda a la nube (`next()`), de modo que un Ollama caído nunca bloquea una conversación.
+- **Fallo alto, fallo contenido** — la configuración inválida hace fallar el montaje; una ruta local que falla antes de producir contenido respalda a la nube (`next()`), de modo que un Ollama caído nunca bloquea una conversación. **Única excepción:** un fallo con `IMAGE_OFFLOAD_REQUIRED` se relanza en vez de reintentarse en la nube: ese código es el circuito oficial de descarga de imágenes pidiendo a esta misma ruta local que suelte imágenes retenidas, y el respaldo saltaría el circuito enviando en silencio una solicitud solo-local a un proveedor remoto.
 - **Visible para el modelo ⟺ registrado** — el enrutamiento solo cambia qué proveedor sirve una solicitud (el mensaje del asistente se registra con su procedencia `ollama`); no se inventa entrada visible nueva.
 
 ## Known limitations

@@ -12,7 +12,7 @@
 
 import { contentHasImage, LlmAdapter, LlmError } from '@deepseek-ai/dsh-llm'
 import type { GenerateOptions, LlmModelInfo, LlmProviderInfo, LlmResolvedModelInfo, StreamChunk } from '@deepseek-ai/dsh-llm'
-import type { AttachmentStore, ImageRequestPolicy } from '@deepseek-ai/dsh-attachment'
+import type { AttachmentStore, ImageRequestTarget } from '@deepseek-ai/dsh-attachment'
 import { idleWatchdog, timeoutOf } from '@deepseek-ai/dsh-timeout'
 import { sanitizeEndpoint } from './sanitize.ts'
 import { hasVision, listModels as listOllamaModels, postStream, readNdjsonLines, showModel } from './ollama.ts'
@@ -25,11 +25,16 @@ import type { ResolvedConfig } from './config.ts'
 const STREAM_IDLE_TIMEOUT_CODE = 'LLM_STREAM_IDLE_TIMEOUT'
 
 /**
- * Deterministic request-image policy: aspect-preserving projection at ≤ 4 MP
- * and a 10 MiB encoded-byte cap per image (a protocol default, not a tunable —
- * the attachment service owns admission limits).
+ * Deterministic request-image target for this adapter's image projection. The
+ * 0.1.6 attachment service replaced the per-request policy object
+ * (`ImageRequestPolicy`: `maxPixels`/`maxBytes`) with a per-route target
+ * (`ImageRequestTarget`: `width`/`height`/`maxBytes`), where a target at or
+ * above the source keeps the source dimensions. 2048×2048 therefore preserves
+ * the previous 4 Mi-pixel ceiling exactly, and `maxBytes` keeps the 10 MiB
+ * encoded-byte cap per image (a protocol default, not a tunable — the
+ * attachment service owns admission limits).
  */
-const REQUEST_IMAGE_POLICY: ImageRequestPolicy = { maxPixels: 4_194_304, maxBytes: 10 * 1024 * 1024 }
+const REQUEST_IMAGE_TARGET: ImageRequestTarget = { width: 2048, height: 2048, maxBytes: 10 * 1024 * 1024 }
 
 /** Constructor options for {@link OllamaAdapter}. */
 export interface OllamaAdapterOptions {
@@ -61,6 +66,13 @@ function modelInfo(provider: string, id: string, name: string, vision: boolean):
  * configured model mapping (identity when unmapped).
  */
 export class OllamaAdapter extends LlmAdapter {
+  /**
+   * `/api/show` capability cache keyed by `baseURL|model`, so a conversation
+   * that resolves the same model repeatedly probes once per TTL window instead
+   * of once per request. Pull/remove invalidate explicitly.
+   */
+  private readonly visionCache = new Map<string, { readonly vision: boolean; readonly at: number }>()
+
   constructor(private readonly options: OllamaAdapterOptions) {
     super()
   }
@@ -69,15 +81,41 @@ export class OllamaAdapter extends LlmAdapter {
     return this.options.fetchImpl ?? ((input: string, init?: RequestInit) => globalThis.fetch(input, init))
   }
 
+  /**
+   * Drop cached capability probes. Called after a model is pulled or removed,
+   * where the cached answer is known to be stale.
+   * @param name - the Ollama model id, or undefined to clear every entry.
+   */
+  invalidateVision(name?: string): void {
+    if (name === undefined) {
+      this.visionCache.clear()
+      return
+    }
+    for (const key of [...this.visionCache.keys()]) {
+      if (key.endsWith(`|${name}`)) this.visionCache.delete(key)
+    }
+  }
+
   /** Probe one model's `/api/show` capabilities; failures degrade to text-only. */
   private async visionOf(resolved: ResolvedConfig, name: string, signal?: AbortSignal): Promise<boolean> {
     if (!resolved.vision) return false
+    const key = `${resolved.baseURL}|${name}`
+    const ttl = resolved.visionCacheTtlMs
+    if (ttl > 0) {
+      const cached = this.visionCache.get(key)
+      if (cached !== undefined && Date.now() - cached.at < ttl) return cached.vision
+    }
+    let vision = false
     try {
       const show = await showModel(resolved.baseURL, name, this.fetchImpl(), signal)
-      return hasVision(show.capabilities)
+      vision = hasVision(show.capabilities)
     } catch {
-      return false
+      vision = false
     }
+    // Failures are cached too: a down server must not be probed per request
+    // inside the TTL window.
+    if (ttl > 0) this.visionCache.set(key, { vision, at: Date.now() })
+    return vision
   }
 
   override providerInfo(provider: string): LlmProviderInfo {
@@ -214,7 +252,7 @@ export class OllamaAdapter extends LlmAdapter {
       for (const block of message.content) {
         if (block.type !== 'image') continue
         const ref = block.attachment
-        const requestImage = await attachments.readImageRequest(ref, REQUEST_IMAGE_POLICY, signal)
+        const requestImage = await attachments.readImageRequest(ref, REQUEST_IMAGE_TARGET, signal)
         map.set(String(ref.attachmentId), Buffer.from(requestImage.data).toString('base64'))
       }
     }

@@ -63,6 +63,43 @@ describe('OllamaAdapter metadata', () => {
     const info = await adapter.resolveModel('ollama', 'qwen3.8-local')
     expect(info.inputModalities).toEqual(['text'])
   })
+
+  it('probes /api/show once for repeated resolutions inside the cache window', async () => {
+    const calls: string[] = []
+    const fetch: FetchLike = async (input) => {
+      calls.push(String(input))
+      return new Response(JSON.stringify({ capabilities: ['vision'] }), { status: 200 })
+    }
+    const adapter = new OllamaAdapter({ config: () => resolveConfig(), fetchImpl: fetch })
+    await adapter.resolveModel('ollama', 'qwen3.8-local')
+    await adapter.resolveModel('ollama', 'qwen3.8-local')
+    expect(calls.filter(url => url.includes('/api/show'))).toHaveLength(1)
+  })
+
+  it('re-probes after invalidateVision (pull/remove)', async () => {
+    const calls: string[] = []
+    const fetch: FetchLike = async (input) => {
+      calls.push(String(input))
+      return new Response(JSON.stringify({ capabilities: ['vision'] }), { status: 200 })
+    }
+    const adapter = new OllamaAdapter({ config: () => resolveConfig(), fetchImpl: fetch })
+    await adapter.resolveModel('ollama', 'qwen3.8-local')
+    adapter.invalidateVision('qwen3.8-local')
+    await adapter.resolveModel('ollama', 'qwen3.8-local')
+    expect(calls.filter(url => url.includes('/api/show'))).toHaveLength(2)
+  })
+
+  it('respects visionCacheTtlMs: 0 as uncached', async () => {
+    const calls: string[] = []
+    const fetch: FetchLike = async (input) => {
+      calls.push(String(input))
+      return new Response(JSON.stringify({ capabilities: ['vision'] }), { status: 200 })
+    }
+    const adapter = new OllamaAdapter({ config: () => resolveConfig({ visionCacheTtlMs: 0 }), fetchImpl: fetch })
+    await adapter.resolveModel('ollama', 'qwen3.8-local')
+    await adapter.resolveModel('ollama', 'qwen3.8-local')
+    expect(calls.filter(url => url.includes('/api/show'))).toHaveLength(2)
+  })
 })
 
 describe('OllamaAdapter listModels', () => {
