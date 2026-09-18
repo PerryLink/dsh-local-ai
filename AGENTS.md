@@ -16,7 +16,7 @@ official plugin contract; this file records repo-local decisions.
 - `src/route.ts` — pure routing decision (`purpose` / keyword / `always`, first match wins) plus the streaming `routeLocal` helper with automatic cloud fallback.
 - `src/sanitize.ts` — display/log sanitization (pure functions): endpoint userinfo/secret-query redaction, path home-directory redaction, control-character stripping, length bounds.
 - `scripts/` — `prepare.mjs` (build), `verify-self-contained.mjs`, `verify-artifacts.mjs`, `check-readme-sync.mjs` (five-language gate), `release.mjs` (bump + stamp + gates + commit + tag, never pushes), `changelog-section.mjs`.
-- `test/` — vitest; REAL `Context`/`LlmRuntime`/`SystemPrompt`+`ToolRuntime`/`CommandRuntime`/local subprocess from the 0.1.2-rc.1 peers. Only the network edge (global `fetch`) is scripted.
+- `test/` — vitest; REAL `Context`/`LlmRuntime`/`SystemPrompt`+`ToolRuntime`/`CommandRuntime`/local subprocess from the installed (pinned `0.1.6-alpha.2`) peers. Only the network edge (global `fetch`) is scripted.
 
 ## Hard rules applied here
 
@@ -24,7 +24,7 @@ official plugin contract; this file records repo-local decisions.
 - **Zero dependency, HTTP first.** The plugin talks to Ollama over its HTTP API; the CLI is used only for the process-liveness probe. No model files are bundled.
 - **Sanitize before display.** Endpoint addresses and local paths are sanitized before they reach tool output, the `/ollama` command, or error messages.
 - **Model-visible ⟺ logged.** Routing changes only which provider serves a request (the assistant message is logged with its `ollama` provenance); tool results and command results are logged by the tool/command seams. This plugin adds no new model-visible input, so it declares no `SessionEventMap` entries.
-- **Failure loud, failure contained.** Invalid config fails the mount. A local route that fails before producing content falls back to the cloud (`next()`); once local content has started, it is forwarded (a mid-stream failure cannot be retracted). The `/ollama` overview is best-effort and never throws on a down server.
+- **Failure loud, failure contained.** Invalid config fails the mount. A local route that fails before producing content falls back to the cloud (`next()`); once local content has started, it is forwarded (a mid-stream failure cannot be retracted). **One carve-out:** a local failure carrying `IMAGE_OFFLOAD_REQUIRED` is rethrown, never retried on the cloud — that code is the official offload circuit asking this same route to drop retained images, and a cloud fallback would skip the circuit while silently moving a local-only request to a remote provider. The `/ollama` overview is best-effort and never throws on a down server.
 - **No hardcoded tunables.** Every knob is a validated `Config` field with a default in `src/config.ts`, an inline comment in `cordis.patch.yml`, and a row in the five-language README configuration table.
 - **Waterfall listeners call `next()`.** The `llm/stream` listener calls `next()` both for passthrough and for the cloud fallback; it short-circuits only when a local route is actually serving.
 
@@ -32,7 +32,7 @@ official plugin contract; this file records repo-local decisions.
 
 `pnpm run typecheck && pnpm run typecheck:ci && pnpm test && pnpm run test:coverage && pnpm run build && pnpm run verify:self-contained && pnpm run verify:artifacts && node scripts/check-readme-sync.mjs && pnpm pack`
 
-- `typecheck` checks `src` + `test` against the published 0.1.2-rc.1 types; `typecheck:ci` clears `skipLibCheck` and adds `verbatimModuleSyntax` for the strict published-types pass. Both must stay green — the package ships against the published 0.1.2-rc.1 line.
+- `typecheck` checks `src` + `test` against the installed (pinned `0.1.6-alpha.2`) types; `typecheck:ci` clears `skipLibCheck` and adds `verbatimModuleSyntax` for the strict published-types pass. Both must stay green; the peer range still admits the older supported lines (`>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0 || >=0.1.6-0 <0.2.0`).
 - `test:coverage` gates at 90/80/90/90 (statements/branches/functions/lines), `src/index.ts` excluded.
 
 ## Release
