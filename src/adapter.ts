@@ -12,7 +12,7 @@
 
 import { contentHasImage, LlmAdapter, LlmError } from '@deepseek-ai/dsh-llm'
 import type { GenerateOptions, LlmModelInfo, LlmProviderInfo, LlmResolvedModelInfo, StreamChunk } from '@deepseek-ai/dsh-llm'
-import type { AttachmentStore, ImageRequestPolicy } from '@deepseek-ai/dsh-attachment'
+import type { AttachmentStore, ImageRequestTarget } from '@deepseek-ai/dsh-attachment'
 import { idleWatchdog, timeoutOf } from '@deepseek-ai/dsh-timeout'
 import { sanitizeEndpoint } from './sanitize.ts'
 import { hasVision, listModels as listOllamaModels, postStream, readNdjsonLines, showModel } from './ollama.ts'
@@ -25,11 +25,16 @@ import type { ResolvedConfig } from './config.ts'
 const STREAM_IDLE_TIMEOUT_CODE = 'LLM_STREAM_IDLE_TIMEOUT'
 
 /**
- * Deterministic request-image policy: aspect-preserving projection at ≤ 4 MP
- * and a 10 MiB encoded-byte cap per image (a protocol default, not a tunable —
- * the attachment service owns admission limits).
+ * Deterministic request-image target for this adapter's image projection. The
+ * 0.1.6 attachment service replaced the per-request policy object
+ * (`ImageRequestPolicy`: `maxPixels`/`maxBytes`) with a per-route target
+ * (`ImageRequestTarget`: `width`/`height`/`maxBytes`), where a target at or
+ * above the source keeps the source dimensions. 2048×2048 therefore preserves
+ * the previous 4 Mi-pixel ceiling exactly, and `maxBytes` keeps the 10 MiB
+ * encoded-byte cap per image (a protocol default, not a tunable — the
+ * attachment service owns admission limits).
  */
-const REQUEST_IMAGE_POLICY: ImageRequestPolicy = { maxPixels: 4_194_304, maxBytes: 10 * 1024 * 1024 }
+const REQUEST_IMAGE_TARGET: ImageRequestTarget = { width: 2048, height: 2048, maxBytes: 10 * 1024 * 1024 }
 
 /** Constructor options for {@link OllamaAdapter}. */
 export interface OllamaAdapterOptions {
@@ -214,7 +219,7 @@ export class OllamaAdapter extends LlmAdapter {
       for (const block of message.content) {
         if (block.type !== 'image') continue
         const ref = block.attachment
-        const requestImage = await attachments.readImageRequest(ref, REQUEST_IMAGE_POLICY, signal)
+        const requestImage = await attachments.readImageRequest(ref, REQUEST_IMAGE_TARGET, signal)
         map.set(String(ref.attachmentId), Buffer.from(requestImage.data).toString('base64'))
       }
     }
