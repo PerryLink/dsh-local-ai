@@ -15,7 +15,7 @@ official plugin contract; this file records repo-local decisions.
 - `src/health.ts` — API health (HTTP `/api/version`) and process health (the `ollama list` CLI probe through the real `ctx.subprocess`), as two independent signals.
 - `src/route.ts` — pure routing decision (`purpose` / keyword / `always`, first match wins) plus the streaming `routeLocal` helper with automatic cloud fallback.
 - `src/sanitize.ts` — display/log sanitization (pure functions): endpoint userinfo/secret-query redaction, path home-directory redaction, control-character stripping, length bounds.
-- `scripts/` — `prepare.mjs` (build), `verify-self-contained.mjs`, `verify-artifacts.mjs`, `check-readme-sync.mjs` (five-language gate), `release.mjs` (bump + stamp + gates + commit + tag, never pushes), `changelog-section.mjs`.
+- `scripts/` — `prepare.mjs` (build), `verify-self-contained.mjs`, `verify-artifacts.mjs`, `check-readme-sync.mjs` (five-language gate), `check-lockfile-drift.mjs` (package.json/pnpm-lock.yaml agreement), `release.mjs` (bump + stamp + gates + commit + tag, never pushes), `changelog-section.mjs`.
 - `test/` — vitest; REAL `Context`/`LlmRuntime`/`SystemPrompt`+`ToolRuntime`/`CommandRuntime`/local subprocess from the installed (pinned `0.1.6-alpha.2`) peers. Only the network edge (global `fetch`) is scripted.
 
 ## Hard rules applied here
@@ -30,7 +30,7 @@ official plugin contract; this file records repo-local decisions.
 
 ## Checks
 
-`pnpm run typecheck && pnpm run typecheck:ci && pnpm test && pnpm run test:coverage && pnpm run build && pnpm run verify:self-contained && pnpm run verify:artifacts && node scripts/check-readme-sync.mjs && pnpm pack`
+`pnpm run typecheck && pnpm run typecheck:ci && pnpm test && pnpm run test:coverage && pnpm run build && pnpm run verify:self-contained && pnpm run verify:artifacts && pnpm run check:lockfile && node scripts/check-readme-sync.mjs && pnpm pack`
 
 - `typecheck` checks `src` + `test` against the installed (pinned `0.1.6-alpha.2`) types; `typecheck:ci` clears `skipLibCheck` and adds `verbatimModuleSyntax` for the strict published-types pass. Both must stay green; the peer range still admits the older supported lines (`>=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0 || >=0.1.6-0 <0.2.0`).
 - `test:coverage` gates at 90/80/90/90 (statements/branches/functions/lines), `src/index.ts` excluded.
