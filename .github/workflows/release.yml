@@ -20,8 +20,14 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-          registry-url: 'https://registry.npmjs.org'
           cache: pnpm
+          # No `registry-url` on purpose: it makes setup-node write
+          # `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}` into a local
+          # .npmrc, and once the secret is gone that line becomes an EMPTY bearer
+          # token, so the registry answers 404 on PUT instead of letting npm do
+          # the OIDC trusted-publishing exchange (observed on the first v0.2.12
+          # attempt, where the provenance signature itself succeeded). npm's
+          # default registry is npmjs, so dropping it loses nothing.
 
       - name: Install
         run: pnpm install --frozen-lockfile
@@ -43,16 +49,20 @@ jobs:
       # Trusted publishing: the OIDC token (id-token: write above) replaces the
       # long-lived NPM_TOKEN, so the publish step no longer reads any secret. npm
       # >= 11.5.1 is required for the exchange, which is what the upgrade step is
-      # for; `registry-url` from setup-node stays (OIDC overrides the auth line).
-      # NOTE: the previous version skipped the publish when NPM_TOKEN was empty -
-      # that guard is gone on purpose, or removing the secret would have turned
-      # this step into a silent no-op.
-      - name: Upgrade npm (trusted publishing needs >= 11.5.1)
-        run: npm install -g npm@^11.5.1
+      # for. NOTE: the previous version skipped the publish when NPM_TOKEN was
+      # empty - that guard is gone on purpose, or removing the secret would have
+      # turned this step into a silent no-op.
+      - name: Upgrade npm and show what the publish will authenticate with
+        run: |
+          npm install -g npm@^11.5.1
+          echo "npm: $(npm --version)"
+          echo "registry: $(npm config get registry)"
+          if [ -f .npmrc ]; then echo "--- workspace .npmrc ---"; cat .npmrc; else echo "no workspace .npmrc"; fi
+          if [ -n "${NODE_AUTH_TOKEN:-}" ]; then echo "NODE_AUTH_TOKEN: set (unexpected)"; else echo "NODE_AUTH_TOKEN: unset (expected)"; fi
+          if [ -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" ]; then echo "OIDC request URL: present"; else echo "OIDC request URL: MISSING"; fi
 
       - name: Publish to npm
         run: |
-          npm --version
           version="$(node -p "require('./package.json').version")"
           if npm view "dsh-local-ai@${version}" version >/dev/null 2>&1; then
             echo "dsh-local-ai@${version} is already published; skipping npm publish"
