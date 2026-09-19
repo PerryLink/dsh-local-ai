@@ -60,8 +60,14 @@ jobs:
           if [ -f .npmrc ]; then echo "--- workspace .npmrc ---"; cat .npmrc; else echo "no workspace .npmrc"; fi
           if [ -n "${NODE_AUTH_TOKEN:-}" ]; then echo "NODE_AUTH_TOKEN: set (unexpected)"; else echo "NODE_AUTH_TOKEN: unset (expected)"; fi
           if [ -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" ]; then echo "OIDC request URL: present"; else echo "OIDC request URL: MISSING"; fi
+          if [ -n "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}" ]; then echo "OIDC request TOKEN: present"; else echo "OIDC request TOKEN: MISSING"; fi
 
       - name: Publish to npm
+        env:
+          # npm's OIDC exchange failures are only reported at verbose level, and it
+          # swallows them on purpose ("never throw"): without this the step just
+          # fails with ENEEDAUTH and no reason.
+          NPM_CONFIG_LOGLEVEL: verbose
         run: |
           version="$(node -p "require('./package.json').version")"
           if npm view "dsh-local-ai@${version}" version >/dev/null 2>&1; then
