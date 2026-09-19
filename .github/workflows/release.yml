@@ -40,19 +40,20 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           grep -q "## \[${VERSION}\]" CHANGELOG.md || { echo "CHANGELOG.md has no '## [${VERSION}]' section"; exit 1; }
 
-      # npm publish runs with provenance when NPM_TOKEN is present. A tag
-      # push without the secret, or for a version already on the registry,
-      # skips the publish instead of failing the release tag.
+      # Trusted publishing: the OIDC token (id-token: write above) replaces the
+      # long-lived NPM_TOKEN, so the publish step no longer reads any secret. npm
+      # >= 11.5.1 is required for the exchange, which is what the upgrade step is
+      # for; `registry-url` from setup-node stays (OIDC overrides the auth line).
+      # NOTE: the previous version skipped the publish when NPM_TOKEN was empty -
+      # that guard is gone on purpose, or removing the secret would have turned
+      # this step into a silent no-op.
+      - name: Upgrade npm (trusted publishing needs >= 11.5.1)
+        run: npm install -g npm@^11.5.1
+
       - name: Publish to npm
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          npm --version
           version="$(node -p "require('./package.json').version")"
-          if [ -z "$NPM_TOKEN" ]; then
-            echo "NPM_TOKEN secret is not set; skipping npm publish"
-            exit 0
-          fi
           if npm view "dsh-local-ai@${version}" version >/dev/null 2>&1; then
             echo "dsh-local-ai@${version} is already published; skipping npm publish"
           else
