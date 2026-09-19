@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased]
+
+### Added
+
+- `pnpm run check:lockfile` (`scripts/check-lockfile-drift.mjs`) fails fast when `package.json` and `pnpm-lock.yaml` disagree. The probe is read-only (`--frozen-lockfile --lockfile-only`), and the documented checks chain runs it alongside the other gates.
+
+### Changed
+
+- The release workflow now publishes through **npm trusted publishing** (OIDC) instead of the long-lived `NPM_TOKEN` secret: npm is upgraded to >= 11.5.1 first, the publish step reads no secret, and the "NPM_TOKEN is not set -> skip" guard was removed so a missing publisher can no longer turn a release into a silent no-op.
 ## [0.2.11] - 2026-09-18
 
 ### Fixed
