@@ -3,16 +3,18 @@
  * wire vocabulary (spoken by LM Studio, vLLM, and llama.cpp). User text is
  * joined; assistant text becomes `content` (or `null` when the message carries
  * tool calls) and tool calls become `tool_calls` with their raw JSON argument
- * string; tool results become separate `{role: 'tool'}` messages keyed by
- * `tool_call_id`. Image content is rejected loudly — the OpenAI-compatible
- * adapter is text-only (multimodal backends are out of scope for this route).
+ * string; a session-format-V4 tool result is its own `role: 'tool'` message and
+ * maps one-to-one onto a wire `tool` entry keyed by `tool_call_id`. Image
+ * content is rejected loudly — the OpenAI-compatible adapter is text-only
+ * (multimodal backends are out of scope for this route) — and a developer
+ * (tool-change) message is refused rather than relabeled.
  * Unknown declaration-merged block types retain the documented extension
  * fallback (ignored for content, retained as text where text is expected).
  * @module dsh-local-ai/openai-serialize
  */
 
 import { contentHasImage, LlmError } from '@deepseek-ai/dsh-llm'
-import type { ContentBlock, GenerateOptions, Message, ToolSchema } from '@deepseek-ai/dsh-llm'
+import type { AssistantMessage, ContentBlock, GenerateOptions, RequestMessage, ToolSchema } from '@deepseek-ai/dsh-llm'
 import type { ResolvedOpenAIBackend } from './config.ts'
 
 /** One OpenAI chat message on the wire. */
@@ -43,19 +45,17 @@ function flattenText(blocks: readonly ContentBlock[]): string {
 }
 
 /** Reject image content the OpenAI-compatible wire cannot carry. */
-function assertImagesSupported(message: Message): void {
-  for (const block of message.content) {
-    if (block.type === 'image' || (block.type === 'tool-result' && contentHasImage(block.content))) {
-      throw new LlmError(
-        'The OpenAI-compatible adapter does not support image content for this backend.',
-        'UNSUPPORTED_CONTENT',
-      )
-    }
+function assertImagesSupported(message: RequestMessage): void {
+  if (contentHasImage(message.content)) {
+    throw new LlmError(
+      'The OpenAI-compatible adapter does not support image content for this backend.',
+      'UNSUPPORTED_CONTENT',
+    )
   }
 }
 
 /** Serialize one assistant message (text + tool calls). */
-function serializeAssistant(message: Message): OpenAIWireMessage {
+function serializeAssistant(message: AssistantMessage): OpenAIWireMessage {
   const text = flattenText(message.content)
   const toolCalls = message.content
     .filter(block => block.type === 'tool-call')
@@ -72,16 +72,19 @@ function serializeAssistant(message: Message): OpenAIWireMessage {
 }
 
 /**
- * Serialize the conversation. `tool-result` blocks become standalone
- * `{role: 'tool'}` messages (the harness puts each tool result in its own
- * user-role message, so a mixed user message contributes its text first and
- * its tool results as separate wire messages after).
+ * Serialize the conversation. A session-format-V4 tool result is a first-class
+ * `role: 'tool'` message carrying `toolCallId`, so each one becomes exactly one
+ * wire `tool` entry keyed by that call id; a developer (tool-change) message
+ * has no wire mapping here and is refused loudly instead of relabeled.
  * @param messages - the harness conversation, in order.
- * @returns the wire messages; order preserved, each tool result expanded into its own entry.
+ * @returns the wire messages; order preserved, one entry per harness message.
  */
-export function serializeMessages(messages: Message[]): OpenAIWireMessage[] {
+export function serializeMessages(messages: readonly RequestMessage[]): OpenAIWireMessage[] {
   const wire: OpenAIWireMessage[] = []
   for (const message of messages) {
+    if (message.role === 'developer') {
+      throw new LlmError('The OpenAI-compatible adapter does not support developer messages.', 'UNSUPPORTED_CONTENT')
+    }
     assertImagesSupported(message)
     if (message.role === 'system') {
       wire.push({ role: 'system', content: flattenText(message.content) })
@@ -91,21 +94,16 @@ export function serializeMessages(messages: Message[]): OpenAIWireMessage[] {
       wire.push(serializeAssistant(message))
       continue
     }
-    // user role: tool results ride in user messages in the harness vocabulary,
-    // but OpenAI wants them as role:'tool' messages.
-    const toolResults = message.content.filter(block => block.type === 'tool-result')
-    const text = flattenText(message.content)
-    if (text.length > 0 || toolResults.length === 0) {
-      wire.push({ role: 'user', content: text })
-    }
-    for (const result of toolResults) {
+    if (message.role === 'tool') {
       wire.push({
         role: 'tool',
-        tool_call_id: String(result.toolCallId),
+        tool_call_id: String(message.toolCallId),
         // Empty tool output still needs SOME content on the wire.
-        content: flattenText(result.content) || '(no output)',
+        content: flattenText(message.content) || '(no output)',
       })
+      continue
     }
+    wire.push({ role: 'user', content: flattenText(message.content) })
   }
   return wire
 }

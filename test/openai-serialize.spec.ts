@@ -7,7 +7,7 @@
  * @module dsh-local-ai/test/openai-serialize.spec
  */
 
-import { createAssistantMessage, createToolResultMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
+import { createAssistantMessage, createDeveloperMessage, createSystemMessage, createToolResultMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
 import { CallId } from '../src/call-id.ts'
 import type { GenerateOptions } from '@deepseek-ai/dsh-llm'
 import { describe, expect, it } from 'vitest'
@@ -43,7 +43,7 @@ describe('serializeMessages (OpenAI-compatible)', () => {
       isError: false,
     })
     const wire = serializeMessages([
-      { id: assistant.id, role: 'system', content: [{ type: 'text', text: 'you are' }], source: { kind: 'user' } },
+      createSystemMessage('you are'),
       createUserMessage({ content: [{ type: 'text', text: 'read it' }], source: { kind: 'user' } }),
       assistant,
       result,
@@ -76,6 +76,14 @@ describe('serializeMessages (OpenAI-compatible)', () => {
       source: { kind: 'user' },
     })
     expect(() => serializeMessages([image])).toThrow(/image/u)
+  })
+
+  it('refuses a developer message instead of relabeling it', () => {
+    const developer = createDeveloperMessage({
+      content: [{ type: 'tool-removal', toolName: 'read' }],
+      source: { kind: 'user' },
+    })
+    expect(() => serializeMessages([developer])).toThrow(/developer/u)
   })
 })
 

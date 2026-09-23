@@ -30,7 +30,7 @@
 
 | 项目 | 状态 |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.1.7-alpha.1`（2026-09-18 核验：双 typecheck 尺子 + 133 项测试 + self-contained/artifacts 门）。peer 范围接纳全部受支持线：`>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0`；dev/test 钉号 `0.1.6-alpha.2`。 |
+| Harness | DeepSeek Harness `dsh-v0.1.7-alpha.2`（2026-09-18 核验：三把 typecheck 尺子（已装包、CI、checkout）+ 135 项测试 + self-contained/artifacts 门）。peer 范围接纳全部受支持线：`>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0`；dev/test 钉号 `0.1.7-alpha.2`。 |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | 后端 | [Ollama](https://ollama.com)（本地 HTTP API + CLI 探测） |
 | 模型 | 纯文本路由（`inputModalities: ['text']`）；支持工具调用与工具结果 |

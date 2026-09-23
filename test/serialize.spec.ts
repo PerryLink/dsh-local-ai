@@ -6,7 +6,7 @@
  * @module dsh-local-ai/test/serialize.spec
  */
 
-import { createAssistantMessage, createToolResultMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
+import { createAssistantMessage, createDeveloperMessage, createSystemMessage, createToolResultMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
 import { CallId } from '../src/call-id.ts'
 import type { GenerateOptions } from '@deepseek-ai/dsh-llm'
 import { describe, expect, it } from 'vitest'
@@ -33,7 +33,7 @@ describe('serializeMessages', () => {
       isError: false,
     })
     const wire = serializeMessages([
-      { id: assistant.id, role: 'system', content: [{ type: 'text', text: 'you are' }], source: { kind: 'user' } },
+      createSystemMessage('you are'),
       createUserMessage({ content: [{ type: 'text', text: 'read it' }], source: { kind: 'user' } }),
       assistant,
       result,
@@ -87,11 +87,22 @@ describe('serializeMessages', () => {
   })
 
   it('rejects tool-result image content even with payloads', () => {
-    const message = createUserMessage({
-      content: [{ type: 'tool-result', toolCallId: CallId('c1'), content: [{ type: 'image', attachment: { attachmentId: 'a1' } as never }] }],
-      source: { kind: 'user' },
+    // Session-format V4: a tool result is its own role:'tool' message, so the
+    // image rides that message's content instead of a nested wrapper block.
+    const message = createToolResultMessage({
+      callId: CallId('c1'),
+      content: [{ type: 'image', attachment: { attachmentId: 'a1' } as never }],
+      isError: false,
     })
     expect(() => serializeMessages([message], new Map([['a1', 'QUJD']]))).toThrow(/tool-result image/u)
+  })
+
+  it('refuses a developer message instead of relabeling it', () => {
+    const developer = createDeveloperMessage({
+      content: [{ type: 'tool-removal', toolName: 'read' }],
+      source: { kind: 'user' },
+    })
+    expect(() => serializeMessages([developer])).toThrow(/developer/u)
   })
 })
 
