@@ -28,7 +28,7 @@
 
 | सतह | स्थिति |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.1.7-alpha.1` (2026-09-18 को सत्यापित: दोहरा typecheck + 133 टेस्ट + self-contained/artifacts गेट)। peer रेंज सभी समर्थित लाइनों को स्वीकार करती है: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0`; dev/test पिन `0.1.6-alpha.2` हैं। |
+| Harness | DeepSeek Harness `dsh-v0.1.7-rc.1` (2026-09-24 को सत्यापित: तीन typecheck (इंस्टॉल, CI, checkout) + 135 टेस्ट + self-contained/artifacts गेट)। peer रेंज सभी समर्थित लाइनों को स्वीकार करती है: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0`; dev/test पिन `0.1.7-rc.1` हैं। |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | Backend | [Ollama](https://ollama.com) (स्थानीय HTTP API + CLI जाँच) |
 | Model | केवल-पाठ रूट (`inputModalities: ['text']`); टूल कॉल व परिणाम समर्थित हैं |

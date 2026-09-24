@@ -28,7 +28,7 @@
 
 | Superficie | Estado |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.1.7-alpha.1` (verificado el 2026-09-18: doble typecheck + 133 pruebas + puertas self-contained/artifacts). El rango de peers admite todas las líneas soportadas: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0`; los pines dev/test son `0.1.6-alpha.2`. |
+| Harness | DeepSeek Harness `dsh-v0.1.7-rc.1` (verificado el 2026-09-24: tres typecheck (instalado, CI, checkout) + 135 pruebas + puertas self-contained/artifacts). El rango de peers admite todas las líneas soportadas: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0`; los pines dev/test son `0.1.7-rc.1`. |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | Backend | [Ollama](https://ollama.com) (API HTTP local + sonda CLI) |
 | Modelo | Ruta solo texto (`inputModalities: ['text']`); se admiten llamadas y resultados de herramientas |
