@@ -6,9 +6,9 @@
  * @module dsh-local-ai/test/serialize.spec
  */
 
-import { createAssistantMessage, createToolResultMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
+import { createAssistantMessage, createDeveloperMessage, createToolResultMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
 import { CallId } from '../src/call-id.ts'
-import type { GenerateOptions } from '@deepseek-ai/dsh-llm'
+import type { ContentBlock, GenerateOptions } from '@deepseek-ai/dsh-llm'
 import { describe, expect, it } from 'vitest'
 import { resolveConfig } from '../src/config.ts'
 import { parseToolArguments, serializeMessages, serializeRequest } from '../src/serialize.ts'
@@ -33,7 +33,7 @@ describe('serializeMessages', () => {
       isError: false,
     })
     const wire = serializeMessages([
-      { id: assistant.id, role: 'system', content: [{ type: 'text', text: 'you are' }], source: { kind: 'user' } },
+      { id: assistant.id, role: 'system', content: [{ type: 'text', text: 'you are' }], source: { kind: 'system-prompt' } },
       createUserMessage({ content: [{ type: 'text', text: 'read it' }], source: { kind: 'user' } }),
       assistant,
       result,
@@ -86,9 +86,43 @@ describe('serializeMessages', () => {
     expect(() => serializeMessages([message], new Map())).toThrow(/resolve an image payload/u)
   })
 
-  it('rejects tool-result image content even with payloads', () => {
+  it('omits tool_name when no preceding assistant call names the result', () => {
+    const result = createToolResultMessage({
+      callId: CallId('c9'),
+      content: [{ type: 'text', text: 'orphan result' }],
+      isError: false,
+    })
+    expect(serializeMessages([result])).toEqual([{ role: 'tool', content: 'orphan result' }])
+  })
+
+  it('serializes an identity-free request user input', () => {
+    // `RequestUserInput` is the request-only user turn `GenerateOptions.messages`
+    // admits next to durable messages; it carries neither an id nor a source,
+    // which is why both serializers accept `RequestMessage`, not `Message`.
+    const wire = serializeMessages([{ role: 'user', content: [{ type: 'text', text: 'one-shot' }] }])
+    expect(wire).toEqual([{ role: 'user', content: 'one-shot' }])
+  })
+
+  it('drops a developer message, which carries only tool bookkeeping', () => {
+    const developer = createDeveloperMessage({
+      content: [{ type: 'tool-addition', toolName: 'run' }],
+      source: { kind: 'user' },
+    })
+    expect(serializeMessages([developer])).toEqual([])
+  })
+
+  it('rejects image content in a pre-0.1.7 tool-result wrapper even with payloads', () => {
+    // A session log written before harness 0.1.7: the retired `tool-result`
+    // wrapper rode inside a user message's content. Harness 0.1.7 removed that
+    // block from the content union, so the fixture can only be built through a
+    // wide view - and the adapter must still scan such a log (read-only
+    // fallback), never write it.
     const message = createUserMessage({
-      content: [{ type: 'tool-result', toolCallId: CallId('c1'), content: [{ type: 'image', attachment: { attachmentId: 'a1' } as never }] }],
+      content: [{
+        type: 'tool-result',
+        toolCallId: CallId('c1'),
+        content: [{ type: 'image', attachment: { attachmentId: 'a1' } as never }],
+      }] as unknown as ContentBlock[],
       source: { kind: 'user' },
     })
     expect(() => serializeMessages([message], new Map([['a1', 'QUJD']]))).toThrow(/tool-result image/u)

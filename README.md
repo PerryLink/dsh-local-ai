@@ -38,7 +38,7 @@
 
 | Surface | Status |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.1.7-rc.1` (verified 2026-09-24: three typecheck rulers (installed, CI, checkout) + 135 tests + self-contained/artifacts gates). The peer range admits every supported line: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0`; dev/test pins are `0.1.7-rc.1`. |
+| Harness | DeepSeek Harness `dsh-v0.1.7-rc.1` (verified 2026-09-24: three typecheck rulers (installed, CI, checkout) + 142 tests + self-contained/artifacts gates; the `0.1.7` content-block union is adapted — a tool result is a first-class `tool`-role message, and a pre-`0.1.7` `tool-result` wrapper is still read for old logs). The peer range admits every supported line: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0`; dev/test pins are `0.1.7-rc.1`. |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | Backend | [Ollama](https://ollama.com) (local HTTP API + CLI probe) |
 | Model | Text-only route (`inputModalities: ['text']`); tool calls and tool results are supported |

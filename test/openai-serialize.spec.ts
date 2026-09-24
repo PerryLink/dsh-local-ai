@@ -9,7 +9,7 @@
 
 import { createAssistantMessage, createToolResultMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
 import { CallId } from '../src/call-id.ts'
-import type { GenerateOptions } from '@deepseek-ai/dsh-llm'
+import type { ContentBlock, GenerateOptions } from '@deepseek-ai/dsh-llm'
 import { describe, expect, it } from 'vitest'
 import { resolveConfig } from '../src/config.ts'
 import { serializeMessages, serializeRequest } from '../src/openai-serialize.ts'
@@ -43,7 +43,7 @@ describe('serializeMessages (OpenAI-compatible)', () => {
       isError: false,
     })
     const wire = serializeMessages([
-      { id: assistant.id, role: 'system', content: [{ type: 'text', text: 'you are' }], source: { kind: 'user' } },
+      { id: assistant.id, role: 'system', content: [{ type: 'text', text: 'you are' }], source: { kind: 'system-prompt' } },
       createUserMessage({ content: [{ type: 'text', text: 'read it' }], source: { kind: 'user' } }),
       assistant,
       result,
@@ -76,6 +76,30 @@ describe('serializeMessages (OpenAI-compatible)', () => {
       source: { kind: 'user' },
     })
     expect(() => serializeMessages([image])).toThrow(/image/u)
+  })
+
+  it('serializes an identity-free request user input', () => {
+    // `RequestUserInput` has neither an id nor a source, which is why both
+    // serializers accept `RequestMessage` rather than `Message`.
+    const wire = serializeMessages([{ role: 'user', content: [{ type: 'text', text: 'one-shot' }] }])
+    expect(wire).toEqual([{ role: 'user', content: 'one-shot' }])
+  })
+
+  it('still reads a pre-0.1.7 tool-result wrapper from an upgraded-from log', () => {
+    // Read-only fallback: harness 0.1.7 removed `tool-result` from the content
+    // block union, so this retired shape can only be built through a wide view.
+    // A log written before 0.1.7 must keep its tool turns.
+    const legacy = createUserMessage({
+      content: [
+        { type: 'text', text: 'the file says:' },
+        { type: 'tool-result', toolCallId: CallId('c1'), content: [{ type: 'text', text: 'file content' }] },
+      ] as unknown as ContentBlock[],
+      source: { kind: 'user' },
+    })
+    expect(serializeMessages([legacy])).toEqual([
+      { role: 'user', content: 'the file says:' },
+      { role: 'tool', tool_call_id: 'c1', content: 'file content' },
+    ])
   })
 })
 
