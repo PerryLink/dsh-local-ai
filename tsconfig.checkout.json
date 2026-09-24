@@ -1,0 +1,44 @@
+{
+  "extends": "./tsconfig.test.json",
+  "compilerOptions": {
+    "paths": {
+      "@deepseek-ai/cordis": [
+        "../../../../deepseek-harness/vendor/cordis/lib/types/index.d.ts"
+      ],
+      "@deepseek-ai/cordis-plugin-loader": [
+        "../../../../deepseek-harness/vendor/loader/lib/types/index.d.ts"
+      ],
+      "@deepseek-ai/schemastery": [
+        "../../../../deepseek-harness/vendor/schemastery/lib/types/index.d.ts"
+      ],
+      "@deepseek-ai/dsh-attachment": [
+        "../../../../deepseek-harness/packages/attachment/attachment/lib/types/index.d.ts"
+      ],
+      "@deepseek-ai/dsh-commands": [
+        "../../../../deepseek-harness/packages/interaction/commands/lib/types/index.d.ts"
+      ],
+      "@deepseek-ai/dsh-llm": [
+        "../../../../deepseek-harness/packages/llm/llm/lib/types/index.d.ts"
+      ],
+      "@deepseek-ai/dsh-subprocess": [
+        "../../../../deepseek-harness/packages/subprocess/subprocess/lib/types/index.d.ts"
+      ],
+      "@deepseek-ai/dsh-subprocess-local": [
+        "../../../../deepseek-harness/packages/subprocess/subprocess-local/lib/types/index.d.ts"
+      ],
+      "@deepseek-ai/dsh-system-prompt": [
+        "../../../../deepseek-harness/packages/core/system-prompt/lib/types/index.d.ts"
+      ],
+      "@deepseek-ai/dsh-timeout": [
+        "../../../../deepseek-harness/packages/util/timeout/lib/types/index.d.ts"
+      ],
+      "@deepseek-ai/dsh-tools": [
+        "../../../../deepseek-harness/packages/core/tools/lib/types/index.d.ts"
+      ],
+      "@deepseek-ai/dsh-util-values": [
+        "../../../../deepseek-harness/packages/util/values/lib/types/index.d.ts"
+      ]
+    }
+  },
+  "include": ["src", "test", "vitest.config.ts"]
+}
