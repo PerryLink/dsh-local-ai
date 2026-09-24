@@ -32,7 +32,7 @@ jobs:
       - name: Typecheck (repo tsconfig)
         run: pnpm run typecheck
 
-      - name: Typecheck (published 0.1.7-rc.1 peers)
+      - name: Typecheck (published 0.2.0-rc.2 peers)
         run: pnpm run typecheck:ci
 
       - name: Test

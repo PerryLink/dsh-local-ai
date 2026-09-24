@@ -35,7 +35,7 @@
 
 | सतह | स्थिति |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.1.7-rc.1` (2026-09-24 को सत्यापित: तीन typecheck (इंस्टॉल, CI, checkout) + 142 टेस्ट + self-contained/artifacts गेट; `0.1.7` का content-block union अनुकूलित है — टूल परिणाम अब प्रथम-श्रेणी का `tool` रोल संदेश है, और `0.1.7` से पहले का `tool-result` आवरण पुराने लॉग के लिए अब भी पढ़ा जाता है)। peer रेंज सभी समर्थित लाइनों को स्वीकार करती है: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0`; dev/test पिन `0.1.7-rc.1` हैं। |
+| Harness | DeepSeek Harness `dsh-v0.2.1-alpha.1` (2026-10-04 को सत्यापित: तीन typecheck (इंस्टॉल, CI, checkout) + 142 टेस्ट + self-contained/artifacts गेट; `0.1.7` का content-block union अनुकूलित है — टूल परिणाम अब प्रथम-श्रेणी का `tool` रोल संदेश है, और `0.1.7` से पहले का `tool-result` आवरण पुराने लॉग के लिए अब भी पढ़ा जाता है)। peer रेंज सभी समर्थित लाइनों को स्वीकार करती है: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0 \|\| >=0.2.0-rc.1 <0.3.0-0`; dev/test पिन `0.2.0-rc.2` हैं। |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | Backend | [Ollama](https://ollama.com) (स्थानीय HTTP API + CLI जाँच) |
 | Model | केवल-पाठ रूट (`inputModalities: ['text']`); टूल कॉल व परिणाम समर्थित हैं |
@@ -164,7 +164,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 
 ## Known limitations
 
-- **npm 0.1.5-rc.2** — `@deepseek-ai/dsh@0.1.5-rc.2` के विरुद्ध विकसित व परीक्षित; नए harness बेसलाइन काम करने की अपेक्षा है, पर मासिक compat workflow उन्हें सत्यापित करता है।
+- **npm 0.2.0-rc.2** — `@deepseek-ai/dsh@0.2.0-rc.2` के विरुद्ध विकसित व परीक्षित; नए harness बेसलाइन काम करने की अपेक्षा है, पर मासिक compat workflow उन्हें सत्यापित करता है।
 - **मॉडल द्वारा vision रिपोर्ट करने पर विज़न** — जिन मॉडलों की `/api/show` capabilities में `vision` है, वे `inputModalities: ["text","image"]` घोषित करते हैं और उपयोगकर्ता संदेशों पर base64 छवि पेलोड ले जाते हैं (`vision: false` से बंद करें); केवल-टेक्स्ट मॉडल अब भी छवि सामग्री अस्वीकार करते हैं (`UNSUPPORTED_CONTENT`)।
 - **मध्य-स्ट्रीम वापसी** — एक बार स्थानीय रूट सामग्री बनाना शुरू कर दे, तो बाद की विफलता आगे भेजी जाती है (वापस नहीं ली जाती); केवल पहले टोकन से पहले की विफलता क्लाउड पर लौटती है।
 
@@ -172,7 +172,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 
 ```sh
 pnpm install        # node ^22.19 || >=24
-pnpm run typecheck  # tsc: src + परीक्षण, प्रकाशित 0.1.5-rc.2 प्रकारों के विरुद्ध
+pnpm run typecheck  # tsc: src + परीक्षण, प्रकाशित 0.2.0-rc.2 प्रकारों के विरुद्ध
 pnpm run typecheck:ci  # सख्त tsc, प्रकाशित rc.2 प्रकारों के विरुद्ध (skipLibCheck बंद)
 pnpm test           # vitest: वास्तविक Context/LlmRuntime/ToolRuntime/CommandRuntime/subprocess सीम
 pnpm run test:coverage  # कवरेज द्वार (90/80/90/90)

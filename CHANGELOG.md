@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.2.15] - 2026-10-04
+
+### Changed
+
+- **Widen the declared host line to `0.2.x` and re-verify against it.** `engines.dsh` and all six `@deepseek-ai/dsh-*` peer bands gain the `|| >=0.2.0-rc.1 <0.3.0-0` arm — the previous four-clause union ended at `<0.2.0`, so a `0.2.x` host disabled the plugin — and the fourteen `@deepseek-ai/dsh-*` dev/test pins move from `0.1.7-rc.1` to the published `0.2.0-rc.2` line. `dshWorkshop.compatibility.dshVersions` appends `0.2.0-rc.2` and `0.2.1-alpha.1`, the five READMEs name the `dsh-v0.2.1-alpha.1` host line, the CI and compat workflow labels follow, and the compat workflow installs the `0.2.0-rc.2` host (`@deepseek-ai/dsh`, `dsh-base`, `dsh-headless`). `pnpm-lock.yaml` is regenerated with the declared `pnpm@11.7.0`. **No existing arm was removed or narrowed**: the declared union still admits every supported `0.1.x` line down to `0.1.2-rc.1`, and the runtime fallbacks for the pre-`0.1.7` `tool-result` wrapper are untouched — this is a host-line widening, not a behaviour rewrite.
+- Re-verified against the local `dsh-v0.2.1-alpha.1` harness checkout (`5badb15`): `typecheck`, `typecheck:ci` and `typecheck:checkout` (the checkout ruler) plus 142 tests, the coverage gate, the build, `verify:self-contained`, `verify:artifacts`, `check:lockfile`, the five-language README gate and `pnpm pack` all pass with the `0.2.0-rc.2` peers installed.
+
 ## [0.2.14] - 2026-09-24
 
 ### Fixed

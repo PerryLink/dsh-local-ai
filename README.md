@@ -38,7 +38,7 @@
 
 | Surface | Status |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.1.7-rc.1` (verified 2026-09-24: three typecheck rulers (installed, CI, checkout) + 142 tests + self-contained/artifacts gates; the `0.1.7` content-block union is adapted — a tool result is a first-class `tool`-role message, and a pre-`0.1.7` `tool-result` wrapper is still read for old logs). The peer range admits every supported line: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0`; dev/test pins are `0.1.7-rc.1`. |
+| Harness | DeepSeek Harness `dsh-v0.2.1-alpha.1` (verified 2026-10-04: three typecheck rulers (installed, CI, checkout) + 142 tests + self-contained/artifacts gates; the `0.1.7` content-block union is adapted — a tool result is a first-class `tool`-role message, and a pre-`0.1.7` `tool-result` wrapper is still read for old logs). The peer range admits every supported line: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0 \|\| >=0.2.0-rc.1 <0.3.0-0`; dev/test pins are `0.2.0-rc.2`. |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | Backend | [Ollama](https://ollama.com) (local HTTP API + CLI probe) |
 | Model | Text-only route (`inputModalities: ['text']`); tool calls and tool results are supported |
@@ -169,7 +169,7 @@ All tunables are Schemastery `Config` fields (changeable from cordis.yml). An id
 
 ## Known limitations
 
-- **npm 0.1.5-rc.2** — developed and tested against `@deepseek-ai/dsh@0.1.5-rc.2`; newer harness baselines are expected to work but are verified by the monthly compat workflow.
+- **npm 0.2.0-rc.2** — developed and tested against `@deepseek-ai/dsh@0.2.0-rc.2`; newer harness baselines are expected to work but are verified by the monthly compat workflow.
 - **Vision when the model reports it** — models whose `/api/show` capabilities include `vision` declare `inputModalities: ["text","image"]` and carry base64 image payloads on user messages (opt out with `vision: false`); text-only models still reject image content (`UNSUPPORTED_CONTENT`).
 - **Mid-stream fallback** — once a local route has started producing content, a later failure is forwarded (not retracted); only a failure before the first token falls back to the cloud.
 
@@ -177,7 +177,7 @@ All tunables are Schemastery `Config` fields (changeable from cordis.yml). An id
 
 ```sh
 pnpm install        # node ^22.19 || >=24
-pnpm run typecheck  # tsc: src + tests against the published 0.1.5-rc.2 types
+pnpm run typecheck  # tsc: src + tests against the published 0.2.0-rc.2 types
 pnpm run typecheck:ci  # strict tsc against published rc.2 types (skipLibCheck off)
 pnpm test           # vitest: real Context/LlmRuntime/ToolRuntime/CommandRuntime/subprocess seams
 pnpm run test:coverage  # coverage gate (90/80/90/90)

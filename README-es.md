@@ -35,7 +35,7 @@ Este plugin forma parte de la [familia de plugins DSH](https://github.com/PerryL
 
 | Superficie | Estado |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.1.7-rc.1` (verificado el 2026-09-24: tres typecheck (instalado, CI, checkout) + 142 pruebas + puertas self-contained/artifacts; la unión de bloques de contenido de `0.1.7` está adaptada — un resultado de herramienta es ahora un mensaje de rol `tool` de primera clase, y un envoltorio `tool-result` anterior a `0.1.7` todavía se lee para registros antiguos). El rango de peers admite todas las líneas soportadas: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0`; los pines dev/test son `0.1.7-rc.1`. |
+| Harness | DeepSeek Harness `dsh-v0.2.1-alpha.1` (verificado el 2026-10-04: tres typecheck (instalado, CI, checkout) + 142 pruebas + puertas self-contained/artifacts; la unión de bloques de contenido de `0.1.7` está adaptada — un resultado de herramienta es ahora un mensaje de rol `tool` de primera clase, y un envoltorio `tool-result` anterior a `0.1.7` todavía se lee para registros antiguos). El rango de peers admite todas las líneas soportadas: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0 \|\| >=0.2.0-rc.1 <0.3.0-0`; los pines dev/test son `0.2.0-rc.2`. |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | Backend | [Ollama](https://ollama.com) (API HTTP local + sonda CLI) |
 | Modelo | Ruta solo texto (`inputModalities: ['text']`); se admiten llamadas y resultados de herramientas |
@@ -164,7 +164,7 @@ Todos los ajustes son campos `Config` de Schemastery (modificables desde cordis.
 
 ## Known limitations
 
-- **npm 0.1.5-rc.2** — desarrollado y probado contra `@deepseek-ai/dsh@0.1.5-rc.2`; se espera que baselines más nuevos funcionen, pero los verifica el workflow mensual de compat.
+- **npm 0.2.0-rc.2** — desarrollado y probado contra `@deepseek-ai/dsh@0.2.0-rc.2`; se espera que baselines más nuevos funcionen, pero los verifica el workflow mensual de compat.
 - **Vision cuando el modelo la informa** — los modelos cuyas capacidades de `/api/show` incluyen `vision` declaran `inputModalities: ["text","image"]` y llevan cargas de imagen base64 en los mensajes de usuario (exclusión con `vision: false`); los modelos solo texto siguen rechazando el contenido de imagen (`UNSUPPORTED_CONTENT`).
 - **Respaldo a mitad de flujo** — una vez que una ruta local empezó a producir contenido, un fallo posterior se reenvía (no se retira); solo un fallo antes del primer token respalda a la nube.
 
@@ -172,7 +172,7 @@ Todos los ajustes son campos `Config` de Schemastery (modificables desde cordis.
 
 ```sh
 pnpm install        # node ^22.19 || >=24
-pnpm run typecheck  # tsc: src + tests contra los tipos publicados 0.1.5-rc.2
+pnpm run typecheck  # tsc: src + tests contra los tipos publicados 0.2.0-rc.2
 pnpm run typecheck:ci  # tsc estricto contra los tipos publicados rc.2 (skipLibCheck off)
 pnpm test           # vitest: costuras reales Context/LlmRuntime/ToolRuntime/CommandRuntime/subprocess
 pnpm run test:coverage  # puerta de cobertura (90/80/90/90)

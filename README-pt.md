@@ -35,7 +35,7 @@ Este plugin faz parte da [família de plugins DSH](https://github.com/PerryLink)
 
 | Superfície | Status |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.1.7-rc.1` (verificado em 2026-09-24: typecheck triplo (instalado, CI, checkout) + 142 testes + portas self-contained/artifacts; a união de blocos de conteúdo de `0.1.7` está adaptada — um resultado de ferramenta agora é uma mensagem de papel `tool` de primeira classe, e um envelope `tool-result` anterior a `0.1.7` ainda é lido para registros antigos). O intervalo de peers admite todas as linhas suportadas: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0`; os pins dev/test são `0.1.7-rc.1`. |
+| Harness | DeepSeek Harness `dsh-v0.2.1-alpha.1` (verificado em 2026-10-04: typecheck triplo (instalado, CI, checkout) + 142 testes + portas self-contained/artifacts; a união de blocos de conteúdo de `0.1.7` está adaptada — um resultado de ferramenta agora é uma mensagem de papel `tool` de primeira classe, e um envelope `tool-result` anterior a `0.1.7` ainda é lido para registros antigos). O intervalo de peers admite todas as linhas suportadas: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0 \|\| >=0.2.0-rc.1 <0.3.0-0`; os pins dev/test são `0.2.0-rc.2`. |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | Backend | [Ollama](https://ollama.com) (API HTTP local + sonda CLI) |
 | Modelo | Rota somente texto (`inputModalities: ['text']`); chamadas e resultados de ferramentas são suportados |
@@ -164,7 +164,7 @@ Todos os ajustes são campos `Config` de Schemastery (modificáveis pelo cordis.
 
 ## Known limitations
 
-- **npm 0.1.5-rc.2** — desenvolvido e testado contra `@deepseek-ai/dsh@0.1.5-rc.2`; espera-se que baselines mais novos funcionem, mas são verificados pelo workflow mensal de compat.
+- **npm 0.2.0-rc.2** — desenvolvido e testado contra `@deepseek-ai/dsh@0.2.0-rc.2`; espera-se que baselines mais novos funcionem, mas são verificados pelo workflow mensal de compat.
 - **Vision quando o modelo a informa** — modelos cujas capacidades de `/api/show` incluem `vision` declaram `inputModalities: ["text","image"]` e carregam payloads de imagem base64 nas mensagens do usuário (desative com `vision: false`); modelos somente texto continuam rejeitando conteúdo de imagem (`UNSUPPORTED_CONTENT`).
 - **Fallback no meio do fluxo** — uma vez que uma rota local começou a produzir conteúdo, uma falha posterior é reencaminhada (não retirada); apenas uma falha antes do primeiro token faz fallback para a nuvem.
 
@@ -172,7 +172,7 @@ Todos os ajustes são campos `Config` de Schemastery (modificáveis pelo cordis.
 
 ```sh
 pnpm install        # node ^22.19 || >=24
-pnpm run typecheck  # tsc: src + testes contra os tipos publicados 0.1.5-rc.2
+pnpm run typecheck  # tsc: src + testes contra os tipos publicados 0.2.0-rc.2
 pnpm run typecheck:ci  # tsc estrito contra os tipos publicados rc.2 (skipLibCheck off)
 pnpm test           # vitest: costuras reais Context/LlmRuntime/ToolRuntime/CommandRuntime/subprocess
 pnpm run test:coverage  # porta de cobertura (90/80/90/90)

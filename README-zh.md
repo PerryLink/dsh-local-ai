@@ -37,7 +37,7 @@
 
 | 项目 | 状态 |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.1.7-rc.1`（2026-09-24 核验：三把 typecheck 尺子（已装包、CI、checkout）+ 142 项测试 + self-contained/artifacts 门；已适配 `0.1.7` 的内容块联合 —— 工具结果现为一等 `tool` 角色消息，旧日志里的 `tool-result` 包裹块仍可读取）。peer 范围接纳全部受支持线：`>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0`；dev/test 钉号 `0.1.7-rc.1`。 |
+| Harness | DeepSeek Harness `dsh-v0.2.1-alpha.1`（2026-10-04 核验：三把 typecheck 尺子（已装包、CI、checkout）+ 142 项测试 + self-contained/artifacts 门；已适配 `0.1.7` 的内容块联合 —— 工具结果现为一等 `tool` 角色消息，旧日志里的 `tool-result` 包裹块仍可读取）。peer 范围接纳全部受支持线：`>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0 \|\| >=0.2.0-rc.1 <0.3.0-0`；dev/test 钉号 `0.2.0-rc.2`。 |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | 后端 | [Ollama](https://ollama.com)（本地 HTTP API + CLI 探测） |
 | 模型 | 纯文本路由（`inputModalities: ['text']`）；支持工具调用与工具结果 |
@@ -166,7 +166,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 
 ## Known limitations
 
-- **npm 0.1.5-rc.2** —— 针对 `@deepseek-ai/dsh@0.1.5-rc.2` 开发与测试；更新版本的 harness 基线预期可用，但由每月 compat workflow 验证。
+- **npm 0.2.0-rc.2** —— 针对 `@deepseek-ai/dsh@0.2.0-rc.2` 开发与测试；更新版本的 harness 基线预期可用，但由每月 compat workflow 验证。
 - **模型声明 vision 时启用视觉** — `/api/show` capabilities 含 `vision` 的模型声明 `inputModalities: ["text","image"]`，并在用户消息上携带 base64 图片载荷（可用 `vision: false` 退出）；纯文本模型仍拒绝图片内容（`UNSUPPORTED_CONTENT`）。
 - **中途失败不回退** —— 本地路由一旦开始产出内容，之后的失败会透传（无法撤回）；只有首个 token 前的失败才回退云端。
 
@@ -174,7 +174,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 
 ```sh
 pnpm install        # node ^22.19 || >=24
-pnpm run typecheck  # tsc：src + 测试，对发布版 0.1.5-rc.2 类型
+pnpm run typecheck  # tsc：src + 测试，对发布版 0.2.0-rc.2 类型
 pnpm run typecheck:ci  # 严格 tsc，对发布版 rc.2 类型（关闭 skipLibCheck）
 pnpm test           # vitest：真实 Context/LlmRuntime/ToolRuntime/CommandRuntime/subprocess 机制
 pnpm run test:coverage  # 覆盖率门禁（90/80/90/90）
