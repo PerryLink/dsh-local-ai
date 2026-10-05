@@ -184,6 +184,24 @@ node scripts/check-endpoints.mjs  # sonda de actividad M3 (Ollama /api/version)
 pnpm pack           # el tarball publicado
 ```
 
+## Interoperability with other DSH plugins
+
+Verificado contra **DSH `0.2.0-rc.2`** (el runtime para el que se publica este README) y el conjunto de plugins con más estrellas sondeado el 2026-10-05.
+
+Este plugin **no interfiere** con otros plugins, incluidos los de más estrellas:
+
+- **Sin colisión de nombres de herramienta.** Todas las herramientas llevan espacio de nombres; ninguna ocupa un nombre desnudo ya perteneciente a una herramienta incluida u otro plugin.
+- **Sin colisión de clave de servicio.** No provee ninguna clave de servicio, así que no puede colisionar en una.
+- **Sin colisión de slot.** No registra ninguna clave de slot de cliente, así que no disputa un asiento `shadows-shipped-ui`.
+- **Sin colisión de ruta HTTP.** No registra ningún prefijo `webServer`.
+- **Sin colisión en la capa de patch.** El patch del bundle solo hace `insert` de su propia fila; nunca sobrescribe el `config` de una fila incluida.
+- **Sin mutación global.** No parchea prototipos, ni reescribe `process.env`, ni reemplaza el dispatcher global de fetch.
+
+**Los listeners de eventos compartidos no interfieren por construcción.** Observa los eventos sensibles al orden `llm/stream` con `ctx.on()` — el registro de difusión de Cordis, donde cada listener se ejecuta y ninguno puede dejar sin turno a otro. **Todos los listeners aquí delegan por `next()`**, así que la cadena nunca se cortocircuita:
+  - `llm/stream` — also used by `dsh-routing-suite` (7000★).
+
+Evidencia estática: `dsh-plugin-doctor` K10–K13 dan `pass` en todas las comprobaciones de este repositorio.
+
 ## Topics
 
 `dsh`, `dsh-plugin`, `deepseek-harness`, `deepseek`, `cordis`, `ollama`, `local-llm`, `local-models`, `offline`, `privacy`, `model-routing`

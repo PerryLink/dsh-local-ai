@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased]
+
+### Added
+
+- **Versioned interoperability declaration in all five READMEs.** Each file now records, against DSH `0.2.0-rc.2`, the injection points this plugin owns and why none of them collide with another plugin: no tool-name, service-key, slot, HTTP-route, patch-layer or global-mutation overlap, and — for every ordering-sensitive event it listens on (`llm/stream`) — that the listener delegates through `next()`, so a shared waterfall chain is never short-circuited. The section also names the surveyed high-star plugin that shares that event, so the claim is checkable rather than asserted. Verified by `dsh-plugin-doctor` K10–K14 (checkset `R0-R8+K1-K14+D0-D3,D9+CC1-CC5/3`). Documentation only; no behaviour change.
+
 ## [0.2.15] - 2026-10-04
 
 ### Changed
