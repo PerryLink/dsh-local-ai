@@ -73,7 +73,24 @@ jobs:
           if npm view "dsh-local-ai@${version}" version >/dev/null 2>&1; then
             echo "dsh-local-ai@${version} is already published; skipping npm publish"
           else
-            npm publish --access public --provenance
+            # The `npm view` guard above reads npm's own metadata, and that read
+            # side can lag minutes behind a successful publish. Observed on
+            # v0.2.16: the tag was re-pushed after a first run had already
+            # published the version, the guard still reported it missing, and the
+            # publish then died with E409 "Cannot publish over previously staged
+            # version" — which failed the run AFTER the version was already live,
+            # and so skipped the GitHub Release step entirely. E409 is npm telling
+            # us the version exists; treating it as done is the honest reading.
+            out="$(npm publish --access public --provenance 2>&1)" && status=0 || status=$?
+            printf '%s\n' "$out"
+            if [ "$status" -eq 0 ]; then
+              exit 0
+            fi
+            if printf '%s' "$out" | grep -q 'E409'; then
+              echo "dsh-local-ai@${version} is already on the registry (E409); treating the publish as done"
+              exit 0
+            fi
+            exit "$status"
           fi
 
   release:
