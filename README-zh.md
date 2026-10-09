@@ -12,6 +12,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Gitee](https://img.shields.io/badge/Gitee-mirror-c71d23?logo=gitee)](https://gitee.com/perrylink/dsh-local-ai)
 [![DSH plugin](https://img.shields.io/badge/dsh--plugin-✅-green)](https://github.com/topics/dsh-plugin)
+[![DSH Market](https://raw.githubusercontent.com/2BingLing/dsh-market/master/assets/readme/badge-listed-zh.svg)](https://dsh.market/)
 [![dsh-doctor](https://raw.githubusercontent.com/PerryLink/dsh-plugin-doctor/main/badges/PerryLink__dsh-local-ai.svg)](https://github.com/PerryLink/dsh-plugin-doctor#verified-徽章)
 [![Node](https://img.shields.io/badge/node-%5E22.19%20%7C%7C%20%3E%3D24-brightgreen.svg)](#)
 [![CI](https://img.shields.io/github/actions/workflow/status/PerryLink/dsh-local-ai/ci.yml?branch=main&label=CI)](https://github.com/PerryLink/dsh-local-ai/actions)
@@ -34,6 +35,14 @@
 这个插件是 [DSH 插件家族](https://github.com/PerryLink)的一员（40+ 个，全部 Apache-2.0）。如果你在用，**给个 star** —— 它不会解锁任何功能，但会让下一个人在搜索里更容易找到它。
 
 *English:* part of a 40+ plugin family for DeepSeek Harness. If it is useful, **a star helps the next person find it** — nothing is gated behind it.
+
+## What is dsh-local-ai?
+
+DeepSeek Harness 的本地模型（Ollama）接入。
+
+发现、拉取、删除、查看本地模型，按任务类型或关键词把请求分流到本地模型并在失败时自动回退云端，通过 `/ollama` 一键查看状态总览。
+
+![dsh-local-ai 终端演示：dsh-local-ai — install, then route by keyword to Ollama](https://raw.githubusercontent.com/PerryLink/dsh-local-ai/main/docs/assets/dsh-local-ai-demo.png)
 
 ## Compatibility
 
@@ -68,8 +77,12 @@ health ──▶ /api/version（API）+ ollama list（进程）
 ## Quick start
 
 ```sh
+dsh plugin --profile web add github:PerryLink/dsh-local-ai
+```
+
+```sh
 # 1. 把 bundle 安装进你的 profile
-dsh plugin --profile web add "github:PerryLink/dsh-local-ai#main"
+dsh plugin --profile web add github:PerryLink/dsh-local-ai
 
 # 或从 npm（正式发布版）
 dsh plugin --profile web add dsh-local-ai
@@ -98,7 +111,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 
 ## Install & uninstall
 
-- **git 通道**（最新 `main`）：`dsh plugin --profile web add "github:PerryLink/dsh-local-ai#main"` —— `prepare` 脚本只使用生产依赖构建。
+- **git 通道**（最新 `main`）：`dsh plugin --profile web add github:PerryLink/dsh-local-ai` —— `prepare` 脚本只使用生产依赖构建。
 - **npm 通道**（正式发布版）：`dsh plugin --profile web add dsh-local-ai`。
 - **tarball 通道**：在本仓库 `pnpm pack`，然后 `dsh plugin --profile web add ./dsh-local-ai-<version>.tgz`。
 - **卸载**：`dsh plugin --profile web remove dsh-local-ai`（或从 profile patch 移除该 row）。

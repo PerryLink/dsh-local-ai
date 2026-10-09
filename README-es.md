@@ -10,6 +10,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Gitee](https://img.shields.io/badge/Gitee-mirror-c71d23?logo=gitee)](https://gitee.com/perrylink/dsh-local-ai)
 [![DSH plugin](https://img.shields.io/badge/dsh--plugin-✅-green)](https://github.com/topics/dsh-plugin)
+[![DSH Market](https://raw.githubusercontent.com/2BingLing/dsh-market/master/assets/readme/badge-listed-en.svg)](https://dsh.market/)
 [![dsh-doctor](https://raw.githubusercontent.com/PerryLink/dsh-plugin-doctor/main/badges/PerryLink__dsh-local-ai.svg)](https://github.com/PerryLink/dsh-plugin-doctor#verified-徽章)
 [![Node](https://img.shields.io/badge/node-%5E22.19%20%7C%7C%20%3E%3D24-brightgreen.svg)](#)
 [![CI](https://img.shields.io/github/actions/workflow/status/PerryLink/dsh-local-ai/ci.yml?branch=main&label=CI)](https://github.com/PerryLink/dsh-local-ai/actions)
@@ -32,6 +33,14 @@
 Este plugin forma parte de la [familia de plugins DSH](https://github.com/PerryLink) (más de 40, todos Apache-2.0). Si te resulta útil, **dale una estrella**: no desbloquea nada, pero ayuda a que la siguiente persona lo encuentre antes.
 
 *English:* part of a 40+ plugin family for DeepSeek Harness. If it is useful, **a star helps the next person find it** — nothing is gated behind it.
+
+## What is dsh-local-ai?
+
+Integración de modelos locales (Ollama) para DeepSeek Harness.
+
+Descubre, descarga, elimina e inspecciona modelos locales, enruta solicitudes hacia ellos por tipo de tarea o palabra clave con respaldo automático a la nube, y obtén un resumen de estado de un vistazo con `/ollama`.
+
+![Demostración de terminal de dsh-local-ai: dsh-local-ai — install, then route by keyword to Ollama](https://raw.githubusercontent.com/PerryLink/dsh-local-ai/main/docs/assets/dsh-local-ai-demo.png)
 
 ## Compatibility
 
@@ -66,8 +75,12 @@ health ──▶ /api/version (API) + ollama list (proceso)
 ## Quick start
 
 ```sh
+dsh plugin --profile web add github:PerryLink/dsh-local-ai
+```
+
+```sh
 # 1. instala el bundle en tu perfil
-dsh plugin --profile web add "github:PerryLink/dsh-local-ai#main"
+dsh plugin --profile web add github:PerryLink/dsh-local-ai
 
 # o desde npm (versiones publicadas)
 dsh plugin --profile web add dsh-local-ai
@@ -96,7 +109,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 
 ## Install & uninstall
 
-- **canal git** (último `main`): `dsh plugin --profile web add "github:PerryLink/dsh-local-ai#main"` — el script `prepare` compila solo con dependencias de producción.
+- **canal git** (último `main`): `dsh plugin --profile web add github:PerryLink/dsh-local-ai` — el script `prepare` compila solo con dependencias de producción.
 - **canal npm** (versiones publicadas): `dsh plugin --profile web add dsh-local-ai`.
 - **canal tarball**: `pnpm pack` en este repo y luego `dsh plugin --profile web add ./dsh-local-ai-<version>.tgz`.
 - **desinstalar**: `dsh plugin --profile web remove dsh-local-ai` (o quita la fila del patch del perfil).

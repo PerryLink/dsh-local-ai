@@ -10,6 +10,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Gitee](https://img.shields.io/badge/Gitee-mirror-c71d23?logo=gitee)](https://gitee.com/perrylink/dsh-local-ai)
 [![DSH plugin](https://img.shields.io/badge/dsh--plugin-✅-green)](https://github.com/topics/dsh-plugin)
+[![DSH Market](https://raw.githubusercontent.com/2BingLing/dsh-market/master/assets/readme/badge-listed-en.svg)](https://dsh.market/)
 [![dsh-doctor](https://raw.githubusercontent.com/PerryLink/dsh-plugin-doctor/main/badges/PerryLink__dsh-local-ai.svg)](https://github.com/PerryLink/dsh-plugin-doctor#verified-徽章)
 [![Node](https://img.shields.io/badge/node-%5E22.19%20%7C%7C%20%3E%3D24-brightgreen.svg)](#)
 [![CI](https://img.shields.io/github/actions/workflow/status/PerryLink/dsh-local-ai/ci.yml?branch=main&label=CI)](https://github.com/PerryLink/dsh-local-ai/actions)
@@ -32,6 +33,14 @@
 यह प्लगइन [DSH प्लगइन परिवार](https://github.com/PerryLink) का हिस्सा है (40+ प्लगइन, सभी Apache-2.0)। अगर यह उपयोगी लगे, तो **एक स्टार दें** — इससे कोई सुविधा नहीं खुलती, पर अगला व्यक्ति इसे खोज में आसानी से पा सकेगा।
 
 *English:* part of a 40+ plugin family for DeepSeek Harness. If it is useful, **a star helps the next person find it** — nothing is gated behind it.
+
+## What is dsh-local-ai?
+
+DeepSeek Harness के लिए स्थानीय-मॉडल (Ollama) एकीकरण।
+
+स्थानीय मॉडल खोजें, खींचें, हटाएँ और जाँचें; कार्य-प्रकार या कीवर्ड के आधार पर अनुरोधों को स्थानीय मॉडल पर रूट करें और विफलता पर स्वतः क्लाउड पर वापस लौटें; `/ollama` से एक-झटके में स्थिति सारांश पाएँ।
+
+![dsh-local-ai का टर्मिनल डेमो: dsh-local-ai — install, then route by keyword to Ollama](https://raw.githubusercontent.com/PerryLink/dsh-local-ai/main/docs/assets/dsh-local-ai-demo.png)
 
 ## Compatibility
 
@@ -66,8 +75,12 @@ health ──▶ /api/version (API) + ollama list (प्रक्रिया)
 ## Quick start
 
 ```sh
+dsh plugin --profile web add github:PerryLink/dsh-local-ai
+```
+
+```sh
 # 1. अपने प्रोफ़ाइल में बंडल इंस्टॉल करें
-dsh plugin --profile web add "github:PerryLink/dsh-local-ai#main"
+dsh plugin --profile web add github:PerryLink/dsh-local-ai
 
 # या npm से (प्रकाशित संस्करण)
 dsh plugin --profile web add dsh-local-ai
@@ -96,7 +109,7 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 
 ## Install & uninstall
 
-- **git चैनल** (नवीनतम `main`): `dsh plugin --profile web add "github:PerryLink/dsh-local-ai#main"` — `prepare` स्क्रिप्ट केवल उत्पादन निर्भरताओं से बनाती है।
+- **git चैनल** (नवीनतम `main`): `dsh plugin --profile web add github:PerryLink/dsh-local-ai` — `prepare` स्क्रिप्ट केवल उत्पादन निर्भरताओं से बनाती है।
 - **npm चैनल** (प्रकाशित संस्करण): `dsh plugin --profile web add dsh-local-ai`।
 - **tarball चैनल**: इस रिपो में `pnpm pack`, फिर `dsh plugin --profile web add ./dsh-local-ai-<version>.tgz`।
 - **अनइंस्टॉल**: `dsh plugin --profile web remove dsh-local-ai` (या प्रोफ़ाइल पैच से पंक्ति हटाएँ)।
