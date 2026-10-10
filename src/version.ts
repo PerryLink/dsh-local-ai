@@ -2,4 +2,4 @@
  * The `dsh-local-ai` plugin version. The release script bumps this string
  * alongside `package.json`; `test/version.spec.ts` trips when the two drift.
  */
-export const VERSION = '0.2.18'
+export const VERSION = '0.2.19'
