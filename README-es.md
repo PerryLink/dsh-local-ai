@@ -42,6 +42,10 @@ Descubre, descarga, elimina e inspecciona modelos locales, enruta solicitudes ha
 
 ![Demostración de terminal de dsh-local-ai: dsh-local-ai — install, then route by keyword to Ollama](https://raw.githubusercontent.com/PerryLink/dsh-local-ai/main/docs/assets/dsh-local-ai-demo.png)
 
+![Animated terminal demo of dsh-local-ai](https://raw.githubusercontent.com/PerryLink/dsh-local-ai/main/docs/assets/dsh-local-ai-demo.gif)
+
+*La misma ejecución, animada.*
+
 ## Compatibility
 
 | Superficie | Estado |

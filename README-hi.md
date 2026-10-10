@@ -42,6 +42,10 @@ DeepSeek Harness के लिए स्थानीय-मॉडल (Ollama) �
 
 ![dsh-local-ai का टर्मिनल डेमो: dsh-local-ai — install, then route by keyword to Ollama](https://raw.githubusercontent.com/PerryLink/dsh-local-ai/main/docs/assets/dsh-local-ai-demo.png)
 
+![Animated terminal demo of dsh-local-ai](https://raw.githubusercontent.com/PerryLink/dsh-local-ai/main/docs/assets/dsh-local-ai-demo.gif)
+
+*वही रन, एनिमेटेड।*
+
 ## Compatibility
 
 | सतह | स्थिति |

@@ -44,6 +44,10 @@ DeepSeek Harness 的本地模型（Ollama）接入。
 
 ![dsh-local-ai 终端演示：dsh-local-ai — install, then route by keyword to Ollama](https://raw.githubusercontent.com/PerryLink/dsh-local-ai/main/docs/assets/dsh-local-ai-demo.png)
 
+![Animated terminal demo of dsh-local-ai](https://raw.githubusercontent.com/PerryLink/dsh-local-ai/main/docs/assets/dsh-local-ai-demo.gif)
+
+*同一次运行，动图版。*
+
 ## Compatibility
 
 | 项目 | 状态 |
