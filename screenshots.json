@@ -1,5 +1,14 @@
-{
-  "screenshots": [
-    "docs/assets/dsh-local-ai-demo.png"
-  ]
-}
+[
+  {
+    "path": "docs/assets/dsh-local-ai-hero.png",
+    "kind": "hero",
+    "alt": "dsh-local-ai terminal output",
+    "caption": "Real dsh-local-ai test run; 143 tests passed."
+  },
+  {
+    "path": "docs/assets/dsh-local-ai-demo.gif",
+    "kind": "demo",
+    "alt": "Animated dsh-local-ai terminal session",
+    "caption": "The same run, assembled line by line."
+  }
+]

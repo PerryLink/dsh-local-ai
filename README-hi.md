@@ -40,7 +40,7 @@ DeepSeek Harness के लिए स्थानीय-मॉडल (Ollama) �
 
 स्थानीय मॉडल खोजें, खींचें, हटाएँ और जाँचें; कार्य-प्रकार या कीवर्ड के आधार पर अनुरोधों को स्थानीय मॉडल पर रूट करें और विफलता पर स्वतः क्लाउड पर वापस लौटें; `/ollama` से एक-झटके में स्थिति सारांश पाएँ।
 
-![dsh-local-ai का टर्मिनल डेमो: dsh-local-ai — install, then route by keyword to Ollama](https://raw.githubusercontent.com/PerryLink/dsh-local-ai/main/docs/assets/dsh-local-ai-demo.png)
+![dsh-local-ai का टर्मिनल डेमो: dsh-local-ai — install, then route by keyword to Ollama](https://raw.githubusercontent.com/PerryLink/dsh-local-ai/main/docs/assets/dsh-local-ai-hero.png)
 
 ![Animated terminal demo of dsh-local-ai](https://raw.githubusercontent.com/PerryLink/dsh-local-ai/main/docs/assets/dsh-local-ai-demo.gif)
 
@@ -50,7 +50,7 @@ DeepSeek Harness के लिए स्थानीय-मॉडल (Ollama) �
 
 | सतह | स्थिति |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.2.1-alpha.1` (2026-10-04 को सत्यापित: तीन typecheck (इंस्टॉल, CI, checkout) + 142 टेस्ट + self-contained/artifacts गेट; `0.1.7` का content-block union अनुकूलित है — टूल परिणाम अब प्रथम-श्रेणी का `tool` रोल संदेश है, और `0.1.7` से पहले का `tool-result` आवरण पुराने लॉग के लिए अब भी पढ़ा जाता है)। peer रेंज सभी समर्थित लाइनों को स्वीकार करती है: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0 \|\| >=0.2.0-rc.1 <0.3.0-0`; dev/test पिन `0.2.0-rc.2` हैं। |
+| Harness | DeepSeek Harness `dsh-v0.2.1-alpha.1` (2026-10-04 को सत्यापित: तीन typecheck (इंस्टॉल, CI, checkout) + 142 टेस्ट + self-contained/artifacts गेट; `0.1.7` का content-block union अनुकूलित है — टूल परिणाम अब प्रथम-श्रेणी का `tool` रोल संदेश है, और `0.1.7` से पहले का `tool-result` आवरण पुराने लॉग के लिए अब भी पढ़ा जाता है)। peer रेंज सभी समर्थित लाइनों को स्वीकार करती है: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0 \|\| >=0.2.0-0 <0.3.0 \|\| >=0.2.1-0 <0.3.0`; dev/test पिन `0.2.0-rc.2` हैं। |
 | Node | `^22.19.0 \|\| >=24.0.0` |
 | Backend | [Ollama](https://ollama.com) (स्थानीय HTTP API + CLI जाँच) |
 | Model | केवल-पाठ रूट (`inputModalities: ['text']`); टूल कॉल व परिणाम समर्थित हैं |

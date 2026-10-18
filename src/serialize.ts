@@ -37,6 +37,8 @@ export interface OllamaWireRequest {
   stream: boolean
   options?: Record<string, unknown>
   tools?: Array<{ type: 'function'; function: ToolSchema }>
+  /** Ollama thinking toggle; omitted lets the model default apply. */
+  think?: boolean
 }
 
 /** Join the text blocks of a message (used for user/tool-result content). */
@@ -230,6 +232,7 @@ export function serializeRequest(
   messages.push(...serializeMessages(options.messages, imagesByRef))
 
   const temperature = options.temperature ?? mapping?.temperature ?? resolved.temperature
+  const inferredThink = mapping?.think ?? (/r1|reason|think|qwen3/i.test(model) ? true : undefined)
   const ollamaOptions: Record<string, unknown> = {}
   if (temperature !== undefined) ollamaOptions.temperature = temperature
   if (options.maxTokens !== undefined) ollamaOptions.num_predict = options.maxTokens
@@ -246,5 +249,6 @@ export function serializeRequest(
     stream: true,
     ...Object.keys(ollamaOptions).length > 0 ? { options: ollamaOptions } : {},
     ...tools !== undefined && tools.length > 0 ? { tools } : {},
+    ...inferredThink === undefined ? {} : { think: inferredThink },
   }
 }

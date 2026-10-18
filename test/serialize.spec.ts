@@ -149,6 +149,16 @@ describe('serializeRequest', () => {
     expect(body.options).toEqual({ temperature: 0.3, num_predict: 100, stop: ['END'] })
   })
 
+  it('infers Ollama think for reasoning models and omits it for plain models', () => {
+    const options: GenerateOptions = { provider: 'ollama', model: 'local', messages: [] }
+    const r1 = serializeRequest(options, resolveConfig({ models: [{ name: 'local', model: 'deepseek-r1:7b' }] }))
+    expect(r1.think).toBe(true)
+    const plain = serializeRequest(options, resolveConfig({ models: [{ name: 'local', model: 'llama3.2' }] }))
+    expect(plain.think).toBeUndefined()
+    const off = serializeRequest(options, resolveConfig({ models: [{ name: 'local', model: 'deepseek-r1:7b', think: false }] }))
+    expect(off.think).toBe(false)
+  })
+
   it('falls back to the plugin temperature default when the request omits one', () => {
     const options: GenerateOptions = {
       provider: 'ollama',

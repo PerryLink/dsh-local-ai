@@ -24,6 +24,8 @@ export interface ModelMapping {
   maxTokens?: number
   /** Default sampling temperature for this model (0..2). */
   temperature?: number
+  /** Ollama thinking toggle; omitted = infer from the model id (r1/qwen3/think/reasoning). */
+  think?: boolean
 }
 
 /** One local-model routing rule, matched in list order (first match wins). */
@@ -89,6 +91,7 @@ export interface ResolvedModelMapping {
   readonly contextWindow?: number
   readonly maxTokens?: number
   readonly temperature?: number
+  readonly think?: boolean
 }
 
 /** Fully resolved routing rule. */
@@ -145,6 +148,7 @@ export const Config: z<Config> = z.object({
     contextWindow: z.number(),
     maxTokens: z.number(),
     temperature: z.number(),
+    think: z.boolean(),
   })).default([]),
   backends: z.array(z.object({
     name: z.string().required(),
@@ -156,6 +160,7 @@ export const Config: z<Config> = z.object({
       contextWindow: z.number(),
       maxTokens: z.number(),
       temperature: z.number(),
+      think: z.boolean(),
     })).default([]),
     maxTokens: z.number(),
     temperature: z.number(),
@@ -349,12 +354,15 @@ function resolveMappings(mappings: ModelMapping[] | undefined, label: string): R
     if (modelMaxTokens !== undefined) assertPositiveInt(`${label}[${index}].maxTokens`, modelMaxTokens)
     const modelTemperature = mapping.temperature
     if (modelTemperature !== undefined) assertFiniteRange(`${label}[${index}].temperature`, modelTemperature, 0, 2)
+    const think = mapping.think
+    if (think !== undefined && typeof think !== 'boolean') throw new TypeError(`${label}[${index}].think must be a boolean`)
     return {
       name,
       model,
       ...contextWindow === undefined ? {} : { contextWindow },
       ...modelMaxTokens === undefined ? {} : { maxTokens: modelMaxTokens },
       ...modelTemperature === undefined ? {} : { temperature: modelTemperature },
+      ...think === undefined ? {} : { think },
     }
   })
 }

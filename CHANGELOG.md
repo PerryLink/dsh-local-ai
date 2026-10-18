@@ -1,10 +1,42 @@
 # Changelog
 
+## [0.2.22] - 2026-10-18
+
+### Changed
+
+- Add a 1280×720 hero and a 960×540, 4-second terminal GIF rendered from the test run; `screenshots.json` is an object array and `capture.json` records the command.
+
+## [0.2.21] - 2026-10-17
+
+### Fixed
+
+- **Thinking models now receive Ollama's `think` flag.** `/api/chat` omitted it, so reasoning was never produced for local thinking models even though the NDJSON reader already mapped `message.thinking` to a reasoning block. The flag is inferred from the model id (`r1`/`qwen3`/`think`/`reasoning`) and can be overridden per model mapping with `think: true|false`.
+- Compatibility: add `@deepseek-ai/dsh-working-directory` to devDependencies; keep the existing 0.2.x engines/peer bands.
+
 All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [Unreleased]
+
+### Fixed
+
+- **The declared host corridor was narrower than the ecosystem's, and the
+  ecosystem's own tripwire rejects it.** `engines.dsh` and all
+  `@deepseek-ai/dsh-*` peer bands ended the 0.2 line with
+  `>=0.2.0-rc.1 <0.3.0-0`, which admits only the 0.2.0 prerelease tuple. Under
+  the loader's `semver.satisfies(runtime, range, { includePrerelease: true })`
+  (node-semver keys the prerelease rule on the exact [major, minor, patch]
+  tuple) the published `alpha` dist-tag was **not admitted**:
+  `node scripts/check-peer-range-latest.mjs --range '<old range>'` printed
+  `alpha 0.2.1-alpha.2  NOT ADMITTED` and exited 1. The bands now carry the
+  family's canonical six-clause range, so `latest`, `next` and `alpha` are all
+  admitted; nothing was narrowed, and every 0.1.x clause down to
+  `0.1.2-rc.1` is unchanged. Verified against the host's own gate
+  (`evaluatePluginCompatibility` from `dsh-app-boot`) on both
+  `0.2.1-alpha.1` and `0.2.0-rc.2`.
 
 ## [0.2.19] - 2026-10-10
 
