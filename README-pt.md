@@ -21,6 +21,11 @@
 
 [English](README.md) · [简体中文](README-zh.md) · [Español](README-es.md) · [Português](README-pt.md) · [हिन्दी](README-hi.md)
 
+```sh
+dsh plugin --profile <name> add dsh-local-ai
+```
+
+
 </div>
 
 ---
@@ -28,6 +33,15 @@
 **📖 Base de conhecimento do ecossistema** — dados medidos, não marketing: [guia de desenvolvimento · dados de seleção · critérios de manutenção](https://perrylink.github.io/dsh-plugin-guide/).
 
 <!-- star-cta -->
+## Install & uninstall
+
+- **canal git** (último `main`): `dsh plugin --profile web add github:PerryLink/dsh-local-ai` — o script `prepare` compila apenas com dependências de produção.
+- **canal npm** (versões publicadas): `dsh plugin --profile web add dsh-local-ai`.
+- **canal tarball**: `pnpm pack` neste repo e depois `dsh plugin --profile web add ./dsh-local-ai-<version>.tgz`.
+- **desinstalar**: `dsh plugin --profile web remove dsh-local-ai` (ou remova a linha do patch do perfil).
+
+> Se o pnpm relatar `ERR_PNPM_IGNORED_BUILDS` para este pacote, adicione `allowBuilds: { esbuild: true }` ao seu `pnpm-workspace.yaml` — a CLI `dsh` imprime o trecho exato.
+
 ## ⭐ 如果它帮到了你
 
 Este plugin faz parte da [família de plugins DSH](https://github.com/PerryLink) (mais de 40, todos Apache-2.0). Se ele for útil, **deixe uma estrela**: ela não desbloqueia nada, mas ajuda a próxima pessoa a encontrá-lo.
@@ -110,15 +124,6 @@ Depois verifique se a linha monta:
 ```sh
 dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 ```
-
-## Install & uninstall
-
-- **canal git** (último `main`): `dsh plugin --profile web add github:PerryLink/dsh-local-ai` — o script `prepare` compila apenas com dependências de produção.
-- **canal npm** (versões publicadas): `dsh plugin --profile web add dsh-local-ai`.
-- **canal tarball**: `pnpm pack` neste repo e depois `dsh plugin --profile web add ./dsh-local-ai-<version>.tgz`.
-- **desinstalar**: `dsh plugin --profile web remove dsh-local-ai` (ou remova a linha do patch do perfil).
-
-> Se o pnpm relatar `ERR_PNPM_IGNORED_BUILDS` para este pacote, adicione `allowBuilds: { esbuild: true }` ao seu `pnpm-workspace.yaml` — a CLI `dsh` imprime o trecho exato.
 
 ## Configuration
 
