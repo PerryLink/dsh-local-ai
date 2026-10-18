@@ -46,7 +46,7 @@ dsh plugin --profile <name> add dsh-local-ai
 
 Este plugin faz parte da [família de plugins DSH](https://github.com/PerryLink) (mais de 40, todos Apache-2.0). Se ele for útil, **deixe uma estrela**: ela não desbloqueia nada, mas ajuda a próxima pessoa a encontrá-lo.
 
-*English:* part of a 40+ plugin family for DeepSeek Harness. If it is useful, **a star helps the next person find it** — nothing is gated behind it.
+*English:* part of a 95 plugin family for DeepSeek Harness. If it is useful, **a star helps the next person find it** — nothing is gated behind it.
 
 ## What is dsh-local-ai?
 
