@@ -56,9 +56,10 @@ DeepSeek Harness 的本地模型（Ollama）接入。
 
 发现、拉取、删除、查看本地模型，按任务类型或关键词把请求分流到本地模型并在失败时自动回退云端，通过 `/ollama` 一键查看状态总览。
 
-![dsh-local-ai 终端演示：dsh-local-ai — install, then route by keyword to Ollama](https://raw.githubusercontent.com/PerryLink/dsh-local-ai/main/docs/assets/dsh-local-ai-hero.png)
+![dsh-local-ai 工作流图：调用 → 插件 → 结果。](docs/assets/dsh-local-ai-flow.svg)
 
-![Animated terminal demo of dsh-local-ai](https://raw.githubusercontent.com/PerryLink/dsh-local-ai/main/docs/assets/dsh-local-ai-demo.gif)
+*工作流概览：调用 → 插件 → 结果。下面的示例使用实际命令面。*
+
 
 *同一次运行，动图版。*
 
@@ -126,6 +127,19 @@ dsh --profile web
 ```sh
 dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 ```
+
+### 示例
+
+以下为插件真实入口；安装后调用一个即可。
+
+#### 详细示例
+
+- `ollama_list`
+
+#### 简短示例
+
+- `ollama_show`
+- `ollama_pull`
 
 ## Configuration
 

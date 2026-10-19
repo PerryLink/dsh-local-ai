@@ -57,11 +57,11 @@ Local-model (Ollama) integration for DeepSeek Harness.
 
 Discover, pull, remove, and inspect local models, route requests to them by task type or keyword with automatic fallback to the cloud, and get a one-shot status overview via `/ollama`.
 
-![Terminal demo of dsh-local-ai: dsh-local-ai — install, then route by keyword to Ollama](https://raw.githubusercontent.com/PerryLink/dsh-local-ai/main/docs/assets/dsh-local-ai-hero.png)
+![Workflow diagram for dsh-local-ai: call → plugin → result.](docs/assets/dsh-local-ai-flow.svg)
 
-![Animated terminal demo of dsh-local-ai](https://raw.githubusercontent.com/PerryLink/dsh-local-ai/main/docs/assets/dsh-local-ai-demo.gif)
+*Workflow overview: call → plugin → result. The examples below use the real command surface.*
 
-*The same run, animated.*
+
 
 ## Compatibility
 
@@ -129,6 +129,19 @@ Then verify the row mounts:
 ```sh
 dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 ```
+
+### Examples
+
+These are the plugin's real entry points; install once, then call one.
+
+#### Detailed example
+
+- `ollama_list`
+
+#### Brief examples
+
+- `ollama_show`
+- `ollama_pull`
 
 ## Configuration
 

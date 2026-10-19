@@ -54,9 +54,10 @@ DeepSeek Harness के लिए स्थानीय-मॉडल (Ollama) �
 
 स्थानीय मॉडल खोजें, खींचें, हटाएँ और जाँचें; कार्य-प्रकार या कीवर्ड के आधार पर अनुरोधों को स्थानीय मॉडल पर रूट करें और विफलता पर स्वतः क्लाउड पर वापस लौटें; `/ollama` से एक-झटके में स्थिति सारांश पाएँ।
 
-![dsh-local-ai का टर्मिनल डेमो: dsh-local-ai — install, then route by keyword to Ollama](https://raw.githubusercontent.com/PerryLink/dsh-local-ai/main/docs/assets/dsh-local-ai-hero.png)
+![dsh-local-ai कार्यप्रवाह आरेख: कॉल → प्लगइन → परिणाम।](docs/assets/dsh-local-ai-flow.svg)
 
-![Animated terminal demo of dsh-local-ai](https://raw.githubusercontent.com/PerryLink/dsh-local-ai/main/docs/assets/dsh-local-ai-demo.gif)
+*कार्यप्रवाह: कॉल → प्लगइन → परिणाम। नीचे के उदाहरण वास्तविक कमांड सतह का उपयोग करते हैं।*
+
 
 *वही रन, एनिमेटेड।*
 
@@ -124,6 +125,19 @@ dsh --profile web
 ```sh
 dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 ```
+
+### उदाहरण
+
+ये वास्तविक प्रवेश बिंदु हैं; इंस्टॉल के बाद एक चलाएँ।
+
+#### विस्तृत उदाहरण
+
+- `ollama_list`
+
+#### संक्षिप्त उदाहरण
+
+- `ollama_show`
+- `ollama_pull`
 
 ## Configuration
 
