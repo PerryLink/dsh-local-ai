@@ -237,7 +237,7 @@ pnpm pack           # 发布用 tarball
 - [@PerryLink](https://github.com/PerryLink) — 创建者与维护者：适配器、路由、工具、健康检查、脱敏与五语文档。
 - [@LABEST-IA](https://github.com/LABEST-IA) — 工具调用 CallId 修复（PR #2），以及工具调用槽位与视觉支持的报告（issue #1、#3、#5）。
 
-## PerryLink DSH 插件家族
+## PerryLink DSH Plugin Family
 
 本项目是 [PerryLink](https://github.com/PerryLink) 维护的 DeepSeek Harness 插件家族成员。完整名单默认折叠，避免每个 README 的首屏被长表淹没；点击展开可查看每一行及其状态。
 

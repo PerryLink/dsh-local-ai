@@ -235,7 +235,7 @@ Evidência estática: `dsh-plugin-doctor` K10–K13 retornam `pass` em todas as 
 - [@PerryLink](https://github.com/PerryLink) — criador e mantenedor: adaptador, roteamento, ferramentas, verificação de saúde, sanitização e documentação em cinco idiomas.
 - [@LABEST-IA](https://github.com/LABEST-IA) — correção do CallId de chamadas de ferramenta (PR #2), e os relatórios sobre o slot de chamadas de ferramenta e o suporte a visão (issues #1, #3, #5).
 
-## Família de plugins DSH da PerryLink
+## PerryLink DSH Plugin Family
 
 Este projeto faz parte da família de plugins do DeepSeek Harness da [PerryLink](https://github.com/PerryLink). O registro fica recolhido abaixo para que cada README mantenha uma primeira tela curta; expanda para ver cada linha e seu status.
 
