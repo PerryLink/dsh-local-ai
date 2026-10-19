@@ -153,6 +153,31 @@ ollama_list
 
 *स्रोत `plugins/dsh-local-ai/src/index.ts:83-90 (renderer); fixture/assertion at plugins/dsh-local-ai/test/index.spec.ts:31-35,68-82`*
 
+#### विफलता शाखा
+
+**इनपुट**
+
+~~~text
+{} (baseURL http://127.0.0.1:11434; nothing listening; no ollama binary on PATH)
+~~~
+
+**आउटपुट**
+
+~~~text
+{
+  "api": {
+    "ok": false,
+    "error": "connection refused"
+  },
+  "process": {
+    "present": false,
+    "error": "\"ollama\" not found: subprocess-local: command \"ollama\" was not found on PATH"
+  }
+}
+~~~
+
+*स्रोत `plugins/dsh-local-ai/src/health.ts:52-66,79-92; plugins/dsh-local-ai/test/health.spec.ts:23-28,52-57`*
+
 #### संक्षिप्त उदाहरण
 
 - `ollama_show`

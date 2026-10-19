@@ -157,6 +157,31 @@ ollama_list
 
 *Observed from `plugins/dsh-local-ai/src/index.ts:83-90 (renderer); fixture/assertion at plugins/dsh-local-ai/test/index.spec.ts:31-35,68-82`*
 
+#### Failure branch
+
+**Input**
+
+~~~text
+{} (baseURL http://127.0.0.1:11434; nothing listening; no ollama binary on PATH)
+~~~
+
+**Output**
+
+~~~text
+{
+  "api": {
+    "ok": false,
+    "error": "connection refused"
+  },
+  "process": {
+    "present": false,
+    "error": "\"ollama\" not found: subprocess-local: command \"ollama\" was not found on PATH"
+  }
+}
+~~~
+
+*Observed from `plugins/dsh-local-ai/src/health.ts:52-66,79-92; plugins/dsh-local-ai/test/health.spec.ts:23-28,52-57`*
+
 #### Brief examples
 
 - `ollama_show`
