@@ -136,7 +136,26 @@ These are the plugin's real entry points; install once, then call one.
 
 #### Detailed example
 
-- `ollama_list`
+**Command**
+
+~~~sh
+ollama_list
+~~~
+
+**Input**
+
+~~~json
+{}
+~~~
+
+**Output**
+
+~~~text
+1 local model(s), 100 B on disk
+- llama3.2 (3B) — 100 B
+~~~
+
+*Observed from `plugins/dsh-local-ai/src/index.ts:83-90 (renderer); fixture/assertion at plugins/dsh-local-ai/test/index.spec.ts:31-35,68-82`*
 
 #### Brief examples
 

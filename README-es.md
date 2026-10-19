@@ -132,7 +132,26 @@ Son los puntos de entrada reales; instala y llama a uno.
 
 #### Ejemplo detallado
 
-- `ollama_list`
+**Comando**
+
+~~~sh
+ollama_list
+~~~
+
+**Entrada**
+
+~~~json
+{}
+~~~
+
+**Salida**
+
+~~~text
+1 local model(s), 100 B on disk
+- llama3.2 (3B) — 100 B
+~~~
+
+*Observado en `plugins/dsh-local-ai/src/index.ts:83-90 (renderer); fixture/assertion at plugins/dsh-local-ai/test/index.spec.ts:31-35,68-82`*
 
 #### Ejemplos breves
 

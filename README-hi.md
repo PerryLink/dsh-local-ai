@@ -132,7 +132,26 @@ dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
 
 #### विस्तृत उदाहरण
 
-- `ollama_list`
+**कमांड**
+
+~~~sh
+ollama_list
+~~~
+
+**इनपुट**
+
+~~~json
+{}
+~~~
+
+**आउटपुट**
+
+~~~text
+1 local model(s), 100 B on disk
+- llama3.2 (3B) — 100 B
+~~~
+
+*स्रोत `plugins/dsh-local-ai/src/index.ts:83-90 (renderer); fixture/assertion at plugins/dsh-local-ai/test/index.spec.ts:31-35,68-82`*
 
 #### संक्षिप्त उदाहरण
 
