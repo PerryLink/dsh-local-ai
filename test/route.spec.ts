@@ -11,13 +11,18 @@ import { describe, expect, it, vi } from 'vitest'
 import { resolveConfig } from '../src/config.ts'
 import { decideRoute, isImageOffloadRequired, requestText, routeLocal, ruleMatches } from '../src/route.ts'
 
-function options(overrides: Partial<GenerateOptions> = {}): GenerateOptions {
+// 0.2.2 turned the purpose union into an augmentable map declared by the
+// producer package, so the routing seam is purpose-agnostic (GenerateOptions<string>).
+// The fixture still has to hand a host-shaped GenerateOptions to ctx.llm.stream,
+// whose default purpose parameter narrows to never without a producer package in
+// this program; the assertion is between two mutually assignable shapes.
+function options(overrides: Partial<GenerateOptions<string>> = {}): GenerateOptions {
   return {
     provider: 'deepseek',
     model: 'deepseek-v4',
     messages: [createUserMessage({ content: [{ type: 'text', text: 'handle this confidential document offline' }], source: { kind: 'user' } })],
     ...overrides,
-  }
+  } as GenerateOptions
 }
 
 async function* collect(stream: AsyncIterable<StreamChunk>): AsyncGenerator<StreamChunk> {

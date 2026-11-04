@@ -71,14 +71,13 @@ describe('apply', () => {
     installFetch()
     await ctx.plugin(plugin as never, {} as never)
 
-    const result = await ctx.tools.execute({
-      callId: CallId('c1'),
-      name: 'ollama_list',
-      arguments: {},
+    const batch = await ctx.tools.execute({
+      calls: [{ type: 'tool-call', id: CallId('c1'), name: 'ollama_list', arguments: '{}' }],
       signal: new AbortController().signal,
     })
-    expect(result.isError).toBe(false)
-    if (result.isError === false) {
+    const result = batch.results[0]?.result
+    expect(result?.isError).toBe(false)
+    if (result !== undefined && result.isError === false) {
       expect(result.value).toMatchObject({ count: 1, totalBytes: 100 })
     }
   })

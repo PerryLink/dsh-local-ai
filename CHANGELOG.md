@@ -1,11 +1,16 @@
 # Changelog
 
-## [0.2.24] - 2026-11-04
+## [Unreleased]
+
+### Changed
+
+- **Host 0.2.2 line support.** devDependencies move from 0.2.1-rc.2 to 0.2.2-rc.1, cordis to 4.1.0 / include 1.1.0 / loader 1.1.0, and schemastery to ~3.19.0 so a single copy resolves against `@deepseek-ai/dsh-llm` 0.2.2. `engines.dsh` appends `>=0.2.2-0 <0.3.0` (append-only) and `engines.node` becomes `^22.19.0 || >=24.9.0`.
 
 ### Fixed
 
-- Declare `third-party-model-provider` for the `llm:adapter` + `network:egress` capability pair (C-13.2); the label was missing, so ENTRY kept a WARN after the capabilities fix.
-
+- **Tool dispatch test uses the 0.2.2 batch executor.** `ctx.tools.execute()` now takes `{ calls, signal }` and returns `{ results }`; the native executor is mounted in the test harness because raw batch execution moved behind a pluggable executor in 0.2.2.
+- **Retired custom request purposes are no longer assignable.** 0.2.2 replaced the hard-coded `'compaction' | 'session-title'` union with the augmentable `LlmRequestPurposeMap`; the routing seam now accepts `GenerateOptions<string>` because routing is purpose-agnostic.
+- **Loader composition surfaces row failures again.** cordis 4.1.0 settles a failed row on its fiber instead of rejecting `loader.await()`; the runner awaits every row fiber so the invalid-config and missing-inject regressions still fail for their expected reason.
 
 ## [0.2.23] - 2026-10-18
 
@@ -30,6 +35,7 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 
 ## [Unreleased]
 

@@ -62,7 +62,7 @@ export interface RouteDecision {
  * @param options - the request.
  * @returns the joined text.
  */
-export function requestText(options: GenerateOptions): string {
+export function requestText(options: GenerateOptions<string>): string {
   const parts: string[] = []
   if (options.system !== undefined) parts.push(options.system)
   for (const message of options.messages) {
@@ -79,7 +79,7 @@ export function matchesKeyword(text: string, keyword: string): boolean {
 }
 
 /** Whether one resolved rule matches a request. */
-export function ruleMatches(rule: ResolvedRouteRule, options: GenerateOptions): boolean {
+export function ruleMatches(rule: ResolvedRouteRule, options: GenerateOptions<string>): boolean {
   if (rule.always) return true
   if (rule.purpose !== undefined && options.purpose === rule.purpose) return true
   if (rule.keywords.length > 0) {
@@ -110,7 +110,7 @@ export function isLocalProvider(provider: string | undefined, resolved: Resolved
  * @param resolved - the resolved config.
  * @returns the local provider + model to use, or `undefined` to stay on the cloud route.
  */
-export function decideRoute(options: GenerateOptions, resolved: ResolvedConfig): RouteDecision | undefined {
+export function decideRoute(options: GenerateOptions<string>, resolved: ResolvedConfig): RouteDecision | undefined {
   if (isLocalProvider(options.provider, resolved)) return undefined
   for (const rule of resolved.route) {
     if (ruleMatches(rule, options)) return { provider: rule.provider, model: rule.model }
