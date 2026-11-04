@@ -49,7 +49,9 @@
       "subprocess",
       "tools:register"
     ],
-    "labels": []
+    "labels": [
+      "third-party-model-provider"
+    ]
   },
   "dshWorkshop": {
     "schema": "omdsh-workshop-package/v1",
