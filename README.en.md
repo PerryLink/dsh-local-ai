@@ -1,0 +1,466 @@
+<div align="center">
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-flow-dark.svg">
+  <img src="docs/assets/dsh-local-ai-flow-light.svg" width="100%" alt="dsh-local-ai routing flow: request → llm/stream → route → ollama / openai:&lt;name&gt; → cloud (next() fallback); tools use /api/tags, /api/ps, /api/show, /api/pull, /api/delete, health uses /api/version and ollama list">
+</picture>
+
+# dsh-local-ai
+
+**Hook Ollama into DeepSeek Harness so local models become a routable first-class provider — requests go local by rule and fall back to the cloud when they fail.**
+
+A headless, pure-host plugin: discover, pull, remove, and inspect local models, route by task type or keyword, and get a one-shot status overview from `/ollama` — all in one bundle.
+
+[Install](#three-step-setup) · [Configuration](#configuration) · [FAQ](#faq) · [简体中文](README.md) · [English](README.en.md) · [Español](README.es.md) · [Português](README.pt.md) · [हिन्दी](README.hi.md)
+
+[![License](https://img.shields.io/badge/license-Apache--2.0-3366CC?style=flat-square&labelColor=2B3245)](LICENSE)
+[![DSH](https://img.shields.io/badge/DSH-%E2%89%A50.1.2%20%3C0.3.0-4B67B4?style=flat-square&labelColor=2B3245)](#compatibility)
+[![npm](https://img.shields.io/npm/v/dsh-local-ai?style=flat-square&labelColor=2B3245&color=CB3837)](https://www.npmjs.com/package/dsh-local-ai)
+[![CI](https://img.shields.io/github/actions/workflow/status/PerryLink/dsh-local-ai/ci.yml?branch=main&label=CI&style=flat-square&labelColor=2B3245)](https://github.com/PerryLink/dsh-local-ai/actions/workflows/ci.yml)
+[![Node](https://img.shields.io/badge/node-%5E22.19%20%7C%7C%20%3E%3D24.9-339933?style=flat-square&labelColor=2B3245)](#compatibility)
+
+[![Stars](https://img.shields.io/github/stars/PerryLink/dsh-local-ai?style=flat-square&labelColor=2B3245)](https://github.com/PerryLink/dsh-local-ai/stargazers)
+[![npm downloads](https://img.shields.io/npm/dm/dsh-local-ai?style=flat-square&labelColor=2B3245&color=CB3837)](https://www.npmjs.com/package/dsh-local-ai)
+[![dshfind](https://dshfind.com/api/badge/PerryLink/dsh-local-ai?metric=downloads)](https://dshfind.com/plugins/PerryLink/dsh-local-ai?ref=badge)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/PerryLink/dsh-local-ai/badge)](https://securityscorecards.dev/viewer/?uri=github.com/PerryLink/dsh-local-ai)
+[![DSH Market](https://img.shields.io/badge/DSH_Market-listed-4B67B4?style=flat-square&labelColor=2B3245)](https://dsh.market/)
+[![Gitee](https://img.shields.io/badge/Gitee-mirror-C71D23?style=flat-square&labelColor=2B3245&logo=gitee)](https://gitee.com/perrylink/dsh-local-ai)
+
+```sh
+dsh plugin --profile <name> add dsh-local-ai
+```
+
+</div>
+
+<sub>Community plugin, not affiliated with DeepSeek. Canonical repository: <https://github.com/PerryLink/dsh-local-ai> (Gitee is a mirror).</sub>
+
+## What it is
+
+`dsh-local-ai` makes Ollama a first-class local provider inside DeepSeek Harness: it registers the `ollama` provider route, routes requests to local models by task type or keyword, and falls back to the cloud automatically when a local route fails before producing content. Five tools cover model discovery, pulling, removal, inspection, and health; `/ollama` gives a one-screen status overview. Everything talks to Ollama's HTTP API (the CLI is used only for the process probe); no model files are bundled and no new model-visible input is invented.
+
+## Three-step setup
+
+1. **Install** (pick one channel):
+
+   ```sh
+   # git channel (latest main; equivalent to git+https://github.com/PerryLink/dsh-local-ai.git)
+   dsh plugin --profile web add github:PerryLink/dsh-local-ai
+   # npm channel (published releases)
+   dsh plugin --profile web add dsh-local-ai
+   # tarball channel: pnpm pack in this repo, then
+   dsh plugin --profile web add ./dsh-local-ai-<version>.tgz
+   ```
+
+   The `prepare` script builds with production dependencies only. If pnpm reports `ERR_PNPM_IGNORED_BUILDS` for this package, add `allowBuilds: { esbuild: true }` to your `pnpm-workspace.yaml` — the `dsh` CLI prints the exact snippet.
+
+2. **Minimal routing config** (`route` ships commented out in `cordis.patch.yml`; make sure Ollama is running at `http://127.0.0.1:11434` first):
+
+   ```yaml
+   - insert:
+       - id: dsh-local-ai
+         name: dsh-local-ai
+         config:
+           route:
+             - model: llama3.2
+               keywords: ["confidential", "offline"]
+   ```
+
+3. **Verify it mounts**:
+
+   ```sh
+   dsh --profile web --dump-config | grep -A2 'id: dsh-local-ai'
+   ```
+
+   ```
+   > /ollama
+   ```
+
+**Uninstall**: `dsh plugin --profile web remove dsh-local-ai` (or remove the row from the profile patch).
+
+<details>
+<summary>Install from the DSH Desktop market</summary>
+
+Every PerryLink plugin is listed in the built-in DSH Desktop market: **Market → Sources → Add source → paste** `https://perrylink-dsh-catalog.perrylink.workers.dev/catalog-source.json` **→ select**. Installation still requires the market's npm identity check and your confirmation.
+
+</details>
+
+## Core capabilities
+
+`dsh-local-ai` makes Ollama a first-class local provider in DeepSeek Harness:
+
+- **Discovery & management** — `ollama_list` (installed models, running models, disk usage), `ollama_show` (parameter size, quantization, context length), `ollama_pull`, and `ollama_remove`.
+- **Health check** — process liveness (via the `ollama` CLI) and API responsiveness (via `/api/version`), reported as two independent signals.
+- **Official adapter** — the `ollama` provider route is registered through `ctx.llm.registerAdapter` (`LlmAdapter`), with configurable model mapping and temperature / max-tokens / stop translation.
+- **OpenAI-compatible backends** — LM Studio, vLLM, and llama.cpp `--server` each register as their own `openai:<name>` provider through the same `LlmAdapter` seam, reusing one OpenAI `/v1/chat/completions` adapter (text-only route).
+- **Local routing** — `model_route` rules route requests to a local model by task type (`purpose`), case-insensitive keyword, or `always`, with automatic fallback to the cloud when the local route fails before producing content.
+- **`/ollama` command** — a one-shot status overview: models, disk usage, health, and suggestions.
+- **Zero dependencies, HTTP first** — everything talks to Ollama's HTTP API (the CLI is used only for the process probe); no model files are bundled.
+
+```text
+request (loop)
+   │ llm/stream waterfall
+   ├─ rule matches? ──▶ route to ollama ──▶ Ollama /api/chat (NDJSON stream)
+   │              └─▶ route to openai:<name> ─▶ /v1/chat/completions (SSE)
+   │                        └─ fails first ─▶ fall back to cloud (next())
+   └─ no match ──▶ cloud provider
+tools ──▶ /api/tags · /api/ps · /api/show · /api/pull · /api/delete
+health ──▶ /api/version (API) + ollama list (process)
+```
+
+### Commands & tools surface
+
+| Surface | Kind | What it does |
+|---|---|---|
+| `ollama_list` | tool | List installed models, running models, and disk usage |
+| `ollama_show` | tool | Show parameter size, quantization, context length, family, format |
+| `ollama_pull` | tool | Pull (download) a model |
+| `ollama_remove` | tool | Remove a model |
+| `ollama_health` | tool | Process liveness + API responsiveness |
+| `/ollama` | command | One-shot status overview (models + health + suggestions) |
+
+**Consumes** the public host services `ctx.llm` (`registerAdapter`), `ctx.tools`, `ctx.subprocess` (CLI probe), and `ctx.commands`. It registers no `llm/stream` short-circuit by default — the routing listener passes through (`next()`) unless a rule matches.
+
+### Examples
+
+These are the plugin's real entry points; install once, then call one.
+
+**Detailed example** — tool `ollama_list`, input:
+
+```json
+{}
+```
+
+Output:
+
+```text
+1 local model(s), 100 B on disk
+- llama3.2 (3B) — 100 B
+```
+
+*Observed from `plugins/dsh-local-ai/src/index.ts:83-90 (renderer); fixture/assertion at plugins/dsh-local-ai/test/index.spec.ts:31-35,68-82`*
+
+**Failure branch** — input:
+
+```text
+{} (baseURL http://127.0.0.1:11434; nothing listening; no ollama binary on PATH)
+```
+
+Output:
+
+```text
+{
+  "api": {
+    "ok": false,
+    "error": "connection refused"
+  },
+  "process": {
+    "present": false,
+    "error": "\"ollama\" not found: subprocess-local: command \"ollama\" was not found on PATH"
+  }
+}
+```
+
+*Observed from `plugins/dsh-local-ai/src/health.ts:52-66,79-92; plugins/dsh-local-ai/test/health.spec.ts:23-28,52-57`*
+
+**Brief examples**: `ollama_show` · `ollama_pull`
+
+## Configuration
+
+All tunables are Schemastery `Config` fields (changeable from cordis.yml). An id-targeted override replaces the whole row — restate every key you need. `cordis.patch.yml` documents each key inline.
+
+Most-used keys:
+
+| Key | Default | Meaning |
+|---|---|---|
+| `baseURL` | `http://127.0.0.1:11434` | Ollama HTTP API base URL; `/api/*` paths are appended |
+| `requestTimeoutMs` | `30000` | Per-request HTTP timeout (milliseconds) |
+| `defaultContextWindow` | `8192` | Context capacity used when a model has no exact value |
+| `maxTokens` | `4096` | Per-request output cap used when a model has no exact value |
+| `vision` | `true` | Declare and serialize image support when the model reports vision; `false` keeps the route text-only |
+| `models` | `[]` | Harness-visible → Ollama model mappings |
+| `backends` | `[]` | OpenAI-compatible local backends (LM Studio / vLLM / llama.cpp) |
+| `route` | `[]` | Local-model routing rules (first match wins) |
+
+<details>
+<summary>Full configuration table (27 keys)</summary>
+
+| Key | Default | Meaning |
+|---|---|---|
+| `baseURL` | `http://127.0.0.1:11434` | Ollama HTTP API base URL; `/api/*` paths are appended |
+| `requestTimeoutMs` | `30000` | Per-request HTTP timeout (milliseconds) |
+| `graceMs` | `15000` | Subprocess terminate grace for the health-check CLI probe |
+| `defaultContextWindow` | `8192` | Context capacity used when a model has no exact value |
+| `maxTokens` | `4096` | Per-request output cap used when a model has no exact value |
+| `temperature` | *(none)* | Default sampling temperature (0..2); omitted leaves the provider default |
+| `vision` | `true` | Declare and serialize image support when the model reports vision; `false` keeps the route text-only |
+| `visionCacheTtlMs` | `30000` | Milliseconds a `/api/show` capability probe stays cached (`0` disables caching; a pull or remove invalidates that model) |
+| `models` | `[]` | Harness-visible → Ollama model mappings |
+| `models[].name` | *(required)* | Harness-visible model name (`GenerateOptions.model`) |
+| `models[].model` | `= name` | Ollama model id |
+| `models[].contextWindow` | *(none)* | Per-model context capacity |
+| `models[].maxTokens` | *(none)* | Per-model output cap |
+| `models[].temperature` | *(none)* | Per-model sampling temperature |
+| `backends` | `[]` | OpenAI-compatible local backends (LM Studio / vLLM / llama.cpp) |
+| `backends[].name` | *(required)* | Backend name; registers provider id `openai:<name>` |
+| `backends[].baseURL` | *(required)* | Backend base URL including `/v1`, e.g. `http://127.0.0.1:1234/v1` |
+| `backends[].apiKey` | *(none)* | Optional bearer API key (most local servers leave it empty) |
+| `backends[].models` | `[]` | Harness-visible → backend model mappings |
+| `backends[].maxTokens` | `4096` | Per-backend output cap used when a model has no exact value |
+| `backends[].temperature` | *(none)* | Per-backend sampling temperature |
+| `route` | `[]` | Local-model routing rules (first match wins) |
+| `route[].model` | *(required)* | Target local model name |
+| `route[].provider` | `ollama` | Target provider id: `ollama` or `openai:<name>` |
+| `route[].purpose` | *(none)* | Task type match: `compaction` / `session-title` |
+| `route[].keywords` | `[]` | Case-insensitive request keywords |
+| `route[].always` | `false` | Route every eligible request to this model |
+
+</details>
+
+Example override in your profile patch:
+
+```yaml
+- insert:
+    - id: dsh-local-ai
+      name: dsh-local-ai
+      config:
+        backends:
+          - name: lmstudio
+            baseURL: http://127.0.0.1:1234/v1
+        route:
+          - model: llama3.2
+            keywords: ["confidential", "offline"]
+          - model: qwen2.5-7b
+            provider: openai:lmstudio
+            always: true
+```
+
+## FAQ
+
+<details>
+<summary>Will a down Ollama or an unreachable endpoint brick the conversation?</summary>
+
+No. The routing listener falls back to the cloud (`next()`) when a local route fails before producing its first token, so a dead Ollama never blocks a conversation; the `/ollama` overview is best-effort and never throws on a down server. **One carve-out**: a failure carrying `IMAGE_OFFLOAD_REQUIRED` is rethrown instead of retried on the cloud (see "Security boundaries"); a failure after the first token is forwarded verbatim and cannot be retracted.
+
+</details>
+
+<details>
+<summary>Where do requests go? Does the plugin store my data?</summary>
+
+It only makes `network:outbound` requests to the endpoints you configure in `baseURL` / `backends[].baseURL`. It performs no filesystem access, creates no storage, and stores no credentials. Every model list/detail, health fact, and error message shown to the model or the user is sanitized first — endpoint userinfo and secret query params are dropped, control characters stripped, and lengths bounded. Tool and command results are logged by the harness's own tool/command seams.
+
+</details>
+
+<details>
+<summary>Does it silently re-route my requests to a local model by default?</summary>
+
+No. The `route` list is empty by default; a request reaches a local model only through an explicit matching rule or an explicit `ollama` / `openai:<name>` provider selection.
+
+</details>
+
+<details>
+<summary>Does it fight plugins like dsh-routing-suite over `llm/stream`?</summary>
+
+No. `llm/stream` is a Cordis broadcast event: every listener runs and none can starve another; this plugin's listener always delegates through `next()` and short-circuits only when a local route is actually serving. It provides no service key, registers no `webServer` prefix, and mutates no globals. The point-by-point argument is in "Interoperability with other DSH plugins".
+
+</details>
+
+<details>
+<summary>Can it run vision models?</summary>
+
+Yes, when the model reports the capability: a model whose `/api/show` capabilities include `vision` declares `inputModalities: ["text","image"]` and carries base64 image payloads on user messages (opt out with `vision: false`); text-only models still reject image content (`UNSUPPORTED_CONTENT`).
+
+</details>
+
+## Security boundaries
+
+- **No re-routing by default** — the `route` list is empty unless you opt in; a request reaches a local model only through an explicit rule or an explicit `ollama` provider selection.
+- **Sanitize before display** — endpoint addresses and local paths are sanitized before they reach tool output, the `/ollama` command, or error messages.
+- **Zero bundled models** — downloads and storage are Ollama's own responsibility; nothing is shipped in the package.
+- **Failure loud, failure contained** — invalid config fails the mount; a local route that fails before producing content falls back to the cloud (`next()`), so a down Ollama never bricks a conversation. **One carve-out:** a failure carrying `IMAGE_OFFLOAD_REQUIRED` is rethrown instead of retried on the cloud — that code is the official offload circuit asking this same local route to drop retained images, and falling back would skip the circuit while silently sending a local-only request to a remote provider.
+- **Model-visible ⟺ logged** — routing only changes which provider serves a request (the assistant message is logged with its `ollama` provenance); no new model-visible input is invented.
+
+## Permissions & data
+
+- **Permissions**: `network:outbound` to the Ollama endpoint you configure; no native code, no filesystem access, no storage.
+- **Data**: every model list/detail, health fact, and error message shown to the model or the user is sanitized (endpoint userinfo and secret query params dropped, control characters stripped, lengths bounded) before display. Tool and command results are logged by the harness's own tool/command seams.
+- **Credentials**: the plugin stores and reads no credentials. It only issues HTTP requests to the endpoint you configure, plus the local `ollama list` process probe.
+
+## Known limitations
+
+- **npm 0.2.0-rc.2** — developed and tested against `@deepseek-ai/dsh@0.2.0-rc.2`; newer harness baselines are expected to work but are verified by the monthly compat workflow.
+- **Vision when the model reports it** — models whose `/api/show` capabilities include `vision` declare `inputModalities: ["text","image"]` and carry base64 image payloads on user messages (opt out with `vision: false`); text-only models still reject image content (`UNSUPPORTED_CONTENT`).
+- **Mid-stream fallback** — once a local route has started producing content, a later failure is forwarded (not retracted); only a failure before the first token falls back to the cloud.
+
+## Interoperability with other DSH plugins
+
+Verified against **DSH `0.2.0-rc.2`** (the runtime this README ships for) and the high-star plugin set surveyed on 2026-10-05.
+
+This plugin **does not interfere** with other plugins, including the widely installed high-star ones:
+
+- **No tool-name collision.** Every tool is namespaced; no bare name owned by a shipped tool or another plugin is registered.
+- **No service-key collision.** It provides no service key at all, so it cannot collide on one.
+- **No slot collision.** It registers no client slot key, so it cannot contend for a `shadows-shipped-ui` seat.
+- **No HTTP route collision.** It registers no `webServer` prefix.
+- **No patch-layer collision.** The bundle patch only `insert`s its own row; it never overrides a built-in row's `config`.
+- **No global mutation.** It does not patch prototypes, rewrite `process.env`, or replace the global fetch dispatcher.
+
+**Shared event listeners are non-interfering by construction.** It observes the ordering-sensitive event `llm/stream` with `ctx.on()` — Cordis's broadcast registration, where every listener runs and none can starve another. **Every listener here delegates through `next()`**, so the chain is never short-circuited, and a mutation is applied to the value `next()` produced rather than returned in its place:
+
+- `llm/stream` — also used by `dsh-routing-suite` (7000★).
+
+Static evidence: `dsh-plugin-doctor` K10–K13 report `pass` for every check on this repository.
+
+## Compatibility
+
+| Surface | Status |
+|---|---|
+| Harness | DeepSeek Harness `dsh-v0.2.1-alpha.1` (verified 2026-10-04: three typecheck rulers (installed, CI, checkout) + 142 tests + self-contained/artifacts gates; the `0.1.7` content-block union is adapted — a tool result is a first-class `tool`-role message, and a pre-`0.1.7` `tool-result` wrapper is still read for old logs). The peer range admits every supported line: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0 \|\| >=0.2.0-0 <0.3.0 \|\| >=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0`; dev/test pins are `0.2.0-rc.2`. |
+| Node | `^22.19.0 \|\| >=24.9.0` |
+| Backend | [Ollama](https://ollama.com) (local HTTP API + CLI probe) |
+| Model | Text-only route (`inputModalities: ['text']`); tool calls and tool results are supported |
+
+## Ecosystem & quality
+
+- [Gitee mirror](https://gitee.com/perrylink/dsh-local-ai) (sync mirror; GitHub is canonical)
+- [dshfind plugin page](https://dshfind.com/plugins/PerryLink/dsh-local-ai) (installs and ranking)
+- [OpenSSF Scorecard report](https://securityscorecards.dev/viewer/?uri=github.com/PerryLink/dsh-local-ai) (driven by [.github/workflows/scorecard.yml](.github/workflows/scorecard.yml))
+- [dsh-plugin-doctor verification report](https://github.com/PerryLink/dsh-plugin-doctor#verified-徽章) (K10–K13 all `pass`)
+- [DSH Market](https://dsh.market/) (listed)
+- **1024 store channel**: `npm i -g dsh1024` once, then `dsh1024 plugin --profile web add dsh-local-ai` (counts toward the [deepseek1024.com](https://deepseek1024.com) install ranking)
+- [Ecosystem knowledge base](https://perrylink.github.io/dsh-plugin-guide/) — measured data, not marketing: plugin development guide · plugin-selection data · maintenance criteria
+
+## Development
+
+```sh
+pnpm install        # node ^22.19 || >=24
+pnpm run typecheck  # tsc: src + tests against the published 0.2.0-rc.2 types
+pnpm run typecheck:ci  # strict tsc against published rc.2 types (skipLibCheck off)
+pnpm test           # vitest: real Context/LlmRuntime/ToolRuntime/CommandRuntime/subprocess seams
+pnpm run test:coverage  # coverage gate (90/80/90/90)
+pnpm run build      # tsdown bundle + tsc declarations (lib/)
+pnpm run verify:self-contained  # dependency specs resolve from the registry
+pnpm run verify:artifacts       # built ESM face + bundle patch present
+node scripts/check-readme-sync.mjs  # five-language README sync gate
+node scripts/check-endpoints.mjs  # M3 endpoint-liveness probe (Ollama /api/version)
+pnpm pack           # the published tarball
+```
+
+The build output is `lib/` (`pnpm run build` bundles with tsdown and emits tsc declarations). The README images are generated programmatically by [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) (Python + Pillow) and are safe to re-run.
+
+Topics: `dsh`, `dsh-plugin`, `deepseek-harness`, `deepseek`, `cordis`, `ollama`, `local-llm`, `local-models`, `offline`, `privacy`, `model-routing`
+
+## Family & thanks
+
+This project is part of the DeepSeek Harness plugin family from [PerryLink](https://github.com/PerryLink) (95 plugins, all Apache-2.0). If it is useful, **a star helps the next person find it** — nothing is gated behind it.
+
+- [@PerryLink](https://github.com/PerryLink) — creator and maintainer: adapter, routing, tools, health check, sanitization, and the five-language docs.
+- [@LABEST-IA](https://github.com/LABEST-IA) — tool-call CallId fix (PR #2), and the tool-call slot and vision-support reports (issues #1, #3, #5).
+
+<details>
+<summary>Expand all plugins</summary>
+
+| Plugin | Status |
+|---|---|
+| **[dsh-aqua-input-check](https://github.com/PerryLink/dsh-aqua-input-check)** |  |
+| **[dsh-archive-check](https://github.com/PerryLink/dsh-archive-check)** |  |
+| **[dsh-auto-review](https://github.com/PerryLink/dsh-auto-review)** |  |
+| **[dsh-autotier](https://github.com/PerryLink/dsh-autotier)** | 🧊 FROZEN — see the repo README |
+| **[dsh-bid-ca-precheck](https://github.com/PerryLink/dsh-bid-ca-precheck)** |  |
+| **[dsh-bid-qual-check](https://github.com/PerryLink/dsh-bid-qual-check)** |  |
+| **[dsh-cert-mcp](https://github.com/PerryLink/dsh-cert-mcp)** | 🧊 FROZEN — see the repo README |
+| **[dsh-checkpoint-rewind](https://github.com/PerryLink/dsh-checkpoint-rewind)** |  |
+| **[dsh-click](https://github.com/PerryLink/dsh-click)** |  |
+| **[dsh-composer-history](https://github.com/PerryLink/dsh-composer-history)** |  |
+| **[dsh-contract-stance](https://github.com/PerryLink/dsh-contract-stance)** |  |
+| **[dsh-customs-doc-check](https://github.com/PerryLink/dsh-customs-doc-check)** |  |
+| **[dsh-data-quality](https://github.com/PerryLink/dsh-data-quality)** | 🧊 FROZEN — see the repo README |
+| **[dsh-demurrage-ledger](https://github.com/PerryLink/dsh-demurrage-ledger)** |  |
+| **[dsh-doublecheck](https://github.com/PerryLink/dsh-doublecheck)** |  |
+| **[dsh-drill-script-check](https://github.com/PerryLink/dsh-drill-script-check)** |  |
+| **[dsh-eia-guide-check](https://github.com/PerryLink/dsh-eia-guide-check)** |  |
+| **[dsh-emergency-plan](https://github.com/PerryLink/dsh-emergency-plan)** |  |
+| **[dsh-essay-rubric-check](https://github.com/PerryLink/dsh-essay-rubric-check)** |  |
+| **[dsh-evidence-check](https://github.com/PerryLink/dsh-evidence-check)** |  |
+| **[dsh-export-ctl-check](https://github.com/PerryLink/dsh-export-ctl-check)** |  |
+| **[dsh-fast](https://github.com/PerryLink/dsh-fast)** |  |
+| **[dsh-fmea-table-check](https://github.com/PerryLink/dsh-fmea-table-check)** |  |
+| **[dsh-forecast-penalty](https://github.com/PerryLink/dsh-forecast-penalty)** |  |
+| **[dsh-fund-research](https://github.com/PerryLink/dsh-fund-research)** |  |
+| **[dsh-github](https://github.com/PerryLink/dsh-github)** |  |
+| **[dsh-gongwen-flow-check](https://github.com/PerryLink/dsh-gongwen-flow-check)** |  |
+| **[dsh-gongwen-word-check](https://github.com/PerryLink/dsh-gongwen-word-check)** |  |
+| **[dsh-guard-plan-qc](https://github.com/PerryLink/dsh-guard-plan-qc)** |  |
+| **[dsh-hazchem-check](https://github.com/PerryLink/dsh-hazchem-check)** |  |
+| **[dsh-hazplan-check](https://github.com/PerryLink/dsh-hazplan-check)** |  |
+| **[dsh-hidden-risk-map](https://github.com/PerryLink/dsh-hidden-risk-map)** |  |
+| **[dsh-hs-classify](https://github.com/PerryLink/dsh-hs-classify)** |  |
+| **[dsh-icd-rule-check](https://github.com/PerryLink/dsh-icd-rule-check)** |  |
+| **[dsh-industry-research](https://github.com/PerryLink/dsh-industry-research)** |  |
+| **[dsh-lawcite-adapter](https://github.com/PerryLink/dsh-lawcite-adapter)** |  |
+| **[dsh-laya](https://github.com/PerryLink/dsh-laya)** |  |
+| **[dsh-lc-doc-check](https://github.com/PerryLink/dsh-lc-doc-check)** |  |
+| **[dsh-learning-gap-check](https://github.com/PerryLink/dsh-learning-gap-check)** |  |
+| **[dsh-library](https://github.com/PerryLink/dsh-library)** |  |
+| **[dsh-local-ai](https://github.com/PerryLink/dsh-local-ai)** |  |
+| **[dsh-lsp-actions](https://github.com/PerryLink/dsh-lsp-actions)** |  |
+| **[dsh-mask](https://github.com/PerryLink/dsh-mask)** |  |
+| **[dsh-mcp-panel](https://github.com/PerryLink/dsh-mcp-panel)** |  |
+| **[dsh-medrec-qc](https://github.com/PerryLink/dsh-medrec-qc)** |  |
+| **[dsh-memento](https://github.com/PerryLink/dsh-memento)** | 🧊 FROZEN — see the repo README |
+| **[dsh-nsfc-form-check](https://github.com/PerryLink/dsh-nsfc-form-check)** |  |
+| **[dsh-nurse-record-check](https://github.com/PerryLink/dsh-nurse-record-check)** |  |
+| **[dsh-observe](https://github.com/PerryLink/dsh-observe)** |  |
+| **[dsh-origin-rvc-check](https://github.com/PerryLink/dsh-origin-rvc-check)** |  |
+| **[dsh-ota-review-check](https://github.com/PerryLink/dsh-ota-review-check)** |  |
+| **[dsh-output-styles](https://github.com/PerryLink/dsh-output-styles)** |  |
+| **[dsh-paper-doc-adapter](https://github.com/PerryLink/dsh-paper-doc-adapter)** |  |
+| **[dsh-permission-rules](https://github.com/PerryLink/dsh-permission-rules)** |  |
+| **[dsh-permit-report-check](https://github.com/PerryLink/dsh-permit-report-check)** |  |
+| **[dsh-pipeline-check](https://github.com/PerryLink/dsh-pipeline-check)** |  |
+| **[dsh-pleading-draft](https://github.com/PerryLink/dsh-pleading-draft)** |  |
+| **[dsh-plugin-doctor](https://github.com/PerryLink/dsh-plugin-doctor)** | 🚫 RETIRED (repo archived) |
+| **[dsh-plugin-guide](https://github.com/PerryLink/dsh-plugin-guide)** |  |
+| **[dsh-plugin-kit](https://github.com/PerryLink/dsh-plugin-kit)** | 🚫 RETIRED (repo archived) |
+| **[dsh-plugin-upgrade](https://github.com/PerryLink/dsh-plugin-upgrade)** | 🚫 RETIRED (repo archived) |
+| **[dsh-policy-brief-draft](https://github.com/PerryLink/dsh-policy-brief-draft)** |  |
+| **[dsh-power-loss-split](https://github.com/PerryLink/dsh-power-loss-split)** |  |
+| **[dsh-power-ticket-check](https://github.com/PerryLink/dsh-power-ticket-check)** |  |
+| **[dsh-ppap-check](https://github.com/PerryLink/dsh-ppap-check)** |  |
+| **[dsh-protest-deadline](https://github.com/PerryLink/dsh-protest-deadline)** |  |
+| **[dsh-railway-window](https://github.com/PerryLink/dsh-railway-window)** |  |
+| **[dsh-repair-order-qc](https://github.com/PerryLink/dsh-repair-order-qc)** |  |
+| **[dsh-research-report](https://github.com/PerryLink/dsh-research-report)** |  |
+| **[dsh-review-reply-check](https://github.com/PerryLink/dsh-review-reply-check)** |  |
+| **[dsh-rulefile-check](https://github.com/PerryLink/dsh-rulefile-check)** |  |
+| **[dsh-safety-brief-check](https://github.com/PerryLink/dsh-safety-brief-check)** |  |
+| **[dsh-score](https://github.com/PerryLink/dsh-score)** | 🧊 FROZEN — see the repo README |
+| **[dsh-session-sync](https://github.com/PerryLink/dsh-session-sync)** |  |
+| **[dsh-site-log-check](https://github.com/PerryLink/dsh-site-log-check)** |  |
+| **[dsh-skill-pack-security](https://github.com/PerryLink/dsh-skill-pack-security)** |  |
+| **[dsh-soe-decision-check](https://github.com/PerryLink/dsh-soe-decision-check)** |  |
+| **[dsh-soilwater-check](https://github.com/PerryLink/dsh-soilwater-check)** |  |
+| **[dsh-sop-sync-check](https://github.com/PerryLink/dsh-sop-sync-check)** |  |
+| **[dsh-spc-gbt-adapter](https://github.com/PerryLink/dsh-spc-gbt-adapter)** |  |
+| **[dsh-talk](https://github.com/PerryLink/dsh-talk)** |  |
+| **[dsh-tender-extract](https://github.com/PerryLink/dsh-tender-extract)** |  |
+| **[dsh-tender-matrix](https://github.com/PerryLink/dsh-tender-matrix)** |  |
+| **[dsh-test-drive](https://github.com/PerryLink/dsh-test-drive)** |  |
+| **[dsh-ticktick](https://github.com/PerryLink/dsh-ticktick)** | 🚫 RETIRED (repo archived) |
+| **[dsh-translate](https://github.com/PerryLink/dsh-translate)** |  |
+| **[dsh-warranty-calc](https://github.com/PerryLink/dsh-warranty-calc)** |  |
+| **[dsh-budget](https://github.com/PerryLink/dsh-budget)** | 🧊 FROZEN — see the repo README |
+| **[dsh-claude-move](https://github.com/PerryLink/dsh-claude-move)** | 🧊 FROZEN — see the repo README |
+| **[dsh-defend](https://github.com/PerryLink/dsh-defend)** | 🧊 FROZEN — see the repo README |
+| **[dsh-draw](https://github.com/PerryLink/dsh-draw)** | 🧊 FROZEN — see the repo README |
+| **[dsh-reach](https://github.com/PerryLink/dsh-reach)** | 🧊 FROZEN — see the repo README |
+| **[dsh-background-agents](https://github.com/PerryLink/dsh-background-agents)** | 🚫 RETIRED (repo archived) |
+| **[dsh-session-pin](https://github.com/PerryLink/dsh-session-pin)** | 🚫 RETIRED (repo archived) |
+| **[dsh-team-rooms](https://github.com/PerryLink/dsh-team-rooms)** | 🚫 RETIRED (repo archived) |
+
+</details>
+
+## License
+
+[LICENSE](LICENSE) (Apache License 2.0) © 2026 dsh-local-ai contributors
+
+<p align="center"><sub>Apache-2.0 · Community plugin, not affiliated with DeepSeek.</sub></p>
