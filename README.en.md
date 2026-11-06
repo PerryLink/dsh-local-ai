@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-flow-dark.svg">
-  <img src="docs/assets/dsh-local-ai-flow-light.svg" width="100%" alt="dsh-local-ai routing flow: request → llm/stream → route → ollama / openai:&lt;name&gt; → cloud (next() fallback); tools use /api/tags, /api/ps, /api/show, /api/pull, /api/delete, health uses /api/version and ollama list">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-hero-en-dark.webp">
+  <img src="docs/assets/dsh-local-ai-hero-en-light.webp" width="100%" alt="dsh-local-ai: plugin name and value lines at left; at right a provider patch panel — ollama over /api/chat NDJSON, openai:&lt;name&gt; over /v1/chat/completions SSE, cloud as the dashed fallback rail — with the failure boundary below: next() fallback before the first visible delta, IMAGE_OFFLOAD_REQUIRED rethrown">
 </picture>
 
 # dsh-local-ai
@@ -37,6 +37,11 @@ dsh plugin --profile <name> add dsh-local-ai
 ## What it is
 
 `dsh-local-ai` makes Ollama a first-class local provider inside DeepSeek Harness: it registers the `ollama` provider route, routes requests to local models by task type or keyword, and falls back to the cloud automatically when a local route fails before producing content. Five tools cover model discovery, pulling, removal, inspection, and health; `/ollama` gives a one-screen status overview. Everything talks to Ollama's HTTP API (the CLI is used only for the process probe); no model files are bundled and no new model-visible input is invented.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-local-ai-flow-v5-light.svg" width="100%" alt="dsh-local-ai structure: the llm/stream waterfall reads provider, purpose and message text; route[] forks on the first hit into the ollama or openai:&lt;name&gt; adapter lane; both lanes converge into one StreamChunk; a failure before the first visible delta returns to cloud through the routeLocal guard; the five tools and /ollama run on a separate management channel">
+</picture>
 
 ## Three-step setup
 

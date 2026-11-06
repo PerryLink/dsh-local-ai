@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="660" viewBox="0 0 1100 660" role="img" aria-label="dsh-local-ai 结构图：llm/stream 瀑布读出 provider、purpose 与消息文本，route[] 按顺序首个命中后分叉到 ollama 或 openai:&lt;name&gt; 两条适配器通道，汇入同一个 StreamChunk；首个可见 delta 前的失败经 routeLocal 守卫回到 cloud；五个工具与 /ollama 另走管理通道">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#131a2a"/><stop offset="1" stop-color="#0c1016"/></linearGradient>
+<filter id="soft" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#16122c" flood-opacity="0.45"/></filter>
+<marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.2" markerHeight="6.2" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8496f5"/></marker>
+<marker id="arrdim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.2" markerHeight="6.2" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#a8b1c4"/></marker>
+</defs>
+<rect width="1100" height="660" fill="url(#bg)"/>
+<text x="44" y="56" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="28" font-weight="700">dsh-local-ai</text>
+<text x="44" y="84" fill="#a8b1c4" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="15">一个请求只走一条本地出口：规则闸门 → 两条适配器通道 → StreamChunk；工具与 /ollama 另走管理通道。</text>
+<rect x="896.0" y="32" width="160.0" height="24" rx="12.0" fill="#242d42"/>
+<text x="908.0" y="47.91" fill="#8496f5" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11.5" font-weight="700">route 默认 [] · 不重路由</text>
+<rect x="44" y="116" width="160" height="180" rx="20" fill="#1b2231" stroke="#2e374b" stroke-width="1.5" filter="url(#soft)"/>
+<text x="60" y="146" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="15" font-weight="700">llm/stream</text>
+<text x="60" y="168" fill="#737b8d" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">广播瀑布</text>
+<text x="60" y="184" fill="#737b8d" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">每个监听器都运行</text>
+<text x="60" y="206" fill="#a8b1c4" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">只读三处</text>
+<rect x="60" y="212" width="60.0" height="22" rx="11.0" fill="#202839"/>
+<text x="66" y="226.74" fill="#8496f5" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11" font-weight="700">provider</text>
+<rect x="60" y="238" width="54.0" height="22" rx="11.0" fill="#202839"/>
+<text x="66" y="252.74" fill="#8496f5" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11" font-weight="700">purpose</text>
+<rect x="60" y="264" width="102.0" height="22" rx="11.0" fill="#202839"/>
+<text x="66" y="278.74" fill="#8496f5" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11" font-weight="700">messages[].text</text>
+<rect x="44" y="312" width="160" height="52" rx="14" fill="#1b2231" stroke="#2e374b" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="60" y="330" fill="#a8b1c4" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">已是本地 provider</text>
+<text x="60" y="346" fill="#a8b1c4" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">→ 不重路由</text>
+<text x="60" y="361" fill="#737b8d" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">直接 next()</text>
+<line x1="204" y1="240" x2="224" y2="240" stroke="#8496f5" stroke-width="1.8" marker-end="url(#arr)"/>
+<rect x="226" y="116" width="270" height="248" rx="20" fill="#1b2231" stroke="#2e374b" stroke-width="1.5" filter="url(#soft)"/>
+<text x="248" y="144" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="14.5" font-weight="700">route[]</text>
+<text x="248" y="164" fill="#737b8d" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">首个命中生效 · 顺序即优先级</text>
+<text x="248" y="204" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="12.5" font-weight="700">purpose</text>
+<text x="248" y="224" fill="#a8b1c4" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">compaction · session-title</text>
+<circle cx="487" cy="200" r="3.4" fill="#8496f5"/>
+<line x1="248" y1="236" x2="480" y2="236" stroke="#2b3348" stroke-width="1"/>
+<text x="248" y="258" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="12.5" font-weight="700">keywords</text>
+<text x="248" y="278" fill="#a8b1c4" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">不区分大小写 · system + text 块</text>
+<circle cx="487" cy="254" r="3.4" fill="#2e374b"/>
+<line x1="248" y1="292" x2="480" y2="292" stroke="#2b3348" stroke-width="1"/>
+<text x="248" y="314" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="12.5" font-weight="700">always</text>
+<text x="248" y="334" fill="#a8b1c4" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">true = 全部符合条件的请求</text>
+<circle cx="487" cy="310" r="3.4" fill="#2e374b"/>
+<text x="248" y="356" fill="#737b8d" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">route: []（默认）→ 全部 next() 透传</text>
+<path d="M496 240 H514 V174 H530" fill="none" stroke="#8496f5" stroke-width="1.8" stroke-linecap="round" marker-end="url(#arr)"/>
+<path d="M514 240 V306 H530" fill="none" stroke="#8496f5" stroke-width="1.8" stroke-linecap="round" marker-end="url(#arr)"/>
+<rect x="532" y="116" width="292" height="116" rx="18" fill="#1b2231" stroke="#2e374b" stroke-width="1.5" filter="url(#soft)"/>
+<text x="548" y="142" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="16" font-weight="700">ollama</text>
+<rect x="744.0" y="128" width="64.0" height="20" rx="10.0" fill="#242d42"/>
+<text x="752.0" y="141.57" fill="#8496f5" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="10.5" font-weight="700">NDJSON</text>
+<text x="548" y="164" fill="#a8b1c4" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">POST /api/chat · idleWatchdog</text>
+<rect x="548" y="176" width="260" height="26" rx="8" fill="#202839"/>
+<text x="559" y="194" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">serialize.ts → translate.ts</text>
+<text x="548" y="222" fill="#737b8d" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">默认 ollama · tool 参数按公共前缀 diff</text>
+<rect x="532" y="248" width="292" height="116" rx="18" fill="#1b2231" stroke="#2e374b" stroke-width="1.5" filter="url(#soft)"/>
+<text x="548" y="274" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="16" font-weight="700">openai:&lt;name&gt;</text>
+<rect x="772.0" y="260" width="36.0" height="20" rx="10.0" fill="#242d42"/>
+<text x="780.0" y="273.57" fill="#8496f5" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="10.5" font-weight="700">SSE</text>
+<text x="548" y="296" fill="#a8b1c4" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">POST /v1/chat/completions</text>
+<rect x="548" y="308" width="260" height="26" rx="8" fill="#202839"/>
+<text x="559" y="326" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">openai-serialize → translate</text>
+<text x="548" y="354" fill="#737b8d" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">同一 LlmAdapter seam · provider id</text>
+<rect x="844" y="116" width="212" height="248" rx="20" fill="#1b2231" stroke="#2e374b" stroke-width="1.5" filter="url(#soft)"/>
+<text x="860" y="144" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="14.5" font-weight="700">StreamChunk</text>
+<text x="860" y="164" fill="#737b8d" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">harness 可见增量</text>
+<circle cx="864" cy="186" r="3" fill="#8496f5"/>
+<text x="876" y="190" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">text-delta</text>
+<circle cx="864" cy="208" r="3" fill="#8496f5"/>
+<text x="876" y="212" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">reasoning-delta</text>
+<circle cx="864" cy="230" r="3" fill="#8496f5"/>
+<text x="876" y="234" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">tool-call-delta</text>
+<line x1="860" y1="250" x2="1040" y2="250" stroke="#2b3348" stroke-width="1"/>
+<text x="860" y="274" fill="#a8b1c4" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">usage + finish</text>
+<text x="860" y="292" fill="#737b8d" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">延后到 done</text>
+<rect x="856" y="304" width="188" height="30" rx="9" fill="#202839"/>
+<text x="950" y="323" fill="#8496f5" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11" text-anchor="middle" font-weight="700">assistant 消息 · 来源记录</text>
+<text x="860" y="350" fill="#737b8d" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">来源 = provider id</text>
+<line x1="826" y1="174" x2="842" y2="174" stroke="#8496f5" stroke-width="1.8" marker-end="url(#arr)"/>
+<line x1="826" y1="306" x2="842" y2="306" stroke="#8496f5" stroke-width="1.8" marker-end="url(#arr)"/>
+<rect x="56" y="384" width="720" height="68" rx="16" fill="#1b2231" stroke="#2e374b" stroke-width="1.5" filter="url(#soft)"/>
+<text x="72" y="404" fill="#8496f5" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="12.5" font-weight="700">routeLocal · 首个可见 delta 之前</text>
+<text x="72" y="426" fill="#f0f3f9" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11.5">error / aborted → yield* next()：云端接手，对话继续</text>
+<text x="72" y="444" fill="#737b8d" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11.5">已出 content 之后才失败 → 原样透传，无法回退</text>
+<text x="668" y="406" fill="#737b8d" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">首个 delta</text>
+<line x1="536" y1="414" x2="658" y2="414" stroke="#a8b1c4" stroke-width="1.4" stroke-dasharray="4 4"/>
+<line x1="662" y1="414" x2="744" y2="414" stroke="#8496f5" stroke-width="1.4"/>
+<line x1="660" y1="403" x2="660" y2="425" stroke="#a8b1c4" stroke-width="1.6"/>
+<text x="536" y="444" fill="#737b8d" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">回退窗口</text>
+<text x="676" y="444" fill="#8496f5" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">透传</text>
+<rect x="792" y="384" width="264" height="68" rx="16" fill="#1b2231" stroke="#2e374b" stroke-width="1.5" filter="url(#soft)"/>
+<text x="808" y="404" fill="#a8b1c4" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="12.5" font-weight="700">cloud · next()</text>
+<text x="808" y="426" fill="#f0f3f9" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11.5">回退后由云端继续服务</text>
+<text x="808" y="444" fill="#d9a441" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11.5">例外：IMAGE_OFFLOAD_REQUIRED 抛回</text>
+<line x1="680" y1="366" x2="680" y2="380" stroke="#a8b1c4" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrdim)"/>
+<line x1="776" y1="418" x2="790" y2="418" stroke="#a8b1c4" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrdim)"/>
+<rect x="44" y="466" width="1012" height="130" rx="20" fill="#1b2231" stroke="#2e374b" stroke-width="1.5" filter="url(#soft)"/>
+<text x="62" y="490" fill="#8496f5" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="12.5" font-weight="700">管理通道 · 不经过路由（工具与命令）</text>
+<text x="62" y="516" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="12.5" font-weight="700">ollama_list · ollama_show · ollama_pull · ollama_remove · ollama_health</text>
+<text x="62" y="538" fill="#a8b1c4" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">/api/tags · /api/ps · /api/show · /api/pull · /api/delete · /api/version</text>
+<text x="62" y="560" fill="#a8b1c4" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11.5">/ollama → 健康 + 模型 + 磁盘 + 建议（一条命令的总览）</text>
+<text x="62" y="580" fill="#737b8d" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">展示前脱敏：endpoint userinfo、密钥查询参数、home 路径、控制字符；超长截断</text>
+<rect x="700" y="480" width="340" height="108" rx="14" fill="#202839" stroke="#2e374b" stroke-width="1.2"/>
+<text x="716" y="502" fill="#f0f3f9" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11.5" font-weight="700">健康检查 · 两个独立信号</text>
+<circle cx="720" cy="522" r="3.6" fill="#3fb950"/>
+<text x="732" y="526" fill="#f0f3f9" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11.5">API：/api/version（HTTP）</text>
+<circle cx="720" cy="546" r="3.6" fill="#3fb950"/>
+<text x="732" y="550" fill="#f0f3f9" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11.5">进程：ollama list（subprocess）</text>
+<text x="716" y="574" fill="#737b8d" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">任一失败只报告，不抛错</text>
+<line x1="44" y1="616" x2="1056" y2="616" stroke="#2b3348" stroke-width="1"/>
+<text x="44" y="638" fill="#a8b1c4" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11.5">route 默认空 = 不重路由 · 零依赖 HTTP 优先 · 不捆绑模型 · 不新增模型可见输入</text>
+</svg>

@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-flow-dark.svg">
-  <img src="docs/assets/dsh-local-ai-flow-light.svg" width="100%" alt="dsh-local-ai राउटिंग प्रवाह: request → llm/stream → route → ollama / openai:&lt;name&gt; → cloud (next() फ़ॉलबैक); टूल /api/tags, /api/ps, /api/show, /api/pull और /api/delete का उपयोग करते हैं, और हेल्थ चेक /api/version तथा ollama list का उपयोग करता है">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-hero-en-dark.webp">
+  <img src="docs/assets/dsh-local-ai-hero-en-light.webp" width="100%" alt="dsh-local-ai: बाईं ओर नाम और मूल्य-पंक्तियाँ; दाईं ओर प्रोवाइडर पैच पैनल — ollama /api/chat NDJSON से, openai:&lt;name&gt; /v1/chat/completions SSE से, और cloud बिंदुदार फ़ॉलबैक रेल — नीचे विफलता-सीमा: पहले दृश्य delta से पहले next() फ़ॉलबैक, IMAGE_OFFLOAD_REQUIRED फिर से थ्रो">
 </picture>
 
 # dsh-local-ai
@@ -37,6 +37,11 @@ dsh plugin --profile <name> add dsh-local-ai
 ## यह क्या है
 
 `dsh-local-ai` Ollama को DeepSeek Harness के भीतर प्रथम-श्रेणी का स्थानीय प्रदाता बनाता है: यह `ollama` प्रदाता रूट पंजीकृत करता है, अनुरोधों को कार्य-प्रकार या कीवर्ड के अनुसार स्थानीय मॉडलों पर भेजता है, और स्थानीय रूट के सामग्री उत्पन्न करने से पहले विफल होने पर अपने आप बादल पर लौट आता है। पाँच टूल मॉडलों की खोज, खींचना, हटाना, निरीक्षण और हेल्थ कवर करते हैं, और `/ollama` एक स्क्रीन में स्थिति का सार देता है। सब कुछ Ollama के HTTP API से बात करता है (CLI केवल प्रोसेस जाँच के लिए है); कोई मॉडल फ़ाइल बंडल नहीं होती और मॉडल को दिखने वाला कोई नया इनपुट नहीं गढ़ा जाता।
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-local-ai-flow-v5-light.svg" width="100%" alt="dsh-local-ai संरचना: llm/stream वॉटरफ़ॉल provider, purpose और संदेश पाठ पढ़ता है; route[] पहले मिलान पर ollama या openai:&lt;name&gt; लेन में शाखित होता है; दोनों लेन एक StreamChunk में मिलती हैं; पहले दृश्य delta से पहले की विफलता routeLocal गार्ड से cloud लौटती है; पाँच टूल और /ollama अलग प्रबंधन चैनल पर चलते हैं">
+</picture>
 
 ## तीन चरणों में शुरुआत
 

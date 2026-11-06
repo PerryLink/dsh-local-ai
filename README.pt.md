@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-flow-dark.svg">
-  <img src="docs/assets/dsh-local-ai-flow-light.svg" width="100%" alt="Fluxo de roteamento do dsh-local-ai: request → llm/stream → route → ollama / openai:&lt;name&gt; → cloud (fallback com next()); as ferramentas usam /api/tags, /api/ps, /api/show, /api/pull e /api/delete, e a verificação de saúde usa /api/version e ollama list">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-hero-en-dark.webp">
+  <img src="docs/assets/dsh-local-ai-hero-en-light.webp" width="100%" alt="dsh-local-ai: o nome e as frases de valor à esquerda; à direita um painel de provedores — ollama via /api/chat NDJSON, openai:&lt;name&gt; via /v1/chat/completions SSE e cloud como trilho de fallback tracejado — com o limite de falhas abaixo: next() antes do primeiro delta visível, IMAGE_OFFLOAD_REQUIRED relançado">
 </picture>
 
 # dsh-local-ai
@@ -37,6 +37,11 @@ dsh plugin --profile <name> add dsh-local-ai
 ## O que é
 
 `dsh-local-ai` transforma o Ollama em um provedor local de primeira classe dentro do DeepSeek Harness: registra a rota do provedor `ollama`, roteia requisições para modelos locais por tipo de tarefa ou palavra-chave e volta para a nuvem automaticamente quando uma rota local falha antes de produzir conteúdo. Cinco ferramentas cobrem descoberta, download, remoção, inspeção e saúde dos modelos, e `/ollama` entrega um resumo de status em uma tela. Tudo fala com a API HTTP do Ollama (a CLI só é usada para sondar o processo); nenhum arquivo de modelo é empacotado e nenhuma entrada nova visível ao modelo é inventada.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-local-ai-flow-v5-light.svg" width="100%" alt="dsh-local-ai estrutura: a cascata llm/stream lê provider, purpose e o texto das mensagens; route[] bifurca no primeiro acerto para a via ollama ou openai:&lt;name&gt;; as duas vias convergem em um único StreamChunk; uma falha antes do primeiro delta visível volta para cloud pelo guarda routeLocal; as cinco ferramentas e /ollama seguem por um canal de gestão separado">
+</picture>
 
 ## Instalação em três passos
 

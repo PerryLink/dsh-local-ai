@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-flow-dark.svg">
-  <img src="docs/assets/dsh-local-ai-flow-light.svg" width="100%" alt="Flujo de enrutado de dsh-local-ai: request → llm/stream → route → ollama / openai:&lt;name&gt; → cloud (respaldo con next()); las herramientas usan /api/tags, /api/ps, /api/show, /api/pull y /api/delete, y la comprobación de salud usa /api/version y ollama list">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-hero-en-dark.webp">
+  <img src="docs/assets/dsh-local-ai-hero-en-light.webp" width="100%" alt="dsh-local-ai: el nombre y las frases de valor a la izquierda; a la derecha un panel de proveedores — ollama por /api/chat NDJSON, openai:&lt;name&gt; por /v1/chat/completions SSE y cloud como raíl de respaldo discontinuo — con el límite de fallos debajo: next() antes del primer delta visible, IMAGE_OFFLOAD_REQUIRED relanzado">
 </picture>
 
 # dsh-local-ai
@@ -37,6 +37,11 @@ dsh plugin --profile <name> add dsh-local-ai
 ## Qué es
 
 `dsh-local-ai` convierte Ollama en un proveedor local de primera clase dentro de DeepSeek Harness: registra la ruta del proveedor `ollama`, enruta las peticiones a modelos locales por tipo de tarea o palabra clave y vuelve a la nube automáticamente cuando una ruta local falla antes de producir contenido. Cinco herramientas cubren el descubrimiento, la descarga, la eliminación, la inspección y la salud de los modelos, y `/ollama` ofrece un resumen de estado en una pantalla. Todo habla con la API HTTP de Ollama (la CLI solo se usa para sondear el proceso); no se incluye ningún archivo de modelo y no se inventa ninguna entrada nueva visible para el modelo.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-local-ai-flow-v5-light.svg" width="100%" alt="dsh-local-ai estructura: la cascada llm/stream lee provider, purpose y el texto de los mensajes; route[] se bifurca en el primer acierto hacia la vía ollama u openai:&lt;name&gt;; ambas vías confluyen en un solo StreamChunk; un fallo antes del primer delta visible vuelve a cloud por el guardián routeLocal; las cinco herramientas y /ollama van por un canal de gestión aparte">
+</picture>
 
 ## Instalación en tres pasos
 

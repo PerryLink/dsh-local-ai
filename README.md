@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-flow-dark.svg">
-  <img src="docs/assets/dsh-local-ai-flow-light.svg" width="100%" alt="dsh-local-ai 路由流程：request → llm/stream → route → ollama / openai:&lt;name&gt; → cloud（next() 回退）；工具走 /api/tags、/api/ps、/api/show、/api/pull、/api/delete，健康检查走 /api/version 与 ollama list">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-hero-zh-dark.webp">
+  <img src="docs/assets/dsh-local-ai-hero-zh-light.webp" width="100%" alt="dsh-local-ai 配图：左列是插件名与两行价值句；右侧是 provider 补丁面板，三条轨是 ollama（/api/chat NDJSON）、openai:&lt;name&gt;（/v1/chat/completions SSE）与虚线的 cloud 兜底轨，下方是失败边界：首个可见 delta 前回退 next()，IMAGE_OFFLOAD_REQUIRED 抛回">
 </picture>
 
 # dsh-local-ai
@@ -37,6 +37,11 @@ dsh plugin --profile <name> add dsh-local-ai
 ## 它是什么
 
 `dsh-local-ai` 把 Ollama 变成 DeepSeek Harness 的一等本地模型提供方：注册 `ollama` provider 路由，按任务类型或关键词把请求分流到本地模型，并在本地路由产出内容前失败时自动回退云端。五个工具负责模型的发现、拉取、删除、查看与健康检查，`/ollama` 给出一屏状态总览。全部走 Ollama 的 HTTP API（CLI 只用于进程探测），不捆绑任何模型文件，也不新增模型可见输入。
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-local-ai-flow-v5-light.svg" width="100%" alt="dsh-local-ai 结构图：llm/stream 瀑布读出 provider、purpose 与消息文本，route[] 首个命中后分叉到 ollama 或 openai:&lt;name&gt; 两条适配器通道，汇入同一个 StreamChunk；首个可见 delta 之前的失败经 routeLocal 守卫回到 cloud；五个工具与 /ollama 另走管理通道">
+</picture>
 
 ## 三步上手
 
