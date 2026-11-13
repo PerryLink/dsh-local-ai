@@ -57,6 +57,33 @@ describe('serializeMessages (OpenAI-compatible)', () => {
     ])
   })
 
+  it('never replays a malformed tool-call argument string verbatim', () => {
+    // A generation that stopped mid-JSON used to be replayed byte-for-byte, so
+    // every later request carried invalid arguments and the backend answered
+    // with a permanent 400. The recorded call must degrade, not brick the log.
+    const truncated = '{"code": "print(1)", "description": "Add the release procedure'
+    const assistant = createAssistantMessage({
+      content: [{ type: 'tool-call', id: CallId('c1'), name: 'write', arguments: truncated }],
+      source: { provider: 'deepseek', model: 'm' },
+    })
+
+    const wire = serializeMessages([assistant])
+    const argumentsText = wire[0]!.tool_calls![0]!.function.arguments
+
+    expect(() => JSON.parse(argumentsText)).not.toThrow()
+    expect(JSON.parse(argumentsText)).toEqual({ value: truncated })
+  })
+
+  it('keeps a well-formed tool-call argument object intact', () => {
+    const assistant = createAssistantMessage({
+      content: [{ type: 'tool-call', id: CallId('c1'), name: 'read', arguments: '{ "path" : "/x" }' }],
+      source: { provider: 'deepseek', model: 'm' },
+    })
+
+    const wire = serializeMessages([assistant])
+    expect(JSON.parse(wire[0]!.tool_calls![0]!.function.arguments)).toEqual({ path: '/x' })
+  })
+
   it('uses null assistant content when the message carries only tool calls', () => {
     const assistant = createAssistantMessage({
       content: [{ type: 'tool-call', id: CallId('c1'), name: 'run', arguments: '{}' }],

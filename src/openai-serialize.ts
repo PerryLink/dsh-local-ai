@@ -19,6 +19,7 @@ import type { ContentBlock, GenerateOptions, RequestMessage, ToolSchema } from '
 import type { ResolvedOpenAIBackend } from './config.ts'
 import { readRetiredToolResult } from './legacy-blocks.ts'
 import type { RetiredToolResultBlock } from './legacy-blocks.ts'
+import { parseToolArguments } from './serialize.ts'
 
 /** One OpenAI chat message on the wire. */
 export interface OpenAIWireMessage {
@@ -60,6 +61,21 @@ function assertImagesSupported(message: RequestMessage): void {
   }
 }
 
+/**
+ * Put a tool-call argument string back on the wire as a JSON object string.
+ * The harness stores whatever the model emitted; a truncated or otherwise
+ * unparseable value used to be replayed verbatim, and vLLM decodes historical
+ * arguments too, so one bad generation made every later request fail with a
+ * permanent 400. Degrade a malformed value to `{ value: <raw> }` (the same
+ * policy the Ollama wire uses in `parseToolArguments`) instead of bricking the
+ * session.
+ * @param raw - the argument string recorded on the tool-call block.
+ * @returns a string that is always valid JSON enclosing an object.
+ */
+function wireArguments(raw: string): string {
+  return JSON.stringify(parseToolArguments(raw))
+}
+
 /** Serialize one assistant message (text + tool calls). */
 function serializeAssistant(message: RequestMessage): OpenAIWireMessage {
   const text = flattenText(message.content)
@@ -68,7 +84,7 @@ function serializeAssistant(message: RequestMessage): OpenAIWireMessage {
     .map(block => ({
       id: String(block.id),
       type: 'function' as const,
-      function: { name: block.name, arguments: block.arguments },
+      function: { name: block.name, arguments: wireArguments(block.arguments) },
     }))
   return {
     role: 'assistant',

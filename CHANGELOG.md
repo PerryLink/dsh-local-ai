@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.26] - 2026-11-13
+
+### Fixed
+
+- **A malformed tool-call argument no longer bricks the session.** `serializeAssistant` replayed the recorded argument string verbatim. When one generation stopped mid-JSON (the vLLM `qwen3_xml` parser can emit that), every later request carried invalid arguments and the backend answered with a permanent `400`; the only way out was discarding the session. Historical arguments now go through the same `{ value: <raw> }` degradation the Ollama wire already used (`parseToolArguments`), so the log stays replayable. Fixes #28.
+
 ## [0.2.25] - 2026-11-05
 
 ### Changed
