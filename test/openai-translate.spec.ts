@@ -69,8 +69,8 @@ describe('translateOpenAIStream', () => {
     expect(chunks[chunks.length - 1]).toEqual({ type: 'finish', reason: { kind: 'tool-calls' } })
   })
 
-  it('throws a PROVIDER error on an error chunk', async () => {
-    await expect(collect([JSON.stringify({ error: { message: 'boom' } }), '[DONE]'])).rejects.toMatchObject({ code: 'PROVIDER' })
+  it('throws a SERVER error on an error chunk', async () => {
+    await expect(collect([JSON.stringify({ error: { message: 'boom' } }), '[DONE]'])).rejects.toMatchObject({ code: 'SERVER' })
   })
 
   it('throws MALFORMED_RESPONSE on a non-JSON payload', async () => {

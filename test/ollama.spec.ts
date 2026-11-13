@@ -66,9 +66,9 @@ describe('management operations', () => {
 })
 
 describe('failure normalization', () => {
-  it('maps a 404 with a provider error body to NOT_FOUND', async () => {
+  it('maps a 404 with a provider error body to HTTP_404', async () => {
     const { fetch } = fetchMock(() => new Response(JSON.stringify({ error: "model 'x' not found" }), { status: 404 }))
-    await expect(listModels(BASE, fetch)).rejects.toMatchObject({ code: 'NOT_FOUND', failure: { status: 404 } })
+    await expect(listModels(BASE, fetch)).rejects.toMatchObject({ code: 'HTTP_404', failure: { status: 404 } })
   })
 
   it('sanitizes the endpoint in a status-only error message', async () => {

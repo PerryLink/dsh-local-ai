@@ -9,6 +9,7 @@
  */
 
 import { attributionHeaders, LlmError } from '@deepseek-ai/dsh-llm'
+import type { BuiltinLlmFailureCode } from '@deepseek-ai/dsh-llm'
 import { sanitizeEndpoint } from './sanitize.ts'
 
 /** A `fetch`-compatible function, injectable for tests. */
@@ -66,8 +67,7 @@ export function endpointUrl(baseURL: string, path: string): string {
 }
 
 /** Map an HTTP status to a stable LlmError code. */
-export function httpErrorCode(status: number): string {
-  if (status === 404) return 'NOT_FOUND'
+export function httpErrorCode(status: number): BuiltinLlmFailureCode {
   if (status === 400) return 'INVALID_REQUEST'
   if (status >= 500) return 'SERVER'
   return `HTTP_${status}`
@@ -225,7 +225,7 @@ export async function pullModel(
     if (line.length === 0) continue
     const chunk = JSON.parse(line) as { status?: string; error?: string }
     if (typeof chunk.error === 'string' && chunk.error.length > 0) {
-      throw new LlmError(chunk.error, 'PROVIDER')
+      throw new LlmError(chunk.error, 'SERVER')
     }
     if (typeof chunk.status === 'string') last = { status: chunk.status }
   }

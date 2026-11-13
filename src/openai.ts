@@ -11,6 +11,7 @@
  */
 
 import { attributionHeaders, LlmError } from '@deepseek-ai/dsh-llm'
+import type { BuiltinLlmFailureCode } from '@deepseek-ai/dsh-llm'
 import { sanitizeEndpoint } from './sanitize.ts'
 import type { FetchLike } from './ollama.ts'
 
@@ -44,11 +45,10 @@ async function throwHttpError(response: Response, baseURL: string): Promise<neve
   } catch {
     // Only swallow error-body parsing: the HTTP status still identifies the failure.
   }
-  const code = response.status === 404 ? 'NOT_FOUND'
-    : response.status === 400 ? 'INVALID_REQUEST'
-      : response.status === 401 || response.status === 403 ? `HTTP_${response.status}`
-        : response.status >= 500 ? 'SERVER'
-          : `HTTP_${response.status}`
+  const code: BuiltinLlmFailureCode = response.status === 400 ? 'INVALID_REQUEST'
+    : response.status === 401 || response.status === 403 ? `HTTP_${response.status}`
+      : response.status >= 500 ? 'SERVER'
+        : `HTTP_${response.status}`
   throw new LlmError(message, code, { status: response.status })
 }
 

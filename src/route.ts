@@ -157,7 +157,7 @@ export async function* routeLocal(
           // caller can offload and retry locally instead of leaking the
           // request to the cloud.
           if (isImageOffloadRequired(chunk.reason.failure)) {
-            throw new LlmError(chunk.reason.failure.message, chunk.reason.failure.code)
+            throw LlmError.fromFailure(chunk.reason.failure)
           }
           // Local failed before producing content — fall back to the cloud.
           yield* next()

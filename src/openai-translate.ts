@@ -126,7 +126,7 @@ export async function* translateOpenAIStream(lines: AsyncIterable<string>): Asyn
 
     const errorMessage = chunk.error?.message
     if (typeof errorMessage === 'string' && errorMessage.length > 0) {
-      throw new LlmError(errorMessage, 'PROVIDER')
+      throw new LlmError(errorMessage, 'SERVER')
     }
 
     for (const choice of chunk.choices ?? []) {

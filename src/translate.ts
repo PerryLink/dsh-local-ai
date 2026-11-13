@@ -164,7 +164,7 @@ export async function* translate(lines: AsyncIterable<string>): AsyncGenerator<S
     }
 
     if (typeof chunk.error === 'string' && chunk.error.length > 0) {
-      throw new LlmError(chunk.error, 'PROVIDER')
+      throw new LlmError(chunk.error, 'SERVER')
     }
 
     const message = chunk.message
