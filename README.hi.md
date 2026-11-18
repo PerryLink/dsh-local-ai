@@ -1,5 +1,7 @@
 <div align="center">
 
+> npm package: dsh-local-ai@0.2.28 (released 2026-11-18).
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-hero-en-dark.webp">
   <img src="docs/assets/dsh-local-ai-hero-en-light.webp" width="100%" alt="dsh-local-ai: बाईं ओर नाम और मूल्य-पंक्तियाँ; दाईं ओर प्रोवाइडर पैच पैनल — ollama /api/chat NDJSON से, openai:&lt;name&gt; /v1/chat/completions SSE से, और cloud बिंदुदार फ़ॉलबैक रेल — नीचे विफलता-सीमा: पहले दृश्य delta से पहले next() फ़ॉलबैक, IMAGE_OFFLOAD_REQUIRED फिर से थ्रो">

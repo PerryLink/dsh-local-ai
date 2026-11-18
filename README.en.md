@@ -1,5 +1,7 @@
 <div align="center">
 
+> npm package: dsh-local-ai@0.2.28 (released 2026-11-18).
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-hero-en-dark.webp">
   <img src="docs/assets/dsh-local-ai-hero-en-light.webp" width="100%" alt="dsh-local-ai: plugin name and value lines at left; at right a provider patch panel — ollama over /api/chat NDJSON, openai:&lt;name&gt; over /v1/chat/completions SSE, cloud as the dashed fallback rail — with the failure boundary below: next() fallback before the first visible delta, IMAGE_OFFLOAD_REQUIRED rethrown">

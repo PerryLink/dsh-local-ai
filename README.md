@@ -1,5 +1,7 @@
 <div align="center">
 
+> npm package: dsh-local-ai@0.2.28 (released 2026-11-18).
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-hero-zh-dark.webp">
   <img src="docs/assets/dsh-local-ai-hero-zh-light.webp" width="100%" alt="dsh-local-ai 配图：左列是插件名与两行价值句；右侧是 provider 补丁面板，三条轨是 ollama（/api/chat NDJSON）、openai:&lt;name&gt;（/v1/chat/completions SSE）与虚线的 cloud 兜底轨，下方是失败边界：首个可见 delta 前回退 next()，IMAGE_OFFLOAD_REQUIRED 抛回">
