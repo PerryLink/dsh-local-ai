@@ -319,7 +319,7 @@ Evidência estática: `dsh-plugin-doctor` K10–K13 reportam `pass` em todas as 
 
 | Superfície | Estado |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.2.1-alpha.1` (verificado em 2026-10-04: três réguas de typecheck (instalado, CI, checkout) + 142 testes + portões self-contained/artifacts; a união de blocos de conteúdo de `0.1.7` está adaptada — um resultado de ferramenta é uma mensagem de papel `tool` de primeira classe, e um invólucro `tool-result` anterior a `0.1.7` ainda é lido para logs antigos). O intervalo de peers admite todas as linhas suportadas: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0 \|\| >=0.2.0-0 <0.3.0 \|\| >=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0`; os pins de dev/test são `0.2.0-rc.2`. |
+| Harness | DeepSeek Harness `dsh-v0.2.2-rc.4` (verificado em 2026-11-18: três réguas de typecheck (instalado, CI, checkout) + 142 testes + portões self-contained/artifacts; a união de blocos de conteúdo de `0.1.7` está adaptada — um resultado de ferramenta é uma mensagem de papel `tool` de primeira classe, e um invólucro `tool-result` anterior a `0.1.7` ainda é lido para logs antigos). O intervalo de peers admite todas as linhas suportadas: `>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0 \|\| >=0.2.0-0 <0.3.0 \|\| >=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0`; os pins de dev/test são `0.2.0-rc.2`. |
 | Node | `^22.19.0 \|\| >=24.9.0` |
 | Backend | [Ollama](https://ollama.com) (API HTTP local + sonda CLI) |
 | Modelo | Rota somente texto (`inputModalities: ['text']`); chamadas de ferramenta e resultados de ferramenta são suportados |

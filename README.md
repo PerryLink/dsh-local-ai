@@ -319,7 +319,7 @@ profile patch 覆盖示例：
 
 | 项目 | 状态 |
 |---|---|
-| Harness | DeepSeek Harness `dsh-v0.2.1-alpha.1`（2026-10-04 核验：三把 typecheck 尺子（已装包、CI、checkout）+ 142 项测试 + self-contained/artifacts 门；已适配 `0.1.7` 的内容块联合 —— 工具结果现为一等 `tool` 角色消息，旧日志里的 `tool-result` 包裹块仍可读取）。peer 范围接纳全部受支持线：`>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0 \|\| >=0.2.0-0 <0.3.0 \|\| >=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0`；dev/test 钉号 `0.2.0-rc.2`。 |
+| Harness | DeepSeek Harness `dsh-v0.2.2-rc.4`（2026-11-18 核验：三把 typecheck 尺子（已装包、CI、checkout）+ 142 项测试 + self-contained/artifacts 门；已适配 `0.1.7` 的内容块联合 —— 工具结果现为一等 `tool` 角色消息，旧日志里的 `tool-result` 包裹块仍可读取）。peer 范围接纳全部受支持线：`>=0.1.2-rc.1 <0.2.0 \|\| >=0.1.5-alpha.1 <0.2.0 \|\| >=0.1.6-0 <0.2.0 \|\| >=0.1.7-0 <0.2.0 \|\| >=0.2.0-0 <0.3.0 \|\| >=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0`；dev/test 钉号 `0.2.0-rc.2`。 |
 | Node | `^22.19.0 \|\| >=24.9.0` |
 | 后端 | [Ollama](https://ollama.com)（本地 HTTP API + CLI 探测） |
 | 模型 | 纯文本路由（`inputModalities: ['text']`）；支持工具调用与工具结果 |
