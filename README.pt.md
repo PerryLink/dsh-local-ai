@@ -36,7 +36,7 @@ dsh plugin --profile <name> add dsh-local-ai
 
 ## O que é
 
-`dsh-local-ai` transforma o Ollama em um provedor local de primeira classe dentro do DeepSeek Harness: registra a rota do provedor `ollama`, roteia requisições para modelos locais por tipo de tarefa ou palavra-chave e volta para a nuvem automaticamente quando uma rota local falha antes de produzir conteúdo. Cinco ferramentas cobrem descoberta, download, remoção, inspeção e saúde dos modelos, e `/ollama` entrega um resumo de status em uma tela. Tudo fala com a API HTTP do Ollama (a CLI só é usada para sondar o processo); nenhum arquivo de modelo é empacotado e nenhuma entrada nova visível ao modelo é inventada.
+`dsh-v0.2.2-rc.4`（2026-11-18）；`dsh-local-ai` transforma o Ollama em um provedor local de primeira classe dentro do DeepSeek Harness: registra a rota do provedor `ollama`, roteia requisições para modelos locais por tipo de tarefa ou palavra-chave e volta para a nuvem automaticamente quando uma rota local falha antes de produzir conteúdo. Cinco ferramentas cobrem descoberta, download, remoção, inspeção e saúde dos modelos, e `/ollama` entrega um resumo de status em uma tela. Tudo fala com a API HTTP do Ollama (a CLI só é usada para sondar o processo); nenhum arquivo de modelo é empacotado e nenhuma entrada nova visível ao modelo é inventada.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-flow-v5-dark.svg">
@@ -91,7 +91,7 @@ Todos os plugins PerryLink podem ser explorados no mercado embutido do DSH Deskt
 
 ## Capacidades principais
 
-`dsh-local-ai` transforma o Ollama em um provedor local de primeira classe no DeepSeek Harness:
+`dsh-v0.2.2-rc.4`（2026-11-18）；`dsh-local-ai` transforma o Ollama em um provedor local de primeira classe no DeepSeek Harness:
 
 - **Descoberta e gerenciamento** — `ollama_list` (modelos instalados, modelos em execução, uso de disco), `ollama_show` (tamanho dos parâmetros, quantização, comprimento de contexto), `ollama_pull` e `ollama_remove`.
 - **Verificação de saúde** — vitalidade do processo (via CLI `ollama`) e resposta da API (via `/api/version`), relatadas como dois sinais independentes.
@@ -182,7 +182,7 @@ Chaves mais usadas:
 | `defaultContextWindow` | `8192` | Capacidade de contexto quando um modelo não tem valor exato |
 | `maxTokens` | `4096` | Limite de saída por requisição quando um modelo não tem valor exato |
 | `vision` | `true` | Declara e serializa suporte a imagem quando o modelo reporta vision; `false` mantém a rota somente texto |
-| `models` | `[]` | Mapeamentos nome visível no Harness → modelo do Ollama |
+| `dsh-v0.2.2-rc.4`（2026-11-18）；`models` | `[]` | Mapeamentos nome visível no Harness → modelo do Ollama |
 | `backends` | `[]` | Backends locais compatíveis com OpenAI (LM Studio / vLLM / llama.cpp) |
 | `route` | `[]` | Regras de roteamento para modelos locais (a primeira correspondência vence) |
 
@@ -199,8 +199,8 @@ Chaves mais usadas:
 | `temperature` | *(none)* | Temperatura de amostragem padrão (0..2); omitida usa a do provedor |
 | `vision` | `true` | Declara e serializa suporte a imagem quando o modelo reporta vision; `false` mantém a rota somente texto |
 | `visionCacheTtlMs` | `30000` | Milissegundos que uma sonda de capacidades `/api/show` fica em cache (`0` desativa o cache; um pull ou remove invalida aquele modelo) |
-| `models` | `[]` | Mapeamentos nome visível no Harness → modelo do Ollama |
-| `models[].name` | *(required)* | Nome de modelo visível no Harness (`GenerateOptions.model`) |
+| `dsh-v0.2.2-rc.4`（2026-11-18）；`models` | `[]` | Mapeamentos nome visível no Harness → modelo do Ollama |
+| `dsh-v0.2.2-rc.4`（2026-11-18）；`models[].name` | *(required)* | Nome de modelo visível no Harness (`GenerateOptions.model`) |
 | `models[].model` | `= name` | Id do modelo no Ollama |
 | `models[].contextWindow` | *(none)* | Capacidade de contexto daquele modelo |
 | `models[].maxTokens` | *(none)* | Limite de saída daquele modelo |

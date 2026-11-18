@@ -36,7 +36,7 @@ dsh plugin --profile <name> add dsh-local-ai
 
 ## What it is
 
-`dsh-local-ai` makes Ollama a first-class local provider inside DeepSeek Harness: it registers the `ollama` provider route, routes requests to local models by task type or keyword, and falls back to the cloud automatically when a local route fails before producing content. Five tools cover model discovery, pulling, removal, inspection, and health; `/ollama` gives a one-screen status overview. Everything talks to Ollama's HTTP API (the CLI is used only for the process probe); no model files are bundled and no new model-visible input is invented.
+`dsh-v0.2.2-rc.4`（2026-11-18）；`dsh-local-ai` makes Ollama a first-class local provider inside DeepSeek Harness: it registers the `ollama` provider route, routes requests to local models by task type or keyword, and falls back to the cloud automatically when a local route fails before producing content. Five tools cover model discovery, pulling, removal, inspection, and health; `/ollama` gives a one-screen status overview. Everything talks to Ollama's HTTP API (the CLI is used only for the process probe); no model files are bundled and no new model-visible input is invented.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-flow-v5-dark.svg">
@@ -91,7 +91,7 @@ Every PerryLink plugin is listed in the built-in DSH Desktop market: **Market �
 
 ## Core capabilities
 
-`dsh-local-ai` makes Ollama a first-class local provider in DeepSeek Harness:
+`dsh-v0.2.2-rc.4`（2026-11-18）；`dsh-local-ai` makes Ollama a first-class local provider in DeepSeek Harness:
 
 - **Discovery & management** — `ollama_list` (installed models, running models, disk usage), `ollama_show` (parameter size, quantization, context length), `ollama_pull`, and `ollama_remove`.
 - **Health check** — process liveness (via the `ollama` CLI) and API responsiveness (via `/api/version`), reported as two independent signals.
@@ -182,7 +182,7 @@ Most-used keys:
 | `defaultContextWindow` | `8192` | Context capacity used when a model has no exact value |
 | `maxTokens` | `4096` | Per-request output cap used when a model has no exact value |
 | `vision` | `true` | Declare and serialize image support when the model reports vision; `false` keeps the route text-only |
-| `models` | `[]` | Harness-visible → Ollama model mappings |
+| `dsh-v0.2.2-rc.4`（2026-11-18）；`models` | `[]` | Harness-visible → Ollama model mappings |
 | `backends` | `[]` | OpenAI-compatible local backends (LM Studio / vLLM / llama.cpp) |
 | `route` | `[]` | Local-model routing rules (first match wins) |
 
@@ -199,8 +199,8 @@ Most-used keys:
 | `temperature` | *(none)* | Default sampling temperature (0..2); omitted leaves the provider default |
 | `vision` | `true` | Declare and serialize image support when the model reports vision; `false` keeps the route text-only |
 | `visionCacheTtlMs` | `30000` | Milliseconds a `/api/show` capability probe stays cached (`0` disables caching; a pull or remove invalidates that model) |
-| `models` | `[]` | Harness-visible → Ollama model mappings |
-| `models[].name` | *(required)* | Harness-visible model name (`GenerateOptions.model`) |
+| `dsh-v0.2.2-rc.4`（2026-11-18）；`models` | `[]` | Harness-visible → Ollama model mappings |
+| `dsh-v0.2.2-rc.4`（2026-11-18）；`models[].name` | *(required)* | Harness-visible model name (`GenerateOptions.model`) |
 | `models[].model` | `= name` | Ollama model id |
 | `models[].contextWindow` | *(none)* | Per-model context capacity |
 | `models[].maxTokens` | *(none)* | Per-model output cap |
@@ -209,7 +209,7 @@ Most-used keys:
 | `backends[].name` | *(required)* | Backend name; registers provider id `openai:<name>` |
 | `backends[].baseURL` | *(required)* | Backend base URL including `/v1`, e.g. `http://127.0.0.1:1234/v1` |
 | `backends[].apiKey` | *(none)* | Optional bearer API key (most local servers leave it empty) |
-| `backends[].models` | `[]` | Harness-visible → backend model mappings |
+| `dsh-v0.2.2-rc.4`（2026-11-18）；`backends[].models` | `[]` | Harness-visible → backend model mappings |
 | `backends[].maxTokens` | `4096` | Per-backend output cap used when a model has no exact value |
 | `backends[].temperature` | *(none)* | Per-backend sampling temperature |
 | `route` | `[]` | Local-model routing rules (first match wins) |

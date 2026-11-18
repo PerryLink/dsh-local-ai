@@ -45,6 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.28] - 2026-11-18
+
 ### Fixed
 
 - **The declared host corridor was narrower than the ecosystem's, and the

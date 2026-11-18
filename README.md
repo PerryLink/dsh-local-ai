@@ -36,7 +36,7 @@ dsh plugin --profile <name> add dsh-local-ai
 
 ## 它是什么
 
-`dsh-local-ai` 把 Ollama 变成 DeepSeek Harness 的一等本地模型提供方：注册 `ollama` provider 路由，按任务类型或关键词把请求分流到本地模型，并在本地路由产出内容前失败时自动回退云端。五个工具负责模型的发现、拉取、删除、查看与健康检查，`/ollama` 给出一屏状态总览。全部走 Ollama 的 HTTP API（CLI 只用于进程探测），不捆绑任何模型文件，也不新增模型可见输入。
+`dsh-v0.2.2-rc.4`（2026-11-18）；`dsh-local-ai` 把 Ollama 变成 DeepSeek Harness 的一等本地模型提供方：注册 `ollama` provider 路由，按任务类型或关键词把请求分流到本地模型，并在本地路由产出内容前失败时自动回退云端。五个工具负责模型的发现、拉取、删除、查看与健康检查，`/ollama` 给出一屏状态总览。全部走 Ollama 的 HTTP API（CLI 只用于进程探测），不捆绑任何模型文件，也不新增模型可见输入。
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-flow-v5-dark.svg">
@@ -91,7 +91,7 @@ dsh plugin --profile <name> add dsh-local-ai
 
 ## 核心能力
 
-`dsh-local-ai` 让 Ollama 成为 DeepSeek Harness 的一等本地模型提供方：
+`dsh-v0.2.2-rc.4`（2026-11-18）；`dsh-local-ai` 让 Ollama 成为 DeepSeek Harness 的一等本地模型提供方：
 
 - **发现与管理** —— `ollama_list`（已安装模型、运行中模型、磁盘占用）、`ollama_show`（参数尺寸、量化、上下文长度）、`ollama_pull`、`ollama_remove`。
 - **健康检查** —— 进程存活（经 `ollama` CLI）与 API 响应（经 `/api/version`），作为两个独立信号报告。
@@ -182,7 +182,7 @@ health ──▶ /api/version（API）+ ollama list（进程）
 | `defaultContextWindow` | `8192` | 模型无精确值时的上下文容量 |
 | `maxTokens` | `4096` | 模型无精确值时的单请求输出上限 |
 | `vision` | `true` | 模型报告 vision 能力时声明并序列化图片支持；`false` 保持纯文本路由 |
-| `models` | `[]` | Harness 可见名 → Ollama 模型映射 |
+| `dsh-v0.2.2-rc.4`（2026-11-18）；`models` | `[]` | Harness 可见名 → Ollama 模型映射 |
 | `backends` | `[]` | OpenAI 兼容的本地后端（LM Studio / vLLM / llama.cpp） |
 | `route` | `[]` | 本地模型路由规则（首个命中生效） |
 
@@ -199,8 +199,8 @@ health ──▶ /api/version（API）+ ollama list（进程）
 | `temperature` | *(none)* | 默认采样温度（0..2）；省略则用提供方默认值 |
 | `vision` | `true` | 模型报告 vision 能力时声明并序列化图片支持；`false` 保持纯文本路由 |
 | `visionCacheTtlMs` | `30000` | `/api/show` 能力探测的缓存毫秒数（`0` 关闭缓存；pull/remove 会使该模型失效） |
-| `models` | `[]` | Harness 可见名 → Ollama 模型映射 |
-| `models[].name` | *(required)* | Harness 可见模型名（`GenerateOptions.model`） |
+| `dsh-v0.2.2-rc.4`（2026-11-18）；`models` | `[]` | Harness 可见名 → Ollama 模型映射 |
+| `dsh-v0.2.2-rc.4`（2026-11-18）；`models[].name` | *(required)* | Harness 可见模型名（`GenerateOptions.model`） |
 | `models[].model` | `= name` | Ollama 模型 id |
 | `models[].contextWindow` | *(none)* | 该模型的上下文容量 |
 | `models[].maxTokens` | *(none)* | 该模型的输出上限 |
@@ -209,7 +209,7 @@ health ──▶ /api/version（API）+ ollama list（进程）
 | `backends[].name` | *(required)* | 后端名；注册为 provider id `openai:<name>` |
 | `backends[].baseURL` | *(required)* | 后端 base URL（含 `/v1`），如 `http://127.0.0.1:1234/v1` |
 | `backends[].apiKey` | *(none)* | 可选 bearer API key（多数本地服务器留空） |
-| `backends[].models` | `[]` | Harness 可见名 → 后端模型映射 |
+| `dsh-v0.2.2-rc.4`（2026-11-18）；`backends[].models` | `[]` | Harness 可见名 → 后端模型映射 |
 | `backends[].maxTokens` | `4096` | 该后端无精确值时的输出上限 |
 | `backends[].temperature` | *(none)* | 该后端的采样温度 |
 | `route` | `[]` | 本地模型路由规则（首个命中生效） |
