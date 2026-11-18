@@ -211,7 +211,7 @@ Chaves mais usadas:
 | `backends[].name` | *(required)* | Nome do backend; registra o id de provedor `openai:<name>` |
 | `backends[].baseURL` | *(required)* | URL base do backend incluindo `/v1`, ex. `http://127.0.0.1:1234/v1` |
 | `backends[].apiKey` | *(none)* | API key bearer opcional (a maioria dos servidores locais deixa vazia) |
-| `backends[].models` | `[]` | Mapeamentos nome visível → modelo do backend |
+| `dsh-v0.2.2-rc.4`（2026-11-18）；`backends[].models` | `[]` | Mapeamentos nome visível → modelo do backend |
 | `backends[].maxTokens` | `4096` | Limite de saída daquele backend quando não há valor exato |
 | `backends[].temperature` | *(none)* | Temperatura de amostragem daquele backend |
 | `route` | `[]` | Regras de roteamento para modelos locais (a primeira correspondência vence) |
