@@ -76,4 +76,23 @@ describe('translateOpenAIStream', () => {
   it('throws MALFORMED_RESPONSE on a non-JSON payload', async () => {
     await expect(collect(['not-json', '[DONE]'])).rejects.toMatchObject({ code: 'MALFORMED_RESPONSE' })
   })
+
+  it('accepts the vLLM-style `delta.reasoning` spelling (issue #31)', async () => {
+    const chunks = await collect([
+      JSON.stringify({ choices: [{ delta: { reasoning: 'We' }, finish_reason: null }] }),
+      JSON.stringify({ choices: [{ delta: { reasoning: ' need to' }, finish_reason: null }] }),
+      JSON.stringify({ choices: [{ delta: { content: 'ok' }, finish_reason: null }] }),
+      JSON.stringify({ choices: [{ delta: {}, finish_reason: 'stop' }] }),
+      '[DONE]',
+    ])
+    const reasoningText = chunks
+      .filter((chunk): chunk is Extract<StreamChunk, { type: 'reasoning-delta' }> => chunk.type === 'reasoning-delta')
+      .map(chunk => chunk.text)
+      .join('')
+    expect(reasoningText).toBe('We need to')
+    const reasoningBlockEnd = chunks.find(chunk => chunk.type === 'block-end' && chunk.block.type === 'reasoning')
+    expect(reasoningBlockEnd).toBeDefined()
+    expect(chunks.some(chunk => chunk.type === 'text-delta' && chunk.text === 'ok')).toBe(true)
+  })
+
 })

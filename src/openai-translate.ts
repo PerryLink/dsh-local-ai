@@ -1,7 +1,7 @@
 /**
  * Translate OpenAI-compatible SSE chat chunks into the harness `StreamChunk`
  * protocol. Each `data:` payload carries `choices[].delta` (incremental
- * `content`, `reasoning_content`, and `tool_calls` whose `function.arguments`
+ * `content`, `reasoning_content` (or the vLLM-style `reasoning`), and `tool_calls` whose `function.arguments`
  * fragments append directly) plus an eventual `finish_reason` and `usage`.
  * The `[DONE]` sentinel closes the stream; `block-end`, `usage`, and `finish`
  * are deferred until the end, guaranteeing no chunk follows `finish`.
@@ -18,6 +18,8 @@ export interface OpenAISseChunk {
     delta?: {
       content?: string | null
       reasoning_content?: string | null
+      /** vLLM/Qwen-style spelling: some servers emit `delta.reasoning` instead. */
+      reasoning?: string | null
       tool_calls?: Array<{
         index?: number
         id?: string
@@ -132,7 +134,10 @@ export async function* translateOpenAIStream(lines: AsyncIterable<string>): Asyn
     for (const choice of chunk.choices ?? []) {
       const delta = choice.delta ?? {}
 
-      const reasoning = delta.reasoning_content
+      // vLLM's OpenAI-compatible server (e.g. --reasoning-parser qwen3) streams the
+      // chain of thought as `delta.reasoning`; DeepSeek uses `delta.reasoning_content`.
+      // Accept either spelling, preferring the DeepSeek field when both are present.
+      const reasoning = delta.reasoning_content ?? delta.reasoning
       if (typeof reasoning === 'string' && reasoning.length > 0) {
         if (!reasoningBlock) {
           reasoningBlock = open('reasoning')

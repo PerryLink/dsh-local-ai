@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.29] - 2026-11-20
+
+### Fixed
+
+- **A vLLM/Qwen thinking model's chain of thought was silently dropped when the server used the `delta.reasoning` spelling instead of `delta.reasoning_content` (#31).** The OpenAI-compatible adapter only read `delta.reasoning_content`, so `--reasoning-parser qwen3` streams (which use `delta.reasoning`) produced no `reasoning-delta` chunks; the tokens still arrived and counted towards the response, but nothing rendered and the reported time-to-first-token excluded them. Both spellings are now accepted (preferring `reasoning_content` when both appear), with a regression case covering a reasoning-only SSE stream.
+
 ## [0.2.26] - 2026-11-13
 
 ### Fixed
