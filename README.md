@@ -38,6 +38,10 @@ dsh plugin --profile <name> add dsh-local-ai
 
 ## 它是什么
 
+![dsh-local-ai 真实终端运行](docs/assets/dsh-local-ai-demo.gif)
+
+*本仓库一次真实运行的动图回放。*
+
 `dsh-v0.2.2-rc.4`（2026-11-18）；`dsh-local-ai` 把 Ollama 变成 DeepSeek Harness 的一等本地模型提供方：注册 `ollama` provider 路由，按任务类型或关键词把请求分流到本地模型，并在本地路由产出内容前失败时自动回退云端。五个工具负责模型的发现、拉取、删除、查看与健康检查，`/ollama` 给出一屏状态总览。全部走 Ollama 的 HTTP API（CLI 只用于进程探测），不捆绑任何模型文件，也不新增模型可见输入。
 
 <picture>

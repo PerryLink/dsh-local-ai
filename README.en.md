@@ -129,6 +129,10 @@ health ──▶ /api/version (API) + ollama list (process)
 
 ### Examples
 
+![dsh-local-ai: real terminal run](docs/assets/dsh-local-ai-demo.gif)
+
+*Animated replay of a real run recorded in this repository.*
+
 These are the plugin's real entry points; install once, then call one.
 
 **Detailed example** — tool `ollama_list`, input:

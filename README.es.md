@@ -45,6 +45,11 @@ dsh plugin --profile <name> add dsh-local-ai
   <img src="docs/assets/dsh-local-ai-flow-v5-light.svg" width="100%" alt="dsh-local-ai estructura: la cascada llm/stream lee provider, purpose y el texto de los mensajes; route[] se bifurca en el primer acierto hacia la vía ollama u openai:&lt;name&gt;; ambas vías confluyen en un solo StreamChunk; un fallo antes del primer delta visible vuelve a cloud por el guardián routeLocal; las cinco herramientas y /ollama van por un canal de gestión aparte">
 </picture>
 
+![dsh-local-ai: ejecución real de terminal](docs/assets/dsh-local-ai-demo.gif)
+
+*Repetición animada de una ejecución real registrada en este repositorio.*
+
+
 ## Instalación en tres pasos
 
 1. **Instala** (elige un canal):

@@ -45,6 +45,11 @@ dsh plugin --profile <name> add dsh-local-ai
   <img src="docs/assets/dsh-local-ai-flow-v5-light.svg" width="100%" alt="dsh-local-ai संरचना: llm/stream वॉटरफ़ॉल provider, purpose और संदेश पाठ पढ़ता है; route[] पहले मिलान पर ollama या openai:&lt;name&gt; लेन में शाखित होता है; दोनों लेन एक StreamChunk में मिलती हैं; पहले दृश्य delta से पहले की विफलता routeLocal गार्ड से cloud लौटती है; पाँच टूल और /ollama अलग प्रबंधन चैनल पर चलते हैं">
 </picture>
 
+![dsh-local-ai का असली टर्मिनल रन](docs/assets/dsh-local-ai-demo.gif)
+
+*इस रिपॉज़िटरी में दर्ज असली रन का एनिमेटेड रीप्ले।*
+
+
 ## तीन चरणों में शुरुआत
 
 1. **इंस्टॉल करें** (एक चैनल चुनें):
