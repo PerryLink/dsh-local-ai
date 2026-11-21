@@ -362,7 +362,7 @@ Topics: `dsh`, `dsh-plugin`, `deepseek-harness`, `deepseek`, `cordis`, `ollama`,
 
 ## Family & thanks
 
-This project is part of the DeepSeek Harness plugin family from [PerryLink](https://github.com/PerryLink) (95 plugins, all Apache-2.0). If it is useful, **a star helps the next person find it** — nothing is gated behind it.
+This project is part of the DeepSeek Harness plugin family from [PerryLink](https://github.com/PerryLink) (99 plugins, all Apache-2.0). If it is useful, **a star helps the next person find it** — nothing is gated behind it.
 
 - [@PerryLink](https://github.com/PerryLink) — creator and maintainer: adapter, routing, tools, health check, sanitization, and the five-language docs.
 - [@LABEST-IA](https://github.com/LABEST-IA) — tool-call CallId fix (PR #2), and the tool-call slot and vision-support reports (issues #1, #3, #5).

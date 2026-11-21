@@ -362,7 +362,7 @@ Topics：`dsh`, `dsh-plugin`, `deepseek-harness`, `deepseek`, `cordis`, `ollama`
 
 ## 家族与致谢
 
-本项目是 [PerryLink](https://github.com/PerryLink) 维护的 DeepSeek Harness 插件家族成员（95 个，全部 Apache-2.0）。如果这个插件帮到了你，**给个 star**——它不解锁任何功能，但会让下一个人更容易找到它。
+本项目是 [PerryLink](https://github.com/PerryLink) 维护的 DeepSeek Harness 插件家族成员（99 个，全部 Apache-2.0）。如果这个插件帮到了你，**给个 star**——它不解锁任何功能，但会让下一个人更容易找到它。
 
 - [@PerryLink](https://github.com/PerryLink) —— 创建者与维护者：适配器、路由、工具、健康检查、脱敏与五语文档。
 - [@LABEST-IA](https://github.com/LABEST-IA) —— 工具调用 CallId 修复（PR #2），以及工具调用槽位与视觉支持的报告（issue #1、#3、#5）。

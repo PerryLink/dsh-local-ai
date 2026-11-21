@@ -363,7 +363,7 @@ Topics: `dsh`, `dsh-plugin`, `deepseek-harness`, `deepseek`, `cordis`, `ollama`,
 
 ## परिवार और आभार
 
-यह परियोजना [PerryLink](https://github.com/PerryLink) के DeepSeek Harness प्लगइन परिवार का हिस्सा है (95 प्लगइन, सभी Apache-2.0)। अगर यह उपयोगी है, तो **एक स्टार अगले व्यक्ति को इसे खोजने में मदद करता है** — इसके पीछे कुछ भी बंद नहीं है।
+यह परियोजना [PerryLink](https://github.com/PerryLink) के DeepSeek Harness प्लगइन परिवार का हिस्सा है (99 प्लगइन, सभी Apache-2.0)। अगर यह उपयोगी है, तो **एक स्टार अगले व्यक्ति को इसे खोजने में मदद करता है** — इसके पीछे कुछ भी बंद नहीं है।
 
 - [@PerryLink](https://github.com/PerryLink) — निर्माता और अनुरक्षक: एडाप्टर, राउटिंग, टूल, हेल्थ चेक, सैनिटाइज़ेशन और पाँच-भाषा दस्तावेज़।
 - [@LABEST-IA](https://github.com/LABEST-IA) — टूल-कॉल CallId सुधार (PR #2), और टूल-कॉल slot व vision-सपोर्ट रिपोर्ट (issues #1, #3, #5)।
