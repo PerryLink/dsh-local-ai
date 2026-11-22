@@ -13,6 +13,8 @@
 
 Um plugin headless puramente host-side: descubra, baixe, remova e inspecione modelos locais, roteie por tipo de tarefa ou palavra-chave e obtenha um resumo de status com `/ollama`, tudo em um único bundle.
 
+Última verificação: DeepSeek Harness `dsh-v0.2.3-alpha.1` (2026-11-22).
+
 [Instalar](#instalação-em-três-passos) · [Configuração](#configuração) · [FAQ](#faq) · [简体中文](README.md) · [English](README.en.md) · [Español](README.es.md) · [Português](README.pt.md) · [हिन्दी](README.hi.md)
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-3366CC?style=flat-square&labelColor=2B3245)](LICENSE)
@@ -38,7 +40,7 @@ dsh plugin --profile <name> add dsh-local-ai
 
 ## O que é
 
-`dsh-v0.2.2-rc.4`（2026-11-18）；`dsh-local-ai` transforma o Ollama em um provedor local de primeira classe dentro do DeepSeek Harness: registra a rota do provedor `ollama`, roteia requisições para modelos locais por tipo de tarefa ou palavra-chave e volta para a nuvem automaticamente quando uma rota local falha antes de produzir conteúdo. Cinco ferramentas cobrem descoberta, download, remoção, inspeção e saúde dos modelos, e `/ollama` entrega um resumo de status em uma tela. Tudo fala com a API HTTP do Ollama (a CLI só é usada para sondar o processo); nenhum arquivo de modelo é empacotado e nenhuma entrada nova visível ao modelo é inventada.
+, `dsh-local-ai` transforma o Ollama em um provedor local de primeira classe dentro do DeepSeek Harness: registra a rota do provedor `ollama`, roteia requisições para modelos locais por tipo de tarefa ou palavra-chave e volta para a nuvem automaticamente quando uma rota local falha antes de produzir conteúdo. Cinco ferramentas cobrem descoberta, download, remoção, inspeção e saúde dos modelos, e `/ollama` entrega um resumo de status em uma tela. Tudo fala com a API HTTP do Ollama (a CLI só é usada para sondar o processo); nenhum arquivo de modelo é empacotado e nenhuma entrada nova visível ao modelo é inventada.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-flow-v5-dark.svg">
@@ -48,7 +50,6 @@ dsh plugin --profile <name> add dsh-local-ai
 ![dsh-local-ai: execução real de terminal](docs/assets/dsh-local-ai-demo.gif)
 
 *Repetição animada de uma execução real registrada neste repositório.*
-
 
 ## Instalação em três passos
 

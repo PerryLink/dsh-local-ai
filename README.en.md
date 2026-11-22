@@ -13,6 +13,8 @@
 
 A headless, pure-host plugin: discover, pull, remove, and inspect local models, route by task type or keyword, and get a one-shot status overview from `/ollama` — all in one bundle.
 
+Last verified on DeepSeek Harness `dsh-v0.2.3-alpha.1` (2026-11-22).
+
 [Install](#three-step-setup) · [Configuration](#configuration) · [FAQ](#faq) · [简体中文](README.md) · [English](README.en.md) · [Español](README.es.md) · [Português](README.pt.md) · [हिन्दी](README.hi.md)
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-3366CC?style=flat-square&labelColor=2B3245)](LICENSE)
@@ -38,7 +40,7 @@ dsh plugin --profile <name> add dsh-local-ai
 
 ## What it is
 
-`dsh-v0.2.2-rc.4`（2026-11-18）；`dsh-local-ai` makes Ollama a first-class local provider inside DeepSeek Harness: it registers the `ollama` provider route, routes requests to local models by task type or keyword, and falls back to the cloud automatically when a local route fails before producing content. Five tools cover model discovery, pulling, removal, inspection, and health; `/ollama` gives a one-screen status overview. Everything talks to Ollama's HTTP API (the CLI is used only for the process probe); no model files are bundled and no new model-visible input is invented.
+, `dsh-local-ai` makes Ollama a first-class local provider inside DeepSeek Harness: it registers the `ollama` provider route, routes requests to local models by task type or keyword, and falls back to the cloud automatically when a local route fails before producing content. Five tools cover model discovery, pulling, removal, inspection, and health; `/ollama` gives a one-screen status overview. Everything talks to Ollama's HTTP API (the CLI is used only for the process probe); no model files are bundled and no new model-visible input is invented.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-local-ai-flow-v5-dark.svg">
