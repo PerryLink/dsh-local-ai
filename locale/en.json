@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Local AI",
+    "description": "Hook Ollama into DeepSeek Harness so local models become a routable first-class provider — requests go local by rule and fall back to the cloud when they fail."
+  }
+}

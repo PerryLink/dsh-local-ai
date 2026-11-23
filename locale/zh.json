@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "本地模型",
+    "description": "把 Ollama 接进 DeepSeek Harness，让本地模型成为可路由的一等提供方——请求按规则走本地，失败自动回退云端。"
+  }
+}

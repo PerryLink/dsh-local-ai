@@ -9,6 +9,8 @@
 
 # dsh-local-ai
 
+Current version `0.2.31`.
+
 **Hook Ollama into DeepSeek Harness so local models become a routable first-class provider — requests go local by rule and fall back to the cloud when they fail.**
 
 A headless, pure-host plugin: discover, pull, remove, and inspect local models, route by task type or keyword, and get a one-shot status overview from `/ollama` — all in one bundle.
