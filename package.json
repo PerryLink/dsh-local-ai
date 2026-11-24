@@ -1,6 +1,6 @@
 {
   "name": "dsh-local-ai",
-  "version": "0.2.31",
+  "version": "0.2.32",
   "description": "Local-model (Ollama) integration for DeepSeek Harness: discover, pull, remove, and inspect local models, route requests to them by task type or keyword with automatic fallback to the cloud, and get a one-shot status overview via /ollama.",
   "repository": {
     "type": "git",
@@ -105,7 +105,7 @@
   ],
   "engines": {
     "node": "^22.19.0 || >=24.9.0",
-    "dsh": ">=0.1.2-rc.1 <0.2.0 || >=0.1.5-alpha.1 <0.2.0 || >=0.1.6-0 <0.2.0 || >=0.1.7-0 <0.2.0 || >=0.2.0-0 <0.3.0 || >=0.2.1-0 <0.3.0 || >=0.2.2-0 <0.3.0 || >=0.2.3-0 <0.3.0-0"
+    "dsh": ">=0.2.0-0 <0.4.0-0"
   },
   "packageManager": "pnpm@11.7.0",
   "peerDependencies": {
