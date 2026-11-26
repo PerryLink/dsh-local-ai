@@ -51,6 +51,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.33] - 2026-11-26
+
+### Fixed
+
+- **The published 0.2.32 artifact carried the previous version constant.** 0.2.32 was published with lifecycle scripts skipped, so its tarball shipped the pre-bump `lib/` and read `VERSION` 0.2.31 in `lib/index.js`, `lib/types/version.js` and `src/version.ts` while `package.json` said 0.2.32. The repository source was already synced; this patch republishes the same code with `prepare` rebuilding `lib/` during publish, so every copy of the constant reads 0.2.33. No behaviour change.
+
 ## [0.2.32] - 2026-11-24
 
 ### Changed
